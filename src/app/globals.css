@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
 
   /* Lights Colors */
@@ -19,6 +21,25 @@
   /* Extra */
   --color-tertiary: #00BA8F;
 
+}
+
+.dark {
+  /* Dark Colors */
+
+  /* Background */
+  --background: #171717;
+  --foreground: #ffffff;
+
+  /* Base */
+  --color-primary: #0DCAF0;
+  --color-primary-dark: #00B9F4;
+  --color-primary-light: #62F4FC;
+
+  /* UI */
+  --color-secondary: #132F47;
+
+  /* Extra */
+  --color-tertiary: #00BA8F;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -55,7 +76,7 @@
   --color-tertiary: var(--color-tertiary);
 
 
-  --font-outif: var(--font-outif);
+  --font-outfit: var(--font-outfit);
   --font-switzer: var(--font-switzer);
   --font-shadows: var(--font-shadows);
 }
