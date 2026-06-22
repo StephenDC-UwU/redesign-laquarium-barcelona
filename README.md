@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# L'Aquàrium Barcelona Redesign
 
-## Getting Started
+![Laquarium Barcelona](public/readme/laquarium-preview.jpg)
 
-First, run the development server:
+## Disclaimer
+
+> [!IMPORTANT]
+> This is a personal, non-commercial project created solely for educational and portfolio purposes. The images, brands, and visual assets belong to **L'Aquàrium de Barcelona** and are used here only to demonstrate web design and frontend development skills.
+
+## Description
+
+A modern redesign of the official L'Aquàrium de Barcelona website. The goal is to build a modern, visually stunning, and user-friendly interface that adapts to all devices and delivers an optimal user experience.
+
+## Tech Stack & Architecture
+
+This project is built using a **monolithic architecture** with **Next.js**, combining both the frontend and backend in a single codebase.
+
+- **Frontend**: React, Next.js (App Router), Tailwind CSS, GSAP (for premium animations).
+- **Backend**: Next.js API Routes & Server Actions to handle backend logic, authentication, and database operations.
+- **Database / Auth**: Managed within the Next.js ecosystem for seamless deployment and unified developer experience.
+
+## Installation
+
+```bash
+git clone https://github.com/StephenDC-UwU/redesign-laquarium-barcelona.git
+cd redesign-laquarium-barcelona
+npm install
+npm run dev
+```
+
+## Usage
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Author
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[StephenDC-UwU](https://github.com/StephenDC-UwU)
