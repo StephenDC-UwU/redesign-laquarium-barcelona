@@ -31,7 +31,7 @@ export default function Hero({ dict }: HeroProps) {
                 alt="bg_hero"
             />
             {/*Hero Title */}
-            <h1 className="absolute text-9xl z-20 left-[70%] top-[70%] -translate-x-1/2 -translate-y-1/2 text-white font-shadows cursor-pointer select-none"
+            <h1 className="absolute text-fluid-title z-20 left-[70%] top-[70%] -translate-x-1/2 -translate-y-1/2 text-white font-shadows cursor-pointer select-none whitespace-nowrap"
                 onMouseEnter={() => setSharkImg(sharkActive)}
                 onMouseLeave={() => setSharkImg(sharkDefault)}
 

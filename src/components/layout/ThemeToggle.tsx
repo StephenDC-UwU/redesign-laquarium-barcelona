@@ -13,7 +13,7 @@ export default function ThemeToggle() {
             onClick={toggleTheme}
             className="p-2"
         >
-            {theme === Theme.LIGHT ? <Sun /> : <Moon />}
+            {theme === Theme.LIGHT ? <Sun className="size-9 stroke-[1]" /> : <Moon className="size-9 stroke-[1]" />}
         </button>
     );
 }

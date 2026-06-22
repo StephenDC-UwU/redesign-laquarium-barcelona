@@ -31,6 +31,8 @@ export const metadata: Metadata = {
   description: "L'Aquarium Barcelona",
 };
 
+import SectionObserver from "@/components/layout/SectionObserver";
+
 export default async function RootLayout({
   children,
   params,
@@ -45,10 +47,11 @@ export default async function RootLayout({
   return (
     <html
       lang={currentLocale}
-      className={`${primaryFont.variable} ${secondaryFont.variable} ${tertiaryFont.variable}  h-full antialiased`}
+      className={`${primaryFont.variable} ${secondaryFont.variable} ${tertiaryFont.variable}  h-full antialiased bg-background text-foreground transition-colors duration-300`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-300">
+      <body>
         <ThemeProvider>
+          <SectionObserver />
           <Header dict={dict} currentLocale={currentLocale} />
           <Hero dict={dict} />
           {children}

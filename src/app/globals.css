@@ -42,26 +42,7 @@
   --color-tertiary: #00BA8F;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-  /* Dark Colors */
-
-  /* Background */
-  --background: #171717;
-  --foreground: #ffffff;
-
-  /* Base */
-  --color-primary: #0DCAF0;
-  --color-primary-dark: #00B9F4;
-  --color-primary-light: #62F4FC;
-
-  /* UI */
-  --color-secondary: #132F47;
-
-  /* Extra */
-  --color-tertiary: #00BA8F;
-  }
-}
+/* Removed media query to let class-based theme toggle work */
 
 @theme inline {
   --color-background: var(--background);
@@ -79,6 +60,12 @@
   --font-outfit: var(--font-outfit);
   --font-switzer: var(--font-switzer);
   --font-shadows: var(--font-shadows);
+
+  /* Fluid Typography */
+  --text-fluid-sm: clamp(0.875rem, 1.5vw, 1rem);
+  --text-fluid-base: clamp(1rem, 2vw, 1.125rem);
+  --text-fluid-xl: clamp(1.25rem, 3vw, 2rem);
+  --text-fluid-title: clamp(2.5rem, 5vw, 20rem);
 }
 
 

@@ -22,12 +22,11 @@ export default function Intro({ dict }: IntroProps) {
   const pathD = "M 450 0 C 450 80, 250 100, 250 200 C 250 300, 500 250, 750 250 C 750 350, 450 450, 250 480 C 250 510, 500 500, 750 550 C 750 650, 450 780, 250 850 C 250 920, 500 980, 750 1200";
 
   useGSAP(() => {
-    console.log("GSAP Hook initialized");
     const mm = gsap.matchMedia();
 
     // Desktop Animation
     mm.add("(min-width: 768px)", () => {
-      console.log("GSAP MatchMedia: Desktop");
+
       const path = pathRef.current;
       if (!path) {
         console.error("Path ref not found!");
@@ -35,8 +34,8 @@ export default function Intro({ dict }: IntroProps) {
       }
 
       const length = path.getTotalLength();
-      console.log("Path total length:", length);
-      
+
+
       // Set initial state of path to hidden
       gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
 
@@ -60,12 +59,12 @@ export default function Intro({ dict }: IntroProps) {
       });
 
       // Animate cards and badges appearing along the path
-      tl.fromTo(".intro-card-1", 
-        { opacity: 0, y: 80, scale: 0.85, rotate: -8 }, 
-        { opacity: 1, y: 0, scale: 1, rotate: -3, ease: "back.out(1.2)", duration: 0.6 }, 
+      tl.fromTo(".intro-card-1",
+        { opacity: 0, y: 80, scale: 0.85, rotate: -8 },
+        { opacity: 1, y: 0, scale: 1, rotate: -3, ease: "back.out(1.2)", duration: 0.6 },
         0.3
       );
-      
+
       tl.fromTo(".intro-badge-1",
         { opacity: 0, scale: 0.3, rotate: -15 },
         { opacity: 1, scale: 1, rotate: 6, ease: "elastic.out(1, 0.6)", duration: 0.6 },
@@ -116,15 +115,15 @@ export default function Intro({ dict }: IntroProps) {
   }, { scope: containerRef });
 
   return (
-    <section ref={containerRef} className="w-full relative py-20 overflow-hidden bg-background">
-      
+    <section ref={containerRef} className="w-full relative py-20 overflow-hidden ">
+
       {/* 1. DESKTOP VIEWPORT LAYOUT */}
-      <div className="relative w-full max-w-5xl mx-auto aspect-[1000/1250] hidden md:block select-none">
-        
+      <div className="relative w-full max-w-3/4 mx-auto aspect-1000/1250 hidden md:block select-none">
+
         {/* SVG Dashed Road Path */}
-        <svg 
-          className="w-full h-full absolute inset-0 z-0 pointer-events-none" 
-          viewBox="0 0 1000 1250" 
+        <svg
+          className="w-full h-full absolute inset-0 z-0 pointer-events-none"
+          viewBox="0 0 1000 1250"
           fill="none"
         >
           <defs>
@@ -164,7 +163,7 @@ export default function Intro({ dict }: IntroProps) {
         </svg>
 
         {/* Card 1: Horario / Calendario (Top Left) */}
-        <div 
+        <div
           style={{ left: "5%", top: "14%", transform: "rotate(-3deg)" }}
           className="intro-card-1 absolute w-[350px] bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[2rem] p-7 shadow-2xl flex flex-col justify-between h-[200px] hover:scale-[1.03] transition-transform duration-300 z-10"
         >
@@ -177,7 +176,7 @@ export default function Intro({ dict }: IntroProps) {
         </div>
 
         {/* Badge 1: Horario (Top Right) */}
-        <div 
+        <div
           style={{ left: "68%", top: "8%" }}
           className="intro-badge-1 absolute w-48 h-48 bg-primary rounded-[55%_45%_65%_35%_/_45%_55%_35%_65%] shadow-xl shadow-primary/20 flex items-center justify-center hover:scale-[1.05] transition-transform duration-300 cursor-pointer z-10"
         >
@@ -187,7 +186,7 @@ export default function Intro({ dict }: IntroProps) {
         </div>
 
         {/* Badge 2: Entradas (Middle Left) */}
-        <div 
+        <div
           style={{ left: "8%", top: "40%" }}
           className="intro-badge-2 absolute w-48 h-48 bg-primary rounded-[45%_55%_35%_65%_/_55%_45%_65%_35%] shadow-xl shadow-primary/20 flex items-center justify-center hover:scale-[1.05] transition-transform duration-300 cursor-pointer z-10"
         >
@@ -197,7 +196,7 @@ export default function Intro({ dict }: IntroProps) {
         </div>
 
         {/* Card 2: Compra (Middle Right) */}
-        <div 
+        <div
           style={{ left: "60%", top: "46%", transform: "rotate(3deg)" }}
           className="intro-card-2 absolute w-[350px] bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[2rem] p-7 shadow-2xl flex flex-col justify-between h-[200px] hover:scale-[1.03] transition-transform duration-300 z-10"
         >
@@ -210,7 +209,7 @@ export default function Intro({ dict }: IntroProps) {
         </div>
 
         {/* Card 3: Cómo Llegar (Bottom Left) */}
-        <div 
+        <div
           style={{ left: "10%", top: "76%", transform: "rotate(-2deg)" }}
           className="intro-card-3 absolute w-[350px] bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[2rem] p-7 shadow-2xl flex flex-col justify-between h-[200px] hover:scale-[1.03] transition-transform duration-300 z-10"
         >
@@ -226,7 +225,7 @@ export default function Intro({ dict }: IntroProps) {
 
       {/* 2. MOBILE VIEWPORT LAYOUT */}
       <div className="relative w-full max-w-md mx-auto flex flex-col gap-16 px-6 py-10 md:hidden select-none">
-        
+
         {/* Vertical Dashed Road Background Line */}
         <div className="absolute left-[36px] top-6 bottom-6 border-l-4 border-dashed border-slate-200 dark:border-slate-800 -z-10 pointer-events-none" />
 
