@@ -29,7 +29,7 @@ export default function BadgeIntro({
     : `w-36 h-36 bg-primary shadow-lg shadow-primary/20 flex items-center justify-center ${borderRadius} ${className}`;
 
   const textClass = isDesktop
-    ? `text-fluid-title text-white font-shadows ${textRotation}`
+    ? `text-5xl lg:text-8xl text-white font-shadows ${textRotation}`
     : `text-2xl text-white font-shadows font-semibold ${textRotation}`;
 
   return (

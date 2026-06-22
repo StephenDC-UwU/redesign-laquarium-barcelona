@@ -32,7 +32,7 @@ export default function CardIntro({
         : `bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[1.5rem] p-6 shadow-xl flex flex-col gap-4 ${className}`;
 
     const textClass = isDesktop
-        ? "text-xl lg:text-4xl xl:text-4xl 2xl:text-fluid-2xl font-semibold font-outfit"
+        ? "text-2xl lg:text-3xl xl:text-4xl 2xl:text-6xl font-semibold font-outfit"
         : "text-lg font-medium font-switzer leading-relaxed";
 
     return (
