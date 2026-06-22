@@ -20,7 +20,7 @@ export default function Hero({ dict }: HeroProps) {
 
 
     return (
-        <div className="h-dvh w-full relative">
+        <section id="hero" className="h-dvh w-full relative">
             {/* bg-gradient overlay */}
             <div className="absolute inset-0 z-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)0%,rgba(0,0,0,0.16)50%,rgba(0,0,0,0.39)92.82%,rgba(0,0,0,0.39)100%)] pointer-events-none"></div>
             <Image
@@ -47,6 +47,6 @@ export default function Hero({ dict }: HeroProps) {
                 onMouseLeave={() => setSharkImg(sharkDefault)}
             />
 
-        </div>
+        </section>
     );
 }

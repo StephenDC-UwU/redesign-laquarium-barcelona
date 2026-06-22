@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image";
 import Link from "next/link";
 import logo from "@/assets/header/logo-top.svg";
@@ -9,6 +11,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
 import MobileMenu from "./MobileMenu";
 import CartToggle from "./CartToggle";
+import { useActiveSection } from "@/utils/useActiveSection";
 
 interface HeaderProps {
     dict: Dictionary;
@@ -17,14 +20,16 @@ interface HeaderProps {
 
 function Header({ dict, currentLocale }: HeaderProps) {
     const header = dict.header;
+    const activeSection = useActiveSection();
+    const showSkyBg = activeSection && activeSection !== "hero";
 
     return (
-        <nav className="fixed w-full h-42 justify-center font-shadows text-fluid-xl pt-3 lg:pt-2 text-white dark:text-black z-50">
+        <nav className={`fixed w-full  justify-center font-shadows text-fluid-xl pt-3 lg:pt-2 text-white dark:text-black z-50 transition-all duration-300 ${showSkyBg ? "bg-primary-dark dark:bg-primary-dark  h-22 xl:h-26" : "h-48"}`}>
             <Image
                 src={bg_top}
                 fill
                 priority
-                className="object-cover object-bottom -z-10 pointer-events-none"
+                className={`object-cover object-bottom -z-10 pointer-events-none transition-opacity duration-300 ${showSkyBg ? "opacity-0" : "opacity-100"}`}
                 alt="bg_top"
             />
 
@@ -54,12 +59,12 @@ function Header({ dict, currentLocale }: HeaderProps) {
                 </div>
 
                 {/* 2. CENTER: Logo */}
-                <div className="flex justify-start lg:justify-center items-start lg:items-center z-10">
+                <div className="flex justify-center items-start  z-10">
                     <div className="z-20 cursor-pointer transition-transform duration-500 hover:scale-110">
                         <Link href={"/"} className="block">
                             <Image
                                 src={logo}
-                                className="w-24"
+                                className="w-16 xl:w-24 "
                                 style={{ objectFit: "contain" }}
                                 alt="Logo Aquarium"
                             />
@@ -68,14 +73,14 @@ function Header({ dict, currentLocale }: HeaderProps) {
                 </div>
 
                 {/* 3. RIGHT: Right Links */}
-                <ul className="flex flex-row items-center justify-around z-10 ml-2 lg:ml-0 gap-0 md:gap-4 xl:gap-6 w-full">
+                <ul className="flex flex-row items-center justify-end  xl:justify-around z-10 ml-2 lg:ml-0 gap-0 md:gap-4 xl:gap-6 w-full">
                     <li className="hidden xl:block z-20 cursor-pointer hover:text-secondary">
                         <Link href={"/"}>{header.header_nav_noticias}</Link>
                     </li>
                     <li className="hidden xl:block z-20 cursor-pointer hover:text-secondary">
                         <Link href={"/"}>{header.header_nav_blog}</Link>
                     </li>
-                    <li className="z-20 flex items-center flex-row gap-2">
+                    <li className="z-20 flex items-center flex-row gap-2 lg:gap-6 ">
                         <LanguageSwitcher currentLocal={currentLocale} />
                         <ThemeToggle />
                     </li>

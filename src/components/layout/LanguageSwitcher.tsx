@@ -36,7 +36,7 @@ function LanguageSwitcher({ currentLocal }: { currentLocal: Locale }) {
         <div className="relative inline-block text-left font-outfit" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="inline-flex items-center justify-center gap-x-1.5 cursor-pointer"
+                className="inline-flex items-center justify-center gap-x-1.5 cursor-pointer lg:text-2xl"
             >
                 {currentLocal.toUpperCase()}
                 <ChevronDown aria-hidden="true" className={`size-6 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />

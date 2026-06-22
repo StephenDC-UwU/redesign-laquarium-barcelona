@@ -119,7 +119,7 @@ export default function Intro({ dict }: IntroProps) {
   }, { scope: containerRef });
 
   return (
-    <section ref={containerRef} className="w-full relative py-20 overflow-hidden ">
+    <section id="intro" ref={containerRef} className="w-full relative py-20 overflow-hidden ">
 
       {/* 1. DESKTOP VIEWPORT LAYOUT */}
       <div className="relative w-full max-w-3/4 mx-auto aspect-1000/1250 hidden md:block select-none">

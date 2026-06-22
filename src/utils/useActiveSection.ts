@@ -31,7 +31,7 @@ export function useActiveSection(sectionSelector: string = "section[id]") {
             },
             {
                 // El disparador se activa cuando la sección cruza el 40% superior de la pantalla
-                rootMargin: "-40% 0px -60% 0px", 
+                rootMargin: "-20% 0px -60% 0px", 
                 threshold: 0
             }
         );
