@@ -5,6 +5,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef } from "react";
 import { Dictionary } from "@/dictionaries";
+import CardIntro from "./components/CardIntro";
+import BadgeIntro from "./components/BadgeIntro";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -165,63 +167,47 @@ export default function Intro({ dict }: IntroProps) {
         </svg>
 
         {/* Card 1: Horario / Calendario (Top Left) */}
-        <div
-          style={{ left: "-5%", top: "14%", transform: "rotate(-3deg)" }}
-          className="intro-card-1 absolute w-[550px] bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[2rem] p-7 shadow-2xl flex flex-col justify-between h-[340px] hover:scale-[1.03] transition-transform duration-300 z-10"
-        >
-          <p className="text-fluid-2xl font-semibold font-outfit">
-            {intro.card1_text}
-          </p>
-          <button className="bg-primary hover:bg-primary-light  font-bold px-6 py-2.5 transition-all duration-200 self-end shadow-md shadow-primary/20 text-fluid-lg cursor-pointer">
-            {intro.card1_btn}
-          </button>
-        </div>
+        <CardIntro
+          className="intro-card-1"
+          style={{ left: "-5%", top: "14%", width: "42%", height: "20%", transform: "rotate(-3deg)" }}
+          text={intro.card1_text}
+          buttonText={intro.card1_btn}
+          buttonVariant="primary"
+        />
 
         {/* Badge 1: Horario (Top Right) */}
-        <div
-          style={{ left: "68%", top: "8%" }}
-          className="intro-badge-1 absolute w-[380px] h-[280px] bg-primary rounded-[55%_45%_65%_35%_/_45%_55%_35%_65%] shadow-xl shadow-primary/20 flex items-center justify-center hover:scale-[1.05] transition-transform duration-300 cursor-pointer z-10"
-        >
-          <span className="text-fluid-title text-white font-shadows  rotate-6">
-            {intro.badge1_text}
-          </span>
-        </div>
+        <BadgeIntro
+          className="intro-badge-1"
+          style={{ left: "68%", top: "8%", width: "28%", height: "18%" }}
+          text={intro.badge1_text}
+          variant={1}
+        />
 
         {/* Badge 2: Entradas (Middle Left) */}
-        <div
-          style={{ left: "5%", top: "50%" }}
-          className="intro-badge-2 absolute w-[380px] h-[280px] bg-primary rounded-[45%_55%_35%_65%_/_55%_45%_65%_35%] shadow-xl shadow-primary/20 flex items-center justify-center hover:scale-[1.05] transition-transform duration-300 cursor-pointer z-10"
-        >
-          <span className="text-fluid-title text-white font-shadows  -rotate-6">
-            {intro.badge2_text}
-          </span>
-        </div>
+        <BadgeIntro
+          className="intro-badge-2"
+          style={{ left: "5%", top: "50%", width: "28%", height: "18%" }}
+          text={intro.badge2_text}
+          variant={2}
+        />
 
         {/* Card 2: Compra (Middle Right) */}
-        <div
-          style={{ left: "60%", top: "50%", transform: "rotate(3deg)" }}
-          className="intro-card-2 absolute w-[550px] bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[2rem] p-7 shadow-2xl flex flex-col justify-between h-[340px] hover:scale-[1.03] transition-transform duration-300 z-10"
-        >
-          <p className="text-fluid-2xl font-semibold font-outfit">
-            {intro.card2_text}
-          </p>
-          <button className="bg-tertiary hover:opacity-90 text-white font-bold px-6 py-2.5  transition-all duration-200 self-end shadow-md shadow-tertiary/20 text-fluid-lg cursor-pointer">
-            {intro.card2_btn}
-          </button>
-        </div>
+        <CardIntro
+          className="intro-card-2"
+          style={{ left: "60%", top: "50%", width: "40%", height: "22%", transform: "rotate(3deg)" }}
+          text={intro.card2_text}
+          buttonText={intro.card2_btn}
+          buttonVariant="tertiary"
+        />
 
         {/* Card 3: Cómo Llegar (Bottom Left) */}
-        <div
-          style={{ left: "5%", top: "80%", transform: "rotate(-2deg)" }}
-          className="intro-card-3 absolute w-[550px] bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[2rem] p-7 shadow-2xl flex flex-col justify-between h-[340px] hover:scale-[1.03] transition-transform duration-300 z-10"
-        >
-          <p className="text-fluid-2xl font-semibold font-outfit ">
-            {intro.card3_text}
-          </p>
-          <button className="bg-primary hover:bg-primary-light text-white font-bold px-6 py-2.5  transition-all duration-200 self-end shadow-md shadow-primary/20 text-fluid-lg cursor-pointer">
-            {intro.card3_btn}
-          </button>
-        </div>
+        <CardIntro
+          className="intro-card-3"
+          style={{ left: "5%", top: "80%", width: "42%", height: "20%", transform: "rotate(-2deg)" }}
+          text={intro.card3_text}
+          buttonText={intro.card3_btn}
+          buttonVariant="primary"
+        />
 
       </div>
 
@@ -233,56 +219,50 @@ export default function Intro({ dict }: IntroProps) {
 
         {/* Mobile Item 1: Card 1 */}
         <div className="intro-card-1 pl-12 w-full">
-          <div className="bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[1.5rem] p-6 shadow-xl flex flex-col gap-4">
-            <p className="text-lg font-medium font-switzer leading-relaxed">
-              {intro.card1_text}
-            </p>
-            <button className="bg-primary hover:bg-primary-light text-secondary font-bold px-5 py-2  transition-all duration-200 self-end shadow-md">
-              {intro.card1_btn}
-            </button>
-          </div>
+          <CardIntro
+            layout="mobile"
+            text={intro.card1_text}
+            buttonText={intro.card1_btn}
+            buttonVariant="primary"
+          />
         </div>
 
         {/* Mobile Item 2: Badge 1 */}
-        <div className="intro-badge-1 pl-12 w-full flex justify-start">
-          <div className="w-36 h-36 bg-primary rounded-[55%_45%_65%_35%_/_45%_55%_35%_65%] shadow-lg shadow-primary/20 flex items-center justify-center">
-            <span className="text-2xl text-white font-shadows font-semibold rotate-6">
-              {intro.badge1_text}
-            </span>
-          </div>
-        </div>
+        {/*   <div className="intro-badge-1 pl-12 w-full flex justify-start">
+          <BadgeIntro
+            layout="mobile"
+            text={intro.badge1_text}
+            variant={1}
+          />
+        </div> */}
 
         {/* Mobile Item 3: Badge 2 */}
-        <div className="intro-badge-2 pl-12 w-full flex justify-start">
-          <div className="w-36 h-36 bg-primary rounded-[45%_55%_35%_65%_/_55%_45%_65%_35%] shadow-lg shadow-primary/20 flex items-center justify-center">
-            <span className="text-2xl text-white font-shadows font-semibold -rotate-6">
-              {intro.badge2_text}
-            </span>
-          </div>
-        </div>
+        {/*  <div className="intro-badge-2 pl-12 w-full flex justify-start">
+          <BadgeIntro
+            layout="mobile"
+            text={intro.badge2_text}
+            variant={2}
+          />
+        </div> */}
 
         {/* Mobile Item 4: Card 2 */}
         <div className="intro-card-2 pl-12 w-full">
-          <div className="bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[1.5rem] p-6 shadow-xl flex flex-col gap-4">
-            <p className="text-lg font-medium font-switzer leading-relaxed">
-              {intro.card2_text}
-            </p>
-            <button className="bg-tertiary hover:opacity-90 text-white font-bold px-5 py-2 rounded-lg transition-all duration-200 self-end shadow-md">
-              {intro.card2_btn}
-            </button>
-          </div>
+          <CardIntro
+            layout="mobile"
+            text={intro.card2_text}
+            buttonText={intro.card2_btn}
+            buttonVariant="tertiary"
+          />
         </div>
 
         {/* Mobile Item 5: Card 3 */}
         <div className="intro-card-3 pl-12 w-full">
-          <div className="bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[1.5rem] p-6 shadow-xl flex flex-col gap-4">
-            <p className="text-lg font-medium font-switzer leading-relaxed">
-              {intro.card3_text}
-            </p>
-            <button className="bg-primary hover:bg-primary-light text-secondary font-bold px-5 py-2 rounded-lg transition-all duration-200 self-end shadow-md">
-              {intro.card3_btn}
-            </button>
-          </div>
+          <CardIntro
+            layout="mobile"
+            text={intro.card3_text}
+            buttonText={intro.card3_btn}
+            buttonVariant="primary"
+          />
         </div>
 
       </div>
