@@ -19,7 +19,9 @@ export default function Intro({ dict }: IntroProps) {
   const intro = dict.intro;
 
   // Winding path SVG coordinate data
-  const pathD = "M 450 0 C 450 80, 250 100, 250 200 C 250 300, 500 250, 750 250 C 750 350, 450 450, 250 480 C 250 510, 500 500, 750 550 C 750 650, 450 780, 250 850 C 250 920, 500 980, 750 1200";
+  const pathD = "M 419 -143 C -23.9658 14.0881 -7.441 289.285 6.1063 378 C 19.6535 466.715 288.611 694.556 483.107 628.5 C 803.808 605.213 856.708 822.956 753.607 1005.5 C 577.77 1204.72 84.6067 1118.5 84.6067 1304.5";
+
+
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
@@ -44,7 +46,7 @@ export default function Intro({ dict }: IntroProps) {
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top 80%",
-          end: "bottom 20%",
+          end: "bottom 60%",
           scrub: 1.5,
           invalidateOnRefresh: true,
           // markers: true, // Uncomment to visually inspect trigger lines in browser
@@ -58,42 +60,42 @@ export default function Intro({ dict }: IntroProps) {
         duration: 3,
       });
 
-      // Animate cards and badges appearing along the path
-      tl.fromTo(".intro-card-1",
-        { opacity: 0, y: 80, scale: 0.85, rotate: -8 },
-        { opacity: 1, y: 0, scale: 1, rotate: -3, ease: "back.out(1.2)", duration: 0.6 },
-        0.3
-      );
-
+      // Animate cards and badges appearing along the path (Badges first, then Cards)
       tl.fromTo(".intro-badge-1",
         { opacity: 0, scale: 0.3, rotate: -15 },
-        { opacity: 1, scale: 1, rotate: 6, ease: "elastic.out(1, 0.6)", duration: 0.6 },
-        0.8
+        { opacity: 1, scale: 1, rotate: 6, ease: "back.out(0.2)", duration: 0.6 },
+        0
       );
 
       tl.fromTo(".intro-badge-2",
         { opacity: 0, scale: 0.3, rotate: 15 },
         { opacity: 1, scale: 1, rotate: -6, ease: "elastic.out(1, 0.6)", duration: 0.6 },
-        1.4
+        0.3
+      );
+
+      tl.fromTo(".intro-card-1",
+        { opacity: 0, y: 80, scale: 0.85, rotate: -8 },
+        { opacity: 1, y: 0, scale: 1, rotate: -3, ease: "back.out(1)", duration: 0.2 },
+        0.3
       );
 
       tl.fromTo(".intro-card-2",
         { opacity: 0, y: 80, scale: 0.85, rotate: 8 },
         { opacity: 1, y: 0, scale: 1, rotate: 3, ease: "back.out(1.2)", duration: 0.6 },
-        1.9
+        1
       );
 
       tl.fromTo(".intro-card-3",
         { opacity: 0, y: 80, scale: 0.85, rotate: -8 },
         { opacity: 1, y: 0, scale: 1, rotate: -2, ease: "back.out(1.2)", duration: 0.6 },
-        2.5
+        1.5
       );
     });
 
     // Mobile Animation (scroll reveal elements sequentially)
     mm.add("(max-width: 767px)", () => {
       console.log("GSAP MatchMedia: Mobile");
-      const items = [".intro-card-1", ".intro-badge-1", ".intro-badge-2", ".intro-card-2", ".intro-card-3"];
+      const items = [".intro-badge-1", ".intro-badge-2", ".intro-card-1", ".intro-card-2", ".intro-card-3"];
       items.forEach((selector) => {
         gsap.fromTo(selector,
           { opacity: 0, y: 40, scale: 0.95 },
@@ -147,7 +149,7 @@ export default function Intro({ dict }: IntroProps) {
             className="text-slate-200 dark:text-slate-800"
             strokeWidth="6"
             strokeLinecap="round"
-            strokeDasharray="16 16"
+            strokeDasharray="32 32"
           />
 
           {/* Blue Foreground path (Travelled/Drawn Road) */}
@@ -157,20 +159,20 @@ export default function Intro({ dict }: IntroProps) {
             className="text-primary"
             strokeWidth="6"
             strokeLinecap="round"
-            strokeDasharray="16 16"
+            strokeDasharray="32 32"
             mask="url(#road-mask)"
           />
         </svg>
 
         {/* Card 1: Horario / Calendario (Top Left) */}
         <div
-          style={{ left: "5%", top: "14%", transform: "rotate(-3deg)" }}
-          className="intro-card-1 absolute w-[350px] bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[2rem] p-7 shadow-2xl flex flex-col justify-between h-[200px] hover:scale-[1.03] transition-transform duration-300 z-10"
+          style={{ left: "-5%", top: "14%", transform: "rotate(-3deg)" }}
+          className="intro-card-1 absolute w-[550px] bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[2rem] p-7 shadow-2xl flex flex-col justify-between h-[340px] hover:scale-[1.03] transition-transform duration-300 z-10"
         >
-          <p className="text-xl font-medium font-switzer leading-relaxed">
+          <p className="text-fluid-2xl font-semibold font-outfit">
             {intro.card1_text}
           </p>
-          <button className="bg-primary hover:bg-primary-light text-secondary font-bold px-6 py-2.5 rounded-xl transition-all duration-200 self-end shadow-md shadow-primary/20 cursor-pointer">
+          <button className="bg-primary hover:bg-primary-light  font-bold px-6 py-2.5 transition-all duration-200 self-end shadow-md shadow-primary/20 text-fluid-lg cursor-pointer">
             {intro.card1_btn}
           </button>
         </div>
@@ -178,45 +180,45 @@ export default function Intro({ dict }: IntroProps) {
         {/* Badge 1: Horario (Top Right) */}
         <div
           style={{ left: "68%", top: "8%" }}
-          className="intro-badge-1 absolute w-48 h-48 bg-primary rounded-[55%_45%_65%_35%_/_45%_55%_35%_65%] shadow-xl shadow-primary/20 flex items-center justify-center hover:scale-[1.05] transition-transform duration-300 cursor-pointer z-10"
+          className="intro-badge-1 absolute w-[380px] h-[280px] bg-primary rounded-[55%_45%_65%_35%_/_45%_55%_35%_65%] shadow-xl shadow-primary/20 flex items-center justify-center hover:scale-[1.05] transition-transform duration-300 cursor-pointer z-10"
         >
-          <span className="text-4xl text-white font-shadows font-semibold rotate-6">
+          <span className="text-fluid-title text-white font-shadows  rotate-6">
             {intro.badge1_text}
           </span>
         </div>
 
         {/* Badge 2: Entradas (Middle Left) */}
         <div
-          style={{ left: "8%", top: "40%" }}
-          className="intro-badge-2 absolute w-48 h-48 bg-primary rounded-[45%_55%_35%_65%_/_55%_45%_65%_35%] shadow-xl shadow-primary/20 flex items-center justify-center hover:scale-[1.05] transition-transform duration-300 cursor-pointer z-10"
+          style={{ left: "5%", top: "50%" }}
+          className="intro-badge-2 absolute w-[380px] h-[280px] bg-primary rounded-[45%_55%_35%_65%_/_55%_45%_65%_35%] shadow-xl shadow-primary/20 flex items-center justify-center hover:scale-[1.05] transition-transform duration-300 cursor-pointer z-10"
         >
-          <span className="text-4xl text-white font-shadows font-semibold -rotate-6">
+          <span className="text-fluid-title text-white font-shadows  -rotate-6">
             {intro.badge2_text}
           </span>
         </div>
 
         {/* Card 2: Compra (Middle Right) */}
         <div
-          style={{ left: "60%", top: "46%", transform: "rotate(3deg)" }}
-          className="intro-card-2 absolute w-[350px] bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[2rem] p-7 shadow-2xl flex flex-col justify-between h-[200px] hover:scale-[1.03] transition-transform duration-300 z-10"
+          style={{ left: "60%", top: "50%", transform: "rotate(3deg)" }}
+          className="intro-card-2 absolute w-[550px] bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[2rem] p-7 shadow-2xl flex flex-col justify-between h-[340px] hover:scale-[1.03] transition-transform duration-300 z-10"
         >
-          <p className="text-xl font-medium font-switzer leading-relaxed">
+          <p className="text-fluid-2xl font-semibold font-outfit">
             {intro.card2_text}
           </p>
-          <button className="bg-tertiary hover:opacity-90 text-white font-bold px-6 py-2.5 rounded-xl transition-all duration-200 self-end shadow-md shadow-tertiary/20 cursor-pointer">
+          <button className="bg-tertiary hover:opacity-90 text-white font-bold px-6 py-2.5  transition-all duration-200 self-end shadow-md shadow-tertiary/20 text-fluid-lg cursor-pointer">
             {intro.card2_btn}
           </button>
         </div>
 
         {/* Card 3: Cómo Llegar (Bottom Left) */}
         <div
-          style={{ left: "10%", top: "76%", transform: "rotate(-2deg)" }}
-          className="intro-card-3 absolute w-[350px] bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[2rem] p-7 shadow-2xl flex flex-col justify-between h-[200px] hover:scale-[1.03] transition-transform duration-300 z-10"
+          style={{ left: "5%", top: "80%", transform: "rotate(-2deg)" }}
+          className="intro-card-3 absolute w-[550px] bg-secondary text-white dark:bg-slate-900 border border-white/10 rounded-[2rem] p-7 shadow-2xl flex flex-col justify-between h-[340px] hover:scale-[1.03] transition-transform duration-300 z-10"
         >
-          <p className="text-xl font-medium font-switzer leading-relaxed">
+          <p className="text-fluid-2xl font-semibold font-outfit ">
             {intro.card3_text}
           </p>
-          <button className="bg-primary hover:bg-primary-light text-secondary font-bold px-6 py-2.5 rounded-xl transition-all duration-200 self-end shadow-md shadow-primary/20 cursor-pointer">
+          <button className="bg-primary hover:bg-primary-light text-white font-bold px-6 py-2.5  transition-all duration-200 self-end shadow-md shadow-primary/20 text-fluid-lg cursor-pointer">
             {intro.card3_btn}
           </button>
         </div>
@@ -235,7 +237,7 @@ export default function Intro({ dict }: IntroProps) {
             <p className="text-lg font-medium font-switzer leading-relaxed">
               {intro.card1_text}
             </p>
-            <button className="bg-primary hover:bg-primary-light text-secondary font-bold px-5 py-2 rounded-lg transition-all duration-200 self-end shadow-md">
+            <button className="bg-primary hover:bg-primary-light text-secondary font-bold px-5 py-2  transition-all duration-200 self-end shadow-md">
               {intro.card1_btn}
             </button>
           </div>
