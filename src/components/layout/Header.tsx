@@ -6,6 +6,11 @@ import logo from "@/assets/header/logo-top.svg";
 import bg_top from "@/assets/header/bg-top.svg";
 import { Dictionary } from "@/dictionaries";
 import { Locale } from "@/types/Locale";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { User, LogOut } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import AuthModal from "./AuthModal";
 
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
@@ -21,7 +26,15 @@ interface HeaderProps {
 function Header({ dict, currentLocale }: HeaderProps) {
     const header = dict.header;
     const activeSection = useActiveSection();
-    const showSkyBg = activeSection && activeSection !== "hero";
+    const pathname = usePathname();
+    const { user, logout } = useAuth();
+    const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+    // Check if the current route is the homepage (supporting localized and root routes)
+    const isHome = pathname === `/${currentLocale}` || pathname === `/${currentLocale}/` || pathname === "/";
+
+    // Enforce solid sky background on non-home pages or when scrolled past the hero on home
+    const showSkyBg = !isHome || (activeSection && activeSection !== "hero");
 
     return (
         <nav className={`fixed w-full  justify-center font-shadows text-fluid-xl pt-3 lg:pt-2 text-white dark:text-black z-50 transition-all duration-300 ${showSkyBg ? "bg-primary-dark dark:bg-primary-dark  h-22 xl:h-26" : "h-48"}`}>
@@ -87,9 +100,42 @@ function Header({ dict, currentLocale }: HeaderProps) {
                     <li className="z-20">
                         <CartToggle />
                     </li>
+                    <li className="z-20 flex items-center gap-2">
+                        {user ? (
+                            <div className="flex items-center gap-3">
+                                <Link 
+                                    href={`/${currentLocale}/profile`}
+                                    className="flex items-center gap-1.5 hover:text-secondary transition-colors"
+                                    title="Ver mi perfil"
+                                >
+                                    <User size={20} className="stroke-[2.5]" />
+                                    <span className="hidden xl:inline text-sm font-bold font-outfit truncate max-w-[80px]">
+                                        {user.fullName.split(" ")[0]}
+                                    </span>
+                                </Link>
+                                <button
+                                    onClick={logout}
+                                    className="p-1 hover:text-red-400 transition-colors cursor-pointer"
+                                    title="Cerrar sesión"
+                                >
+                                    <LogOut size={16} />
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => setIsAuthOpen(true)}
+                                className="flex items-center gap-1 hover:text-secondary transition-colors cursor-pointer"
+                                title="Iniciar sesión"
+                            >
+                                <User size={20} className="stroke-[2.5]" />
+                            </button>
+                        )}
+                    </li>
                 </ul>
 
             </div>
+
+            <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
         </nav>
     );
 }

@@ -1,4 +1,5 @@
 import { getDictionary } from "@/dictionaries";
+import Hero from "@/components/home/Hero";
 import Intro from "@/components/home/Intro";
 import Promotion from "@/components/home/Promotion";
 import Experience from "@/components/home/Experience";
@@ -15,6 +16,7 @@ export default async function Home({ params }: HomeProps) {
 
   return (
     <main >
+      <Hero dict={dict} />
       <Intro dict={dict} />
       <Promotion dict={dict} />
       <Experience dict={dict} />

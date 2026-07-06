@@ -1,0 +1,26 @@
+{
+  "orders": [],
+  "products": [
+    {
+      "id": "tkt-001",
+      "name": "Entrada General Acuario",
+      "price": 25,
+      "description": "Acceso ilimitado al acuario principal y exhibiciones temporales.",
+      "tag": "Más Vendido"
+    },
+    {
+      "id": "tkt-002",
+      "name": "Pase Premium VIP",
+      "price": 45,
+      "description": "Acceso preferente sin colas, tour con guía experto y pase al detrás de escena.",
+      "tag": "Recomendado"
+    },
+    {
+      "id": "tkt-003",
+      "name": "Entrada Nocturna Especial",
+      "price": 30,
+      "description": "Disfruta de la mística del acuario de noche y la alimentación nocturna de tiburones.",
+      "tag": "Especial"
+    }
+  ]
+}

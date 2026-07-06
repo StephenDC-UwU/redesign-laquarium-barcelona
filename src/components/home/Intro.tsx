@@ -7,6 +7,7 @@ import { useRef } from "react";
 import { Dictionary } from "@/dictionaries";
 import CardIntro from "./components/CardIntro";
 import BadgeIntro from "./components/BadgeIntro";
+import { useParams } from "next/navigation";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,6 +18,8 @@ interface IntroProps {
 export default function Intro({ dict }: IntroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
+  const params = useParams();
+  const locale = params?.locale || "es";
 
   const intro = dict.intro;
 
@@ -198,6 +201,7 @@ export default function Intro({ dict }: IntroProps) {
           text={intro.card2_text}
           buttonText={intro.card2_btn}
           buttonVariant="tertiary"
+          href={`/${locale}/tickets`}
         />
 
         {/* Card 3: Cómo Llegar (Bottom Left) */}
@@ -252,6 +256,7 @@ export default function Intro({ dict }: IntroProps) {
             text={intro.card2_text}
             buttonText={intro.card2_btn}
             buttonVariant="tertiary"
+            href={`/${locale}/tickets`}
           />
         </div>
 

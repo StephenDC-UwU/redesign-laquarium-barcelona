@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 interface CardIntroProps {
     className?: string;
@@ -7,6 +8,7 @@ interface CardIntroProps {
     buttonText: string;
     buttonVariant?: "primary" | "tertiary";
     layout?: "desktop" | "mobile";
+    href?: string;
 }
 
 export default function CardIntro({
@@ -16,6 +18,7 @@ export default function CardIntro({
     buttonText,
     buttonVariant = "primary",
     layout = "desktop",
+    href,
 }: CardIntroProps) {
     const isDesktop = layout === "desktop";
 
@@ -35,14 +38,27 @@ export default function CardIntro({
         ? "text-2xl lg:text-3xl xl:text-4xl 2xl:text-6xl font-semibold font-outfit"
         : "text-lg font-medium font-switzer leading-relaxed";
 
+    const renderButton = () => {
+        if (href) {
+            return (
+                <Link href={href} className={`${btnClass} text-center flex items-center justify-center`}>
+                    {buttonText}
+                </Link>
+            );
+        }
+        return (
+            <button className={btnClass}>
+                {buttonText}
+            </button>
+        );
+    };
+
     return (
         <div style={style} className={containerClass}>
             <p className={textClass}>
                 {text}
             </p>
-            <button className={btnClass}>
-                {buttonText}
-            </button>
+            {renderButton()}
         </div>
     );
 }

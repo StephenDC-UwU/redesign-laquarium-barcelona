@@ -7,6 +7,8 @@ import { getDictionary } from "@/dictionaries";
 import Hero from "@/components/home/Hero";
 import { Locale } from "@/types/Locale";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { CartProvider } from "@/context/CartContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 const primaryFont = localFont({
   src: '../../../public/fonts/Outfit.ttf',
@@ -51,13 +53,17 @@ export default async function RootLayout({
     >
       <body>
         <ThemeProvider>
-          <SectionObserver />
-          <Header dict={dict} currentLocale={currentLocale} />
-          <Hero dict={dict} />
-          {children}
-          <Footer dict={dict} />
+          <AuthProvider>
+            <CartProvider>
+              <SectionObserver />
+              <Header dict={dict} currentLocale={currentLocale} />
+              {children}
+              <Footer dict={dict} />
+            </CartProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
-    </html >
+    </html>
   );
 }
+
