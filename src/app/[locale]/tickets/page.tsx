@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
-import { getAvailableProductsAction } from "@/actions/cartActions";
-import { Product } from "@prisma/client";
+import { getAvailableProductsAction, LocalizedProduct } from "@/actions/cartActions";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Check } from "lucide-react";
@@ -12,7 +11,8 @@ export default function TicketsPage() {
     const { addToCart } = useCart();
     const params = useParams();
     const locale = params?.locale || "es";
-    const [products, setProducts] = useState<Product[]>([]);
+    const localeStr = Array.isArray(locale) ? locale[0] : locale;
+    const [products, setProducts] = useState<LocalizedProduct[]>([]);
     const [loading, setLoading] = useState(true);
     const [promoCode, setPromoCode] = useState("");
     const [appliedPromo, setAppliedPromo] = useState(false);
@@ -21,7 +21,7 @@ export default function TicketsPage() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const fetched = await getAvailableProductsAction();
+                const fetched = await getAvailableProductsAction(localeStr);
                 setProducts(fetched);
             } catch (e) {
                 console.error("Error fetching tickets:", e);
@@ -30,9 +30,9 @@ export default function TicketsPage() {
             }
         };
         fetchProducts();
-    }, []);
+    }, [localeStr]);
 
-    const handleAddToCart = (product: Product) => {
+    const handleAddToCart = (product: LocalizedProduct) => {
         addToCart({
             id: product.id,
             name: product.name,

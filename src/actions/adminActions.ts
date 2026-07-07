@@ -47,26 +47,56 @@ export async function deleteOrderAction(id: string): Promise<{ success: boolean;
     }
 }
 
-export async function createProductAction(product: {
-    name: string;
-    price: number;
-    description: string;
-    tag?: string;
-}): Promise<{ success: boolean; product?: Product; error?: string }> {
+export async function createProductAction(
+    data: {
+        price: number;
+        nameEs: string;
+        descriptionEs: string;
+        tagEs?: string;
+        nameCa: string;
+        descriptionCa: string;
+        tagCa?: string;
+        nameEn: string;
+        descriptionEn: string;
+        tagEn?: string;
+    },
+    locale: string = "es"
+): Promise<{ success: boolean; product?: any; error?: string }> {
     try {
-        if (!product.name || product.price <= 0) {
-            return { success: false, error: "El nombre y un precio válido son requeridos." };
+        if (!data.nameEs || !data.nameCa || !data.nameEn || data.price <= 0) {
+            return { success: false, error: "El nombre en todos los idiomas y un precio válido son requeridos." };
         }
         const newProduct = await db.product.create({
             data: {
-                name: product.name,
-                price: product.price,
-                description: product.description,
-                tag: product.tag || null,
+                price: data.price,
+                translations: {
+                    create: [
+                        { locale: "es", name: data.nameEs, description: data.descriptionEs, tag: data.tagEs || null },
+                        { locale: "ca", name: data.nameCa, description: data.descriptionCa, tag: data.tagCa || null },
+                        { locale: "en", name: data.nameEn, description: data.descriptionEn, tag: data.tagEn || null },
+                    ]
+                }
             },
+            include: {
+                translations: {
+                    where: { locale }
+                }
+            }
         });
         revalidatePath("/[locale]", "layout");
-        return { success: true, product: newProduct };
+        revalidatePath("/[locale]/admin", "layout");
+        return {
+            success: true,
+            product: {
+                id: newProduct.id,
+                price: newProduct.price,
+                createdAt: newProduct.createdAt,
+                updatedAt: newProduct.updatedAt,
+                name: newProduct.translations[0]?.name || "",
+                description: newProduct.translations[0]?.description || "",
+                tag: newProduct.translations[0]?.tag || null,
+            }
+        };
     } catch (e) {
         console.error("Error in createProductAction:", e);
         return { success: false, error: "Error al crear el ticket/producto." };

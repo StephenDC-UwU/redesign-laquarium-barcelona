@@ -17,9 +17,25 @@ export const es = {
         hero_subtitle: "Los tiburones no son los únicos que disfrutan de una buena comida: ¡ven a ver cómo se alimentan nuestros habitantes marinos!",
         hero_button: "Compra tus entradas"
     },
+    news:{
+        news_title: "Noticias",
+    },
     experience: {
         title: "Ven vive una experiencia unica",
         button: "Comprar"
+    },
+    discover: {
+        discover_title: "Descubre",
+        discover_button_check: "Consultar",
+        item1_title: "VEN A CELEBRAR TU CUMPLEAÑOS",
+        item1_subtitle: "¡Sumérgete en una aventura bajo el mar!",
+        item1_description: "¡Este año, mi cumpleaños se celebra entre tiburones y amigos! Prepárate para una fiesta inolvidable rodeado de las criaturas más asombrosas del océano.",
+        item2_title: "BUCEO CON TIBURONES",
+        item2_subtitle: "Una experiencia para los más valientes",
+        item2_description: "Atrévete a nadar con nuestros tiburones bajo la supervisión de expertos. Descubre la majestuosidad de estos increíbles depredadores en su hábitat natural.",
+        item3_title: "VISITAS ESCOLARES",
+        item3_subtitle: "Aprendizaje interactivo y divertido",
+        item3_description: "Programas educativos diseñados para escuelas. Los niños aprenderán sobre la conservación marina mientras se divierten explorando nuestros acuarios interactivos.",
     },
     footer: {
         text: "Este es el pie de página"

@@ -20,7 +20,7 @@ export default async function Home({ params }: HomeProps) {
       <Intro dict={dict} />
       <Promotion dict={dict} />
       <Experience dict={dict} />
-      <News dict={dict} />
+      <News dict={dict} locale={locale} />
       <Discover dict={dict} />
     </main>
   );

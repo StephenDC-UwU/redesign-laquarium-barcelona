@@ -2,11 +2,36 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { Product, Order } from "@prisma/client";
+import { Order } from "@prisma/client";
 
-export async function getAvailableProductsAction(): Promise<Product[]> {
+export interface LocalizedProduct {
+    id: string;
+    price: number;
+    createdAt: Date;
+    updatedAt: Date;
+    name: string;
+    description: string;
+    tag: string | null;
+}
+
+export async function getAvailableProductsAction(locale: string = "es"): Promise<LocalizedProduct[]> {
     try {
-        return await db.product.findMany();
+        const products = await db.product.findMany({
+            include: {
+                translations: {
+                    where: { locale }
+                }
+            }
+        });
+        return products.map(prod => ({
+            id: prod.id,
+            price: prod.price,
+            createdAt: prod.createdAt,
+            updatedAt: prod.updatedAt,
+            name: prod.translations[0]?.name || "",
+            description: prod.translations[0]?.description || "",
+            tag: prod.translations[0]?.tag || null,
+        }));
     } catch (e) {
         console.error("Error in getAvailableProductsAction:", e);
         return [];

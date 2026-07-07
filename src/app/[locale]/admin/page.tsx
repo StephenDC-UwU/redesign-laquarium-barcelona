@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { getOrdersAction, updateOrderStatusAction, deleteOrderAction, createProductAction, deleteProductAction } from "@/actions/adminActions";
-import { getAvailableProductsAction } from "@/actions/cartActions";
-import { Product, Order } from "@prisma/client";
-import { DollarSign, Ticket, FileText, Trash2, Plus, ArrowLeft, RefreshCw, Layers, Lock, LogIn } from "lucide-react";
+import { getAvailableProductsAction, LocalizedProduct } from "@/actions/cartActions";
+import { getArticlesAction, createArticleAction, updateArticleAction, deleteArticleAction, getArticleTranslationsAction } from "@/actions/newsActions";
+import { Order } from "@prisma/client";
+import { DollarSign, Ticket, FileText, Trash2, Plus, ArrowLeft, RefreshCw, Layers, Lock, LogIn, Newspaper, Edit } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -12,11 +13,13 @@ import { useAuth } from "@/context/AuthContext";
 export default function AdminPage() {
     const params = useParams();
     const locale = params?.locale || "es";
+    const localeStr = Array.isArray(locale) ? locale[0] : locale;
     const { isAdmin, adminLogin, logout } = useAuth();
 
     const [orders, setOrders] = useState<Order[]>([]);
-    const [products, setProducts] = useState<Product[]>([]);
-    const [activeTab, setActiveTab] = useState<"orders" | "products">("orders");
+    const [products, setProducts] = useState<LocalizedProduct[]>([]);
+    const [articles, setArticles] = useState<any[]>([]);
+    const [activeTab, setActiveTab] = useState<"orders" | "products" | "articles">("orders");
     const [loading, setLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
 
@@ -25,12 +28,33 @@ export default function AdminPage() {
     const [authError, setAuthError] = useState("");
 
     // New Product form fields
-    const [newProductName, setNewProductName] = useState("");
+    const [newProductNameEs, setNewProductNameEs] = useState("");
+    const [newProductNameCa, setNewProductNameCa] = useState("");
+    const [newProductNameEn, setNewProductNameEn] = useState("");
     const [newProductPrice, setNewProductPrice] = useState("");
-    const [newProductDesc, setNewProductDesc] = useState("");
-    const [newProductTag, setNewProductTag] = useState("");
+    const [newProductDescEs, setNewProductDescEs] = useState("");
+    const [newProductDescCa, setNewProductDescCa] = useState("");
+    const [newProductDescEn, setNewProductDescEn] = useState("");
+    const [newProductTagEs, setNewProductTagEs] = useState("");
+    const [newProductTagCa, setNewProductTagCa] = useState("");
+    const [newProductTagEn, setNewProductTagEn] = useState("");
     const [formError, setFormError] = useState("");
 
+    // Article form fields
+    const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
+    const [articleListDate, setArticleListDate] = useState("");
+    const [articleImage, setArticleImage] = useState("");
+    const [articleThumbnail, setArticleThumbnail] = useState("");
+    const [articleLink, setArticleLink] = useState("");
+    
+    const [articleTitleEs, setArticleTitleEs] = useState("");
+    const [articleDateEs, setArticleDateEs] = useState("");
+    const [articleTitleCa, setArticleTitleCa] = useState("");
+    const [articleDateCa, setArticleDateCa] = useState("");
+    const [articleTitleEn, setArticleTitleEn] = useState("");
+    const [articleDateEn, setArticleDateEn] = useState("");
+
+    const [articleFormError, setArticleFormError] = useState("");
 
     // Load initial data
     const loadData = async () => {
@@ -38,9 +62,11 @@ export default function AdminPage() {
         setLoading(true);
         try {
             const fetchedOrders = await getOrdersAction();
-            const fetchedProducts = await getAvailableProductsAction();
+            const fetchedProducts = await getAvailableProductsAction(localeStr);
+            const fetchedArticles = await getArticlesAction(localeStr);
             setOrders(fetchedOrders);
             setProducts(fetchedProducts);
+            setArticles(fetchedArticles);
         } catch (e) {
             console.error("Error loading admin data:", e);
         } finally {
@@ -101,26 +127,137 @@ export default function AdminPage() {
         setFormError("");
 
         const priceNum = parseFloat(newProductPrice);
-        if (!newProductName.trim() || isNaN(priceNum) || priceNum <= 0) {
-            setFormError("Por favor, ingresa un nombre y precio válidos.");
+        if (!newProductNameEs.trim() || !newProductNameCa.trim() || !newProductNameEn.trim() || isNaN(priceNum) || priceNum <= 0) {
+            setFormError("Por favor, ingresa los nombres en todos los idiomas y un precio válido.");
             return;
         }
 
         const res = await createProductAction({
-            name: newProductName,
             price: priceNum,
-            description: newProductDesc,
-            tag: newProductTag || undefined
-        });
+            nameEs: newProductNameEs,
+            descriptionEs: newProductDescEs,
+            tagEs: newProductTagEs || undefined,
+            nameCa: newProductNameCa,
+            descriptionCa: newProductDescCa,
+            tagCa: newProductTagCa || undefined,
+            nameEn: newProductNameEn,
+            descriptionEn: newProductDescEn,
+            tagEn: newProductTagEn || undefined,
+        }, localeStr);
 
         if (res.success && res.product) {
             setProducts((prev) => [...prev, res.product!]);
-            setNewProductName("");
+            setNewProductNameEs("");
+            setNewProductNameCa("");
+            setNewProductNameEn("");
             setNewProductPrice("");
-            setNewProductDesc("");
-            setNewProductTag("");
+            setNewProductDescEs("");
+            setNewProductDescCa("");
+            setNewProductDescEn("");
+            setNewProductTagEs("");
+            setNewProductTagCa("");
+            setNewProductTagEn("");
         } else {
             setFormError(res.error || "Error al crear el producto.");
+        }
+    };
+
+    const handleDeleteArticle = async (id: string) => {
+        if (!confirm("¿Estás seguro de que deseas eliminar esta noticia?")) return;
+        const res = await deleteArticleAction(id);
+        if (res.success) {
+            setArticles((prev) => prev.filter((a) => a.id !== id));
+        } else {
+            alert(res.error || "Error al eliminar la noticia");
+        }
+    };
+
+    const handleEditArticle = async (art: any) => {
+        const trans = await getArticleTranslationsAction(art.id);
+        const esTrans = trans.find((t) => t.locale === "es");
+        const caTrans = trans.find((t) => t.locale === "ca");
+        const enTrans = trans.find((t) => t.locale === "en");
+
+        setEditingArticleId(art.id);
+        setArticleListDate(art.listDate);
+        setArticleImage(art.image);
+        setArticleThumbnail(art.thumbnail);
+        setArticleLink(art.link);
+        
+        setArticleTitleEs(esTrans?.title || "");
+        setArticleDateEs(esTrans?.date || "");
+        setArticleTitleCa(caTrans?.title || "");
+        setArticleDateCa(caTrans?.date || "");
+        setArticleTitleEn(enTrans?.title || "");
+        setArticleDateEn(enTrans?.date || "");
+
+        setArticleFormError("");
+    };
+
+    const handleCancelEditArticle = () => {
+        setEditingArticleId(null);
+        setArticleListDate("");
+        setArticleImage("");
+        setArticleThumbnail("");
+        setArticleLink("");
+        
+        setArticleTitleEs("");
+        setArticleDateEs("");
+        setArticleTitleCa("");
+        setArticleDateCa("");
+        setArticleTitleEn("");
+        setArticleDateEn("");
+
+        setArticleFormError("");
+    };
+
+    const handleCreateOrUpdateArticle = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setArticleFormError("");
+
+        if (!articleListDate.trim() || !articleImage.trim() || !articleThumbnail.trim() || !articleTitleEs.trim() || !articleTitleCa.trim() || !articleTitleEn.trim()) {
+            setArticleFormError("Por favor, rellena todos los campos obligatorios.");
+            return;
+        }
+
+        if (editingArticleId) {
+            const res = await updateArticleAction(editingArticleId, {
+                listDate: articleListDate,
+                image: articleImage,
+                thumbnail: articleThumbnail,
+                link: articleLink || "#",
+                titleEs: articleTitleEs,
+                dateEs: articleDateEs,
+                titleCa: articleTitleCa,
+                dateCa: articleDateCa,
+                titleEn: articleTitleEn,
+                dateEn: articleDateEn,
+            }, localeStr);
+            if (res.success && res.article) {
+                setArticles((prev) => prev.map((a) => a.id === editingArticleId ? res.article! : a));
+                handleCancelEditArticle();
+            } else {
+                setArticleFormError(res.error || "Error al actualizar la noticia.");
+            }
+        } else {
+            const res = await createArticleAction({
+                listDate: articleListDate,
+                image: articleImage,
+                thumbnail: articleThumbnail,
+                link: articleLink || undefined,
+                titleEs: articleTitleEs,
+                dateEs: articleDateEs,
+                titleCa: articleTitleCa,
+                dateCa: articleDateCa,
+                titleEn: articleTitleEn,
+                dateEn: articleDateEn,
+            }, localeStr);
+            if (res.success && res.article) {
+                setArticles((prev) => [res.article!, ...prev]);
+                handleCancelEditArticle();
+            } else {
+                setArticleFormError(res.error || "Error al crear la noticia.");
+            }
         }
     };
 
@@ -279,6 +416,15 @@ export default function AdminPage() {
                     >
                         Catálogo de Entradas ({products.length})
                     </button>
+                    <button
+                        onClick={() => setActiveTab("articles")}
+                        className={`pb-4 px-2 font-bold font-outfit text-lg transition-all border-b-2 cursor-pointer ${activeTab === "articles"
+                                ? "border-primary text-primary"
+                                : "border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                            }`}
+                    >
+                        Artículos de Prensa ({articles.length})
+                    </button>
                 </div>
 
                 {/* Loading state */}
@@ -419,22 +565,7 @@ export default function AdminPage() {
                                         <Layers className="w-5 h-5 text-primary" />
                                         Agregar Entrada
                                     </h3>
-
                                     <form onSubmit={handleCreateProduct} className="space-y-4">
-                                        <div className="space-y-1">
-                                            <label className="text-xs font-semibold text-slate-500 block">
-                                                Nombre de la Entrada
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={newProductName}
-                                                onChange={(e) => setNewProductName(e.target.value)}
-                                                placeholder="Ej: Entrada Familia Ahorro"
-                                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
-                                                required
-                                            />
-                                        </div>
-
                                         <div className="space-y-1">
                                             <label className="text-xs font-semibold text-slate-500 block">
                                                 Precio (€)
@@ -450,30 +581,91 @@ export default function AdminPage() {
                                             />
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-xs font-semibold text-slate-500 block">
-                                                Etiqueta / Badge (Opcional)
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={newProductTag}
-                                                onChange={(e) => setNewProductTag(e.target.value)}
-                                                placeholder="Ej: Popular, Descuento"
-                                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
-                                            />
+                                        <div className="border-t border-slate-200 dark:border-slate-800 pt-3">
+                                            <span className="text-xs font-bold text-primary block mb-2 uppercase">Español (ES)</span>
+                                            <div className="space-y-3">
+                                                <input
+                                                    type="text"
+                                                    value={newProductNameEs}
+                                                    onChange={(e) => setNewProductNameEs(e.target.value)}
+                                                    placeholder="Nombre (ES)"
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                    required
+                                                />
+                                                <input
+                                                    type="text"
+                                                    value={newProductTagEs}
+                                                    onChange={(e) => setNewProductTagEs(e.target.value)}
+                                                    placeholder="Etiqueta (ES) - Ej: Popular"
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                />
+                                                <textarea
+                                                    value={newProductDescEs}
+                                                    onChange={(e) => setNewProductDescEs(e.target.value)}
+                                                    placeholder="Descripción (ES)"
+                                                    rows={2}
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground resize-none"
+                                                    required
+                                                />
+                                            </div>
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-xs font-semibold text-slate-500 block">
-                                                Descripción
-                                            </label>
-                                            <textarea
-                                                value={newProductDesc}
-                                                onChange={(e) => setNewProductDesc(e.target.value)}
-                                                placeholder="Detalles sobre lo que incluye esta entrada..."
-                                                rows={3}
-                                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground resize-none"
-                                            />
+                                        <div className="border-t border-slate-200 dark:border-slate-800 pt-3">
+                                            <span className="text-xs font-bold text-primary block mb-2 uppercase">Català (CA)</span>
+                                            <div className="space-y-3">
+                                                <input
+                                                    type="text"
+                                                    value={newProductNameCa}
+                                                    onChange={(e) => setNewProductNameCa(e.target.value)}
+                                                    placeholder="Nom (CA)"
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                    required
+                                                />
+                                                <input
+                                                    type="text"
+                                                    value={newProductTagCa}
+                                                    onChange={(e) => setNewProductTagCa(e.target.value)}
+                                                    placeholder="Etiqueta (CA)"
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                />
+                                                <textarea
+                                                    value={newProductDescCa}
+                                                    onChange={(e) => setNewProductDescCa(e.target.value)}
+                                                    placeholder="Descripció (CA)"
+                                                    rows={2}
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground resize-none"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="border-t border-slate-200 dark:border-slate-800 pt-3">
+                                            <span className="text-xs font-bold text-primary block mb-2 uppercase">English (EN)</span>
+                                            <div className="space-y-3">
+                                                <input
+                                                    type="text"
+                                                    value={newProductNameEn}
+                                                    onChange={(e) => setNewProductNameEn(e.target.value)}
+                                                    placeholder="Name (EN)"
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                    required
+                                                />
+                                                <input
+                                                    type="text"
+                                                    value={newProductTagEn}
+                                                    onChange={(e) => setNewProductTagEn(e.target.value)}
+                                                    placeholder="Tag (EN)"
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                />
+                                                <textarea
+                                                    value={newProductDescEn}
+                                                    onChange={(e) => setNewProductDescEn(e.target.value)}
+                                                    placeholder="Description (EN)"
+                                                    rows={2}
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground resize-none"
+                                                    required
+                                                />
+                                            </div>
                                         </div>
 
                                         {formError && (
@@ -489,6 +681,226 @@ export default function AdminPage() {
                                             <Plus size={18} />
                                             Crear Entrada
                                         </button>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* TAB 3: ARTICLES */}
+                        {activeTab === "articles" && (
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                                {/* Articles List */}
+                                <div className="lg:col-span-2 space-y-4">
+                                    {articles.length === 0 ? (
+                                        <div className="text-center py-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl">
+                                            <p className="font-switzer text-slate-500">No hay artículos de prensa registrados.</p>
+                                        </div>
+                                    ) : (
+                                        articles.map((art) => (
+                                            <div
+                                                key={art.id}
+                                                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-6"
+                                            >
+                                                <div className="flex items-start gap-4 flex-1">
+                                                    {art.thumbnail && (
+                                                        <img
+                                                            src={art.thumbnail}
+                                                            alt={art.title}
+                                                            className="w-16 h-16 rounded-xl object-cover border border-slate-100 dark:border-slate-800 flex-shrink-0"
+                                                        />
+                                                    )}
+                                                    <div className="space-y-1 min-w-0">
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <span className="text-xs font-bold uppercase tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded-full font-outfit">
+                                                                {art.date}
+                                                            </span>
+                                                            <span className="text-slate-400 text-xs font-mono">
+                                                                {art.listDate}
+                                                            </span>
+                                                        </div>
+                                                        <h3 className="text-lg font-bold font-outfit text-secondary dark:text-white truncate">
+                                                            {art.title}
+                                                        </h3>
+                                                        <p className="text-slate-500 dark:text-slate-400 font-mono text-xs truncate">
+                                                            Enlace: {art.link}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center justify-between sm:justify-end gap-3 border-t sm:border-t-0 pt-4 sm:pt-0">
+                                                    <button
+                                                        onClick={() => handleEditArticle(art)}
+                                                        className="p-2 text-slate-400 hover:text-primary rounded-full hover:bg-primary/10 transition-all cursor-pointer"
+                                                        aria-label="Editar artículo"
+                                                    >
+                                                        <Edit className="w-5 h-5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteArticle(art.id)}
+                                                        className="p-2 text-slate-400 hover:text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer"
+                                                        aria-label="Eliminar artículo"
+                                                    >
+                                                        <Trash2 className="w-5 h-5" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+
+                                {/* Article Form */}
+                                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md space-y-6">
+                                    <h3 className="text-xl font-bold font-outfit text-secondary dark:text-white flex items-center gap-2">
+                                        <Newspaper className="w-5 h-5 text-primary" />
+                                        {editingArticleId ? "Editar Artículo" : "Agregar Artículo"}
+                                    </h3>
+
+                                    <form onSubmit={handleCreateOrUpdateArticle} className="space-y-4">
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-slate-500 block">
+                                                Fecha de Ordenamiento (Ej: 2026-01-15)
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={articleListDate}
+                                                onChange={(e) => setArticleListDate(e.target.value)}
+                                                placeholder="Ej: 2026-01-15"
+                                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-slate-500 block">
+                                                URL de Imagen Completa
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={articleImage}
+                                                onChange={(e) => setArticleImage(e.target.value)}
+                                                placeholder="Ej: https://images.unsplash.com/..."
+                                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-slate-500 block">
+                                                URL de Miniatura (Thumbnail)
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={articleThumbnail}
+                                                onChange={(e) => setArticleThumbnail(e.target.value)}
+                                                placeholder="Ej: https://images.unsplash.com/..."
+                                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-slate-500 block">
+                                                Enlace externo (Opcional, default: #)
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={articleLink}
+                                                onChange={(e) => setArticleLink(e.target.value)}
+                                                placeholder="Ej: https://elpais.com/..."
+                                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                            />
+                                        </div>
+
+                                        <div className="border-t border-slate-200 dark:border-slate-800 pt-3">
+                                            <span className="text-xs font-bold text-primary block mb-2 uppercase">Español (ES)</span>
+                                            <div className="space-y-3">
+                                                <input
+                                                    type="text"
+                                                    value={articleTitleEs}
+                                                    onChange={(e) => setArticleTitleEs(e.target.value)}
+                                                    placeholder="Título (ES)"
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                    required
+                                                />
+                                                <input
+                                                    type="text"
+                                                    value={articleDateEs}
+                                                    onChange={(e) => setArticleDateEs(e.target.value)}
+                                                    placeholder="Fecha Visual (ES) - Ej: Sábado 14 Junio"
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="border-t border-slate-200 dark:border-slate-800 pt-3">
+                                            <span className="text-xs font-bold text-primary block mb-2 uppercase">Català (CA)</span>
+                                            <div className="space-y-3">
+                                                <input
+                                                    type="text"
+                                                    value={articleTitleCa}
+                                                    onChange={(e) => setArticleTitleCa(e.target.value)}
+                                                    placeholder="Títol (CA)"
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                    required
+                                                />
+                                                <input
+                                                    type="text"
+                                                    value={articleDateCa}
+                                                    onChange={(e) => setArticleDateCa(e.target.value)}
+                                                    placeholder="Data Visual (CA) - Ej: Dissabte 14 Juny"
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="border-t border-slate-200 dark:border-slate-800 pt-3">
+                                            <span className="text-xs font-bold text-primary block mb-2 uppercase">English (EN)</span>
+                                            <div className="space-y-3">
+                                                <input
+                                                    type="text"
+                                                    value={articleTitleEn}
+                                                    onChange={(e) => setArticleTitleEn(e.target.value)}
+                                                    placeholder="Title (EN)"
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                    required
+                                                />
+                                                <input
+                                                    type="text"
+                                                    value={articleDateEn}
+                                                    onChange={(e) => setArticleDateEn(e.target.value)}
+                                                    placeholder="Visual Date (EN) - Ej: Saturday 14 June"
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {articleFormError && (
+                                            <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-xl text-red-600 dark:text-red-400 font-switzer text-xs">
+                                                {articleFormError}
+                                            </div>
+                                        )}
+
+                                        <div className="flex gap-3">
+                                            {editingArticleId && (
+                                                <button
+                                                    type="button"
+                                                    onClick={handleCancelEditArticle}
+                                                    className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold font-outfit py-4 rounded-xl transition-all text-center cursor-pointer"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                            )}
+                                            <button
+                                                type="submit"
+                                                className="flex-1 bg-primary hover:bg-primary-light text-white font-bold font-outfit py-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-primary/10"
+                                            >
+                                                {editingArticleId ? "Guardar" : <Plus size={18} />}
+                                                {editingArticleId ? "Actualizar" : "Crear Artículo"}
+                                            </button>
+                                        </div>
                                     </form>
                                 </div>
                             </div>
