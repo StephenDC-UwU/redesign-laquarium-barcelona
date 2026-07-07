@@ -17,6 +17,7 @@ import ThemeToggle from "./ThemeToggle";
 import MobileMenu from "./MobileMenu";
 import CartToggle from "./CartToggle";
 import { useActiveSection } from "@/utils/useActiveSection";
+import UserToggle from "./UserToggle";
 
 interface HeaderProps {
     dict: Dictionary;
@@ -101,35 +102,12 @@ function Header({ dict, currentLocale }: HeaderProps) {
                         <CartToggle />
                     </li>
                     <li className="z-20 flex items-center gap-2">
-                        {user ? (
-                            <div className="flex items-center gap-3">
-                                <Link 
-                                    href={`/${currentLocale}/profile`}
-                                    className="flex items-center gap-1.5 hover:text-secondary transition-colors"
-                                    title="Ver mi perfil"
-                                >
-                                    <User size={20} className="stroke-[2.5]" />
-                                    <span className="hidden xl:inline text-sm font-bold font-outfit truncate max-w-[80px]">
-                                        {user.fullName.split(" ")[0]}
-                                    </span>
-                                </Link>
-                                <button
-                                    onClick={logout}
-                                    className="p-1 hover:text-red-400 transition-colors cursor-pointer"
-                                    title="Cerrar sesión"
-                                >
-                                    <LogOut size={16} />
-                                </button>
-                            </div>
-                        ) : (
-                            <button
-                                onClick={() => setIsAuthOpen(true)}
-                                className="flex items-center gap-1 hover:text-secondary transition-colors cursor-pointer"
-                                title="Iniciar sesión"
-                            >
-                                <User size={20} className="stroke-[2.5]" />
-                            </button>
-                        )}
+                        <UserToggle
+                            user={user}
+                            currentLocale={currentLocale}
+                            logout={logout}
+                            setIsAuthOpen={setIsAuthOpen}
+                        />
                     </li>
                 </ul>
 

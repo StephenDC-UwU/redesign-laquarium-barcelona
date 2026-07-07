@@ -12,10 +12,10 @@ export const en = {
         header_nav_services: "Services",
         header_nav_contact: "Contact"
     },
-        hero: {
-        hero_title: "¡Hora de Comer!",
-        hero_subtitle: "Los tiburones no son los únicos que disfrutan de una buena comida: ¡ven a ver cómo se alimentan nuestros habitantes marinos!",
-        hero_button: "Compra tus entradas"
+    hero: {
+        hero_title: "Feeding Time!",
+        hero_subtitle: "Sharks aren't the only ones who enjoy a good meal: come and watch our marine residents being fed!",
+        hero_button: "Get your tickets"
     },
     footer: {
         text: "This is the Footer"

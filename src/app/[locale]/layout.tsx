@@ -4,7 +4,6 @@ import Footer from "@/components/layout/Footer";
 import type { Metadata } from "next";
 import localFont from 'next/font/local';
 import { getDictionary } from "@/dictionaries";
-import Hero from "@/components/home/Hero";
 import { Locale } from "@/types/Locale";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { CartProvider } from "@/context/CartContext";

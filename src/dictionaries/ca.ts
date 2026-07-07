@@ -12,7 +12,7 @@ export const ca = {
         header_nav_services: "Serveis",
         header_nav_contact: "Contacte"
     },
-        hero: {
+    hero: {
         hero_title: "¡Hora de Comer!",
         hero_subtitle: "Los tiburones no son los únicos que disfrutan de una buena comida: ¡ven a ver cómo se alimentan nuestros habitantes marinos!",
         hero_button: "Compra tus entradas"
