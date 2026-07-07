@@ -17,6 +17,10 @@ export const en = {
         hero_subtitle: "Sharks aren't the only ones who enjoy a good meal: come and watch our marine residents being fed!",
         hero_button: "Get your tickets"
     },
+    experience: {
+        title: "Come live a unique experience",
+        button: "Buy"
+    },
     footer: {
         text: "This is the Footer"
     },

@@ -5,6 +5,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef } from "react";
 import { Dictionary } from "@/dictionaries";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,6 +18,11 @@ export default function Experience({ dict }: ExperienceProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const videoWrapperRef = useRef<HTMLDivElement>(null);
     const textRef = useRef<HTMLDivElement>(null);
+    const params = useParams();
+    const locale = params?.locale || "es";
+
+
+    const experience = dict.experience;
 
     useGSAP(() => {
         // We use a timeline with ScrollTrigger to scrub through the animation
@@ -23,7 +30,7 @@ export default function Experience({ dict }: ExperienceProps) {
             scrollTrigger: {
                 trigger: containerRef.current,
                 start: "top top", // When the section hits the top of the viewport
-                end: "+=80%", // Pin for 80% of viewport height while animating (less scroll required)
+                end: "+=120%", // Pin for 150% of viewport height (more overall scroll distance)
                 scrub: 1, // Smooth scrubbing
                 pin: true, // Pin the section in place
             }
@@ -42,8 +49,12 @@ export default function Experience({ dict }: ExperienceProps) {
         tl.fromTo(textRef.current,
             { opacity: 0, y: 50 },
             { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
-            0.5 // Start at the 50% mark of the timeline
+            0.4 // Start at the 50% mark of the timeline
         );
+
+        // 3. Add extra "dead space" at the end of the timeline so the user scrolls
+        // a bit more with the final state active before unpinning.
+        tl.to({}, { duration: 0.5 });
 
     }, { scope: containerRef });
 
@@ -75,11 +86,11 @@ export default function Experience({ dict }: ExperienceProps) {
                     className="absolute inset-0 flex flex-col items-center justify-center text-white p-8 opacity-0 z-10"
                 >
                     <h2 className="text-5xl md:text-7xl lg:text-8xl font-shadows text-center mb-8 drop-shadow-lg max-w-4xl leading-tight">
-                        Ven vive una<br />experiencia unica
+                        {experience.title}
                     </h2>
-                    <button className="px-10 py-4 bg-tertiary hover:bg-tertiary/90 text-white font-bold font-switzer rounded-md text-lg md:text-xl transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer">
-                        Comprar
-                    </button>
+                    <Link href={`/${locale}/tickets`} className="px-10 py-4 bg-tertiary hover:bg-tertiary/90 text-white font-bold font-switzer rounded-md text-lg md:text-xl transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer">
+                        {experience.button}
+                    </Link>
                 </div>
 
             </div>

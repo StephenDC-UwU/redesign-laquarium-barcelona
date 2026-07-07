@@ -17,6 +17,10 @@ export const es = {
         hero_subtitle: "Los tiburones no son los únicos que disfrutan de una buena comida: ¡ven a ver cómo se alimentan nuestros habitantes marinos!",
         hero_button: "Compra tus entradas"
     },
+    experience: {
+        title: "Ven vive una experiencia unica",
+        button: "Comprar"
+    },
     footer: {
         text: "Este es el pie de página"
     },

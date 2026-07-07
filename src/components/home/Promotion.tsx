@@ -74,7 +74,7 @@ export default function Promotion({ dict }: PromotionProps) {
             tweenRef.current = gsap.to(trackRef.current, {
                 xPercent: -50,
                 ease: "none",
-                duration: 25,
+                duration: 35,
                 repeat: -1,
             });
         }
@@ -114,18 +114,18 @@ export default function Promotion({ dict }: PromotionProps) {
     // GSAP scroll on click
     const scroll = (direction: "left" | "right") => {
         if (!tweenRef.current || !trackRef.current) return;
-        
+
         // Approximate one card step
         const step = 352 / (trackRef.current.scrollWidth / 2);
         const proxy = { p: tweenRef.current.progress() };
         const targetP = direction === "right" ? proxy.p + step : proxy.p - step;
-        
+
         tweenRef.current.pause();
-        
+
         gsap.to(proxy, {
             p: targetP,
             duration: 0.8,
-            ease: "power3.out",
+            ease: "power2.out",
             onUpdate: () => {
                 let v = proxy.p % 1;
                 if (v < 0) v += 1;
@@ -146,7 +146,7 @@ export default function Promotion({ dict }: PromotionProps) {
         const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
         startX.current = clientX;
         startProgress.current = tweenRef.current?.progress() || 0;
-        
+
         if (trackRef.current) {
             trackRef.current.style.cursor = 'grabbing';
         }
@@ -156,13 +156,13 @@ export default function Promotion({ dict }: PromotionProps) {
         if (!isDragging.current || !tweenRef.current || !trackRef.current) return;
         const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
         const dx = clientX - startX.current;
-        
-        const totalWidth = trackRef.current.scrollWidth / 2; 
+
+        const totalWidth = trackRef.current.scrollWidth / 2;
         let newProgress = startProgress.current - (dx / totalWidth);
-        
+
         newProgress = newProgress % 1;
         if (newProgress < 0) newProgress += 1;
-        
+
         tweenRef.current.progress(newProgress);
     };
 
@@ -198,7 +198,7 @@ export default function Promotion({ dict }: PromotionProps) {
             <div className="promo-title-group flex justify-center mb-16 relative">
                 <div className="relative">
                     <div className="absolute -left-8 -top-8 w-20 h-20 bg-primary/40 rounded-full -z-10 pointer-events-none" />
-                    <h2 className="text-5xl md:text-6xl font-bold font-outfit text-secondary dark:text-white">
+                    <h2 className="text-5xl md:text-6xl font-semibold font-outfit text-black dark:text-white">
                         {p.title}
                     </h2>
                 </div>
@@ -221,9 +221,9 @@ export default function Promotion({ dict }: PromotionProps) {
                     {duplicatedItems.map((item, index) => (
                         <div
                             key={`${item.id}-${index}`}
-                            className="promo-card flex-none w-[280px] md:w-[320px] text-center group select-none"
+                            className="promo-card flex-none w-[80px] md:w-[320px] text-center group select-none md:pt-4"
                         >
-                            <div className="w-56 h-56 md:w-64 md:h-64 mx-auto rounded-full overflow-hidden border-4 border-slate-100 dark:border-slate-800 shadow-xl relative aspect-square transition-all duration-500 group-hover:scale-105 group-hover:border-primary group-hover:shadow-primary/20 pointer-events-none">
+                            <div className="w-56 h-56 md:w-74 md:h-74 mx-auto rounded-full overflow-hidden border-4 border-slate-100 dark:border-slate-800 shadow-xl relative aspect-square transition-all duration-500 group-hover:scale-105 group-hover:border-primary group-hover:shadow-primary/20 pointer-events-none">
                                 <Image
                                     src={item.image}
                                     alt={item.alt}
@@ -234,7 +234,7 @@ export default function Promotion({ dict }: PromotionProps) {
                                     draggable={false}
                                 />
                             </div>
-                            <p className="mt-6 text-lg md:text-xl font-medium font-switzer text-slate-700 dark:text-slate-300 leading-snug max-w-[240px] mx-auto group-hover:text-primary transition-colors duration-300 pointer-events-none">
+                            <p className="mt-6 text-lg md:text-xl font-light font-switzer text-black dark:text-slate-300 leading-snug max-w-[240px] mx-auto group-hover:text-primary transition-colors duration-300 pointer-events-none">
                                 {item.title}
                             </p>
                         </div>
@@ -243,7 +243,7 @@ export default function Promotion({ dict }: PromotionProps) {
             </div>
 
             {/* Controls Arrow Buttons */}
-            <div className="flex justify-center gap-6 mt-8">
+            <div className="flex justify-center gap-40 mt-8">
                 <button
                     onClick={() => scroll("left")}
                     className="w-14 h-14 rounded-full bg-primary hover:bg-primary-light text-white flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer shadow-primary/20 z-10 relative"

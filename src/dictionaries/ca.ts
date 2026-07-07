@@ -13,9 +13,13 @@ export const ca = {
         header_nav_contact: "Contacte"
     },
     hero: {
-        hero_title: "¡Hora de Comer!",
-        hero_subtitle: "Los tiburones no son los únicos que disfrutan de una buena comida: ¡ven a ver cómo se alimentan nuestros habitantes marinos!",
-        hero_button: "Compra tus entradas"
+        hero_title: "Hora de menjar!",
+        hero_subtitle: "Els taurons no són els únics que gaudeixen d'un bon àpat: vine a veure com s'alimenten els nostres habitants marins!",
+        hero_button: "Compra les teves entrades"
+    },
+    experience: {
+        title: "Vine viu una experiència única",
+        button: "Comprar"
     },
     footer: {
         text: "Aquest és el peu de pàgina"
