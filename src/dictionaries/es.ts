@@ -24,13 +24,34 @@ export const es = {
         hero_subtitle: "Los tiburones no son los únicos que disfrutan de una buena comida: ¡ven a ver cómo se alimentan nuestros habitantes marinos!",
         hero_button: "Compra tus entradas"
     },
-    news:{
-        news_title: "Noticias",
+    intro: {
+        card1_text: "Abierto los 365 días del año a partir de las 10.00h.",
+        card1_btn: "Consultar",
+        badge1_text: "Horario",
+        badge2_text: "Entradas",
+        card2_text: "No esperes más, compra aquí tus entradas.",
+        card2_btn: "Comprar",
+        card3_text: "Cómo llegar y Servicios",
+        card3_btn: "Consultar"
     },
-    experience: {
+
+    promotions: {
+        title: "Promociones",
+        promo1: "Experiencia con Tiburones",
+        promo2: "Experiencia en arrecife",
+        promo3: "El universo de Guadi bajo el agua",
+        promo4: "Experiencia alimentando peces"
+    },
+
+     experience: {
         title: "Ven vive una experiencia unica",
         button: "Comprar"
     },
+
+    news:{
+        news_title: "Noticias",
+    },
+   
     discover: {
         discover_title: "Descubre",
         discover_button_check: "Consultar",
@@ -52,24 +73,13 @@ export const es = {
         footer_contact: "Contact",
         footer_members: "Members"
     },
-    home: {
-        title: "Inicio"
+    newsletter: {
+        newsletter_title: "Suscríbete A La Newsletter Del L'Aquàrium BCN",
+        newsletter_button: "Suscribirse",
+        newsletter_terms_part_1: "*Declaro Haber Entendido La",
+        newsletter_terms_part_2: "Información Facilitada",
+        newsletter_terms_part_3: "Y Consiento El Tratamiento Que Se Efectuará De Mis Datos De Carácter Personal.",
+        newsletter_send: "Enviar",  
     },
-    intro: {
-        card1_text: "Abierto los 365 días del año a partir de las 10.00h.",
-        card1_btn: "Consultar",
-        badge1_text: "Horario",
-        badge2_text: "Entradas",
-        card2_text: "No esperes más, compra aquí tus entradas.",
-        card2_btn: "Comprar",
-        card3_text: "Cómo llegar y Servicios",
-        card3_btn: "Consultar"
-    },
-    promotions: {
-        title: "Promociones",
-        promo1: "Experiencia con Tiburones",
-        promo2: "Experiencia en arrecife",
-        promo3: "El universo de Guadi bajo el agua",
-        promo4: "Experiencia alimentando peces"
-    }
+  
 };

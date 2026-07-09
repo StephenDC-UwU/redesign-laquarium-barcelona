@@ -71,3 +71,9 @@ model ArticleTranslation {
 
   @@unique([articleId, locale])
 }
+
+model NewsletterSubscriber {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}

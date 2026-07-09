@@ -1,6 +1,6 @@
 
 export const ca = {
-       company:{
+    company:{
         title: "L'Aquàrium",
         subtle: "Barcelona",
         address: "Moll D'Espanya Del Port Vell, S/N",
@@ -9,68 +9,77 @@ export const ca = {
     },
     nav: {
         nav_visite: "Visita",
-        nav_nosotros: "Nosotros",
-        nav_exhibicion: "Exhibición",
-        nav_educacion: "Educación",
-        nav_tickets: "Entradas",
-        nav_hours: "Horarios y Precios",
-        nav_noticias: "Noticias",
+        nav_nosotros: "Nosaltres",
+        nav_exhibicion: "Exhibició",
+        nav_educacion: "Educació",
+        nav_tickets: "Entrades",
+        nav_hours: "Horaris i Preus",
+        nav_noticias: "Notícies",
         nav_blog: "Blog",
-        nav_how_to_get_there: "Cómo llegar",
-        nav_services: "Servicios",
-        nav_contact: "Contacto"
+        nav_how_to_get_there: "Com arribar",
+        nav_services: "Serveis",
+        nav_contact: "Contacte"
     },
     hero: {
-        hero_title: "¡Hora de Comer!",
-        hero_subtitle: "Los tiburones no son los únicos que disfrutan de una buena comida: ¡ven a ver cómo se alimentan nuestros habitantes marinos!",
-        hero_button: "Compra tus entradas"
+        hero_title: "Hora de Menjar!",
+        hero_subtitle: "Els taurons no són els únics que gaudeixen d'un bon menjar: vine a veure com s'alimenten els nostres habitants marins!",
+        hero_button: "Compra les teves entrades"
     },
-    news:{
-        news_title: "Noticias",
+    intro: {
+        card1_text: "Obert els 365 dies de l'any a partir de les 10.00h.",
+        card1_btn: "Consultar",
+        badge1_text: "Horari",
+        badge2_text: "Entrades",
+        card2_text: "No esperis més, compra aquí les teves entrades.",
+        card2_btn: "Comprar",
+        card3_text: "Com arribar i Serveis",
+        card3_btn: "Consultar"
     },
-    experience: {
-        title: "Ven vive una experiencia unica",
+
+    promotions: {
+        title: "Promocions",
+        promo1: "Experiència amb Taurons",
+        promo2: "Experiència en escull",
+        promo3: "L'univers de Gaudí sota l'aigua",
+        promo4: "Experiència alimentant peixos"
+    },
+
+     experience: {
+        title: "Vine a viure una experiència única",
         button: "Comprar"
     },
+
+    news:{
+        news_title: "Notícies",
+    },
+   
     discover: {
-        discover_title: "Descubre",
+        discover_title: "Descobreix",
         discover_button_check: "Consultar",
-        item1_title: "VEN A CELEBRAR TU CUMPLEAÑOS",
-        item1_subtitle: "¡Sumérgete en una aventura bajo el mar!",
-        item1_description: "¡Este año, mi cumpleaños se celebra entre tiburones y amigos! Prepárate para una fiesta inolvidable rodeado de las criaturas más asombrosas del océano.",
-        item2_title: "BUCEO CON TIBURONES",
-        item2_subtitle: "Una experiencia para los más valientes",
-        item2_description: "Atrévete a nadar con nuestros tiburones bajo la supervisión de expertos. Descubre la majestuosidad de estos increíbles depredadores en su hábitat natural.",
-        item3_title: "VISITAS ESCOLARES",
-        item3_subtitle: "Aprendizaje interactivo y divertido",
-        item3_description: "Programas educativos diseñados para escuelas. Los niños aprenderán sobre la conservación marina mientras se divierten explorando nuestros acuarios interactivos.",
+        item1_title: "VINE A CELEBRAR EL TEU ANIVERSARI",
+        item1_subtitle: "Submergeix-te en una aventura sota el mar!",
+        item1_description: "Aquest any, el meu aniversari es celebra entre taurons i amics! Prepara't per a una festa inoblidable envoltada de les criatures més sorprenents de l'oceà.",
+        item2_title: "BUCEIG AMB TAURONS",
+        item2_subtitle: "Una experiència per als més valents",
+        item2_description: "Atreveix-te a nedar amb els nostres taurons sota la supervisió d'experts. Descobreix la majestuositat d'aquests increïbles depredadors en el seu hàbitat natural.",
+        item3_title: "VISITES ESCOLARS",
+        item3_subtitle: "Aprenentatge interactiu i divertit",
+        item3_description: "Programes educatius dissenyats per a escoles. Els nens aprendran sobre la conservació marina mentre es diverteixen explorant els nostres aquaris interactius.",
     },
     footer: {
         footer_legal: "Legal",
-        footer_privacy: "Privacy policy",
-        footer_cookies: "Cookie policy",
-        footer_accesibility: "Accessibility",
-        footer_contact: "Contact",
-        footer_members: "Members"
+        footer_privacy: "Política de privacitat",
+        footer_cookies: "Política de cookies",
+        footer_accesibility: "Accessibilitat",
+        footer_contact: "Contacte",
+        footer_members: "Membres"
     },
-    home: {
-        title: "Inicio"
+    newsletter: {
+        newsletter_title: "Subscriu-te A La Newsletter De L'Aquàrium BCN",
+        newsletter_button: "Subscriure's",
+        newsletter_terms_part_1: "*Declaro Haver Entès La",
+        newsletter_terms_part_2: "Informació Facilitada",
+        newsletter_terms_part_3: "I Consenteixo El Tractament Que Es Realitzarà Amb Les Meves Dades De Caràcter Personal.",
+        newsletter_send: "Enviar",  
     },
-    intro: {
-        card1_text: "Abierto los 365 días del año a partir de las 10.00h.",
-        card1_btn: "Consultar",
-        badge1_text: "Horario",
-        badge2_text: "Entradas",
-        card2_text: "No esperes más, compra aquí tus entradas.",
-        card2_btn: "Comprar",
-        card3_text: "Cómo llegar y Servicios",
-        card3_btn: "Consultar"
-    },
-    promotions: {
-        title: "Promociones",
-        promo1: "Experiencia con Tiburones",
-        promo2: "Experiencia en arrecife",
-        promo3: "El universo de Guadi bajo el agua",
-        promo4: "Experiencia alimentando peces"
-    }
 };

@@ -8,6 +8,7 @@ import Image from "next/image";
 import LegalNoticeModal from "../ui/modals/LegalNoticeModal";
 import PrivacyModal from "../ui/modals/PrivacyModal";
 import CookiePolicyModal from "../ui/modals/CookiePolicyModal";
+import { subscribeToNewsletterAction } from "@/actions/newsletterActions";
 
 interface FooterProps {
     dict: Dictionary;
@@ -16,10 +17,47 @@ interface FooterProps {
 function Footer({ dict }: FooterProps) {
 
     const [activeModal, setActiveModal] = useState<"aviso" | "privacidad" | "cookies" | null>(null);
+    const [email, setEmail] = useState("");
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
+    const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const handleSubscribe = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email) {
+            setStatus("error");
+            setErrorMessage("Por favor, introduce un correo electrónico.");
+            return;
+        }
+        if (!acceptedTerms) {
+            setStatus("error");
+            setErrorMessage("Debes aceptar las condiciones de privacidad.");
+            return;
+        }
+
+        setStatus("loading");
+        setErrorMessage("");
+
+        try {
+            const res = await subscribeToNewsletterAction(email);
+            if (res.success) {
+                setStatus("success");
+                setEmail("");
+                setAcceptedTerms(false);
+            } else {
+                setStatus("error");
+                setErrorMessage(res.error || "Ocurrió un error.");
+            }
+        } catch (error) {
+            setStatus("error");
+            setErrorMessage("Ocurrió un error al enviar el formulario.");
+        }
+    };
 
     const navDict = dict.nav;
     const companyDict = dict.company;
     const footerDict = dict.footer;
+    const newsletterDict = dict.newsletter;
 
 
     return (
@@ -61,41 +99,101 @@ function Footer({ dict }: FooterProps) {
                 {/* Column 3: Miembros (Right) */}
                 <div className="flex flex-col items-start mt-8 md:mt-0 md:col-span-3 pt-4">
                     <h4 className="text-sm font-bold uppercase tracking-widest mb-6">{footerDict.footer_members}</h4>
-                    <div className="flex flex-wrap gap-6 items-center">
+                    <div className="grid grid-cols-3 gap-6 items-center">
                         {/* Placeholder logos for members. Usually these are images */}
-                        <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-[10px] text-center opacity-70 hover:opacity-100 transition-opacity">Bio<br />Sphere</div>
-                        <div className="w-20 h-12 border border-white/20 rounded flex items-center justify-center text-[10px] text-center opacity-70 hover:opacity-100 transition-opacity">BCN<br />Sostenible</div>
-                        <div className="w-16 h-16 border border-white/20 rounded-full flex items-center justify-center text-xs opacity-70 hover:opacity-100 transition-opacity">WAZA</div>
+                        <Image src="/members/member_aiza.svg" alt="aiza" width={100} height={100} />
+                        <Image src="/members/member_biosphere.svg" alt="BioSphere" width={100} height={100} />
+                        <Image src="/members/member_barcelona_sostenible.svg" alt="BCN Sostenible" width={100} height={100} />
+                        <Image src="/members/member_waza.svg" alt="WAZA" width={100} height={100} />
+                        <Image src="/members/member_turismo_familiar.svg" alt="Turismo Familiar" width={100} height={100} />
                     </div>
+                </div>
+
+
+                {/* Columnv 4: Social medias */}
+                <div className="flex items-center gap-4 justify-end mt-8 md:mt-0 pt-4 md:col-span-12">
+                    <Link
+                        href=""
+                    >
+                        <Image
+                            className="w-10 h-10"
+                            src="/socials/tiktok.svg"
+                            alt="TikTok"
+                            width={100}
+                            height={100}
+                        />
+                    </Link>
+                    <Link
+                        href=""
+                    >
+                        <Image
+                            className="w-10 h-10"
+                            src="/socials/instagram.svg" alt="Instagram" width={100} height={100} />
+                    </Link>
+                    <Link
+                        href=""
+                    >
+                        <Image
+                            className="w-10 h-auto"
+                            src="/socials/youtube.svg" alt="Youtube" width={100} height={100} />
+                    </Link>
+                    <Link
+                        href=""
+                    >
+                        <Image
+                            className="w-10 h-10"
+                            src="/socials/facebook.svg" alt="Facebook" width={100} height={100} />
+                    </Link>
                 </div>
 
             </div>
 
             {/* Newsletter Section */}
-            <div className="max-w-2xl mx-auto flex flex-col items-center text-center mt-8">
-                <h4 className="text-primary font-bold text-sm mb-6 tracking-wide">Suscríbete A La Newsletter Del L'Aquàrium BCN</h4>
+            <form onSubmit={handleSubscribe} className="max-w-2xl mx-auto flex flex-col items-center text-center mt-8 w-full">
+                <h4 className="text-primary font-bold text-sm mb-6 tracking-wide">{newsletterDict.newsletter_title}</h4>
 
                 <div className="w-full mb-6">
                     <input
                         type="email"
                         placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        disabled={status === "loading"}
                         className="w-full bg-white/5 border-b-2 border-white/20 px-4 py-4 text-white placeholder-white/40 text-sm focus:outline-none focus:border-primary transition-colors"
                     />
                 </div>
 
                 <div className="flex items-start gap-4 w-full text-left mb-8">
                     <div className="pt-1">
-                        <input type="checkbox" id="terms" className="w-4 h-4 rounded border-white/20 bg-transparent text-primary focus:ring-primary accent-primary cursor-pointer" />
+                        <input 
+                            type="checkbox" 
+                            id="terms" 
+                            checked={acceptedTerms}
+                            onChange={(e) => setAcceptedTerms(e.target.checked)}
+                            disabled={status === "loading"}
+                            className="w-4 h-4 rounded border-white/20 bg-transparent text-primary focus:ring-primary accent-primary cursor-pointer" 
+                        />
                     </div>
                     <label htmlFor="terms" className="text-xs text-primary opacity-80 leading-relaxed cursor-pointer font-light">
-                        *Declaro Haber Entendido La <button onClick={() => setActiveModal("privacidad")} className="underline hover:text-white transition-colors">Información Facilitada</button> Y Consiento El Tratamiento Que Se Efectuará De Mis Datos De Carácter Personal.
+                        {newsletterDict.newsletter_terms_part_1} <button type="button" onClick={() => setActiveModal("privacidad")} className="underline hover:text-white transition-colors">{newsletterDict.newsletter_terms_part_2}</button> {newsletterDict.newsletter_terms_part_3}
                     </label>
                 </div>
 
-                <button className="px-16 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-sm transition-colors shadow-lg">
-                    Enviar
+                {status === "error" && (
+                    <p className="text-red-500 text-sm mb-4">{errorMessage}</p>
+                )}
+                {status === "success" && (
+                    <p className="text-green-500 text-sm mb-4">¡Te has suscrito con éxito!</p>
+                )}
+
+                <button 
+                    type="submit"
+                    disabled={status === "loading"}
+                    className="px-16 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-sm transition-colors shadow-lg disabled:opacity-50"
+                >
+                    {status === "loading" ? "Enviando..." : newsletterDict.newsletter_send}
                 </button>
-            </div>
+            </form>
 
             {/* Modals */}
             <Modal isOpen={activeModal === "aviso"} onClose={() => setActiveModal(null)} title="Aviso Legal">
