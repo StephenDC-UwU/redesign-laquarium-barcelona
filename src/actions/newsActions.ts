@@ -26,6 +26,7 @@ export async function getArticlesAction(locale: string = "es"): Promise<any[]> {
             updatedAt: art.updatedAt,
             title: art.translations[0]?.title || "",
             date: art.translations[0]?.date || "",
+            content: art.translations[0]?.content || "",
         }));
     } catch (e) {
         console.error("Error in getArticlesAction:", e);
@@ -41,10 +42,13 @@ export async function createArticleAction(
         link?: string;
         titleEs: string;
         dateEs: string;
+        contentEs?: string;
         titleCa: string;
         dateCa: string;
+        contentCa?: string;
         titleEn: string;
         dateEn: string;
+        contentEn?: string;
     },
     locale: string = "es"
 ): Promise<{ success: boolean; article?: any; error?: string }> {
@@ -60,9 +64,9 @@ export async function createArticleAction(
                 link: data.link || "#",
                 translations: {
                     create: [
-                        { locale: "es", title: data.titleEs, date: data.dateEs },
-                        { locale: "ca", title: data.titleCa, date: data.dateCa },
-                        { locale: "en", title: data.titleEn, date: data.dateEn },
+                        { locale: "es", title: data.titleEs, date: data.dateEs, content: data.contentEs || "" },
+                        { locale: "ca", title: data.titleCa, date: data.dateCa, content: data.contentCa || "" },
+                        { locale: "en", title: data.titleEn, date: data.dateEn, content: data.contentEn || "" },
                     ]
                 }
             },
@@ -86,6 +90,7 @@ export async function createArticleAction(
                 updatedAt: newArticle.updatedAt,
                 title: newArticle.translations[0]?.title || "",
                 date: newArticle.translations[0]?.date || "",
+                content: newArticle.translations[0]?.content || "",
             }
         };
     } catch (e) {
@@ -103,10 +108,13 @@ export async function updateArticleAction(
         link?: string;
         titleEs?: string;
         dateEs?: string;
+        contentEs?: string;
         titleCa?: string;
         dateCa?: string;
+        contentCa?: string;
         titleEn?: string;
         dateEn?: string;
+        contentEn?: string;
     },
     locale: string = "es"
 ): Promise<{ success: boolean; article?: any; error?: string }> {
@@ -123,27 +131,57 @@ export async function updateArticleAction(
         });
 
         // Update or upsert translations for ES
-        if (data.titleEs !== undefined || data.dateEs !== undefined) {
+        if (data.titleEs !== undefined || data.dateEs !== undefined || data.contentEs !== undefined) {
             await db.articleTranslation.upsert({
                 where: { articleId_locale: { articleId: id, locale: "es" } },
-                update: { title: data.titleEs, date: data.dateEs },
-                create: { articleId: id, locale: "es", title: data.titleEs || "", date: data.dateEs || "" }
+                update: { 
+                    title: data.titleEs, 
+                    date: data.dateEs,
+                    content: data.contentEs 
+                },
+                create: { 
+                    articleId: id, 
+                    locale: "es", 
+                    title: data.titleEs || "", 
+                    date: data.dateEs || "",
+                    content: data.contentEs || ""
+                }
             });
         }
         // Update or upsert translations for CA
-        if (data.titleCa !== undefined || data.dateCa !== undefined) {
+        if (data.titleCa !== undefined || data.dateCa !== undefined || data.contentCa !== undefined) {
             await db.articleTranslation.upsert({
                 where: { articleId_locale: { articleId: id, locale: "ca" } },
-                update: { title: data.titleCa, date: data.dateCa },
-                create: { articleId: id, locale: "ca", title: data.titleCa || "", date: data.dateCa || "" }
+                update: { 
+                    title: data.titleCa, 
+                    date: data.dateCa,
+                    content: data.contentCa 
+                },
+                create: { 
+                    articleId: id, 
+                    locale: "ca", 
+                    title: data.titleCa || "", 
+                    date: data.dateCa || "",
+                    content: data.contentCa || ""
+                }
             });
         }
         // Update or upsert translations for EN
-        if (data.titleEn !== undefined || data.dateEn !== undefined) {
+        if (data.titleEn !== undefined || data.dateEn !== undefined || data.contentEn !== undefined) {
             await db.articleTranslation.upsert({
                 where: { articleId_locale: { articleId: id, locale: "en" } },
-                update: { title: data.titleEn, date: data.dateEn },
-                create: { articleId: id, locale: "en", title: data.titleEn || "", date: data.dateEn || "" }
+                update: { 
+                    title: data.titleEn, 
+                    date: data.dateEn,
+                    content: data.contentEn 
+                },
+                create: { 
+                    articleId: id, 
+                    locale: "en", 
+                    title: data.titleEn || "", 
+                    date: data.dateEn || "",
+                    content: data.contentEn || ""
+                }
             });
         }
 
@@ -173,6 +211,7 @@ export async function updateArticleAction(
                 updatedAt: finalArticle.updatedAt,
                 title: finalArticle.translations[0]?.title || "",
                 date: finalArticle.translations[0]?.date || "",
+                content: finalArticle.translations[0]?.content || "",
             }
         };
     } catch (e) {
@@ -205,4 +244,5 @@ export async function getArticleTranslationsAction(id: string): Promise<any[]> {
         return [];
     }
 }
+
 

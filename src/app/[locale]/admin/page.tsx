@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { getOrdersAction, updateOrderStatusAction, deleteOrderAction, createProductAction, deleteProductAction } from "@/actions/adminActions";
 import { getAvailableProductsAction, LocalizedProduct } from "@/actions/cartActions";
 import { getArticlesAction, createArticleAction, updateArticleAction, deleteArticleAction, getArticleTranslationsAction } from "@/actions/newsActions";
+import { uploadImageAction } from "@/actions/uploadActions";
 import { Order } from "@prisma/client";
 import { DollarSign, Ticket, FileText, Trash2, Plus, ArrowLeft, RefreshCw, Layers, Lock, LogIn, Newspaper, Edit } from "lucide-react";
 import Link from "next/link";
@@ -46,7 +47,7 @@ export default function AdminPage() {
     const [articleImage, setArticleImage] = useState("");
     const [articleThumbnail, setArticleThumbnail] = useState("");
     const [articleLink, setArticleLink] = useState("");
-    
+
     const [articleTitleEs, setArticleTitleEs] = useState("");
     const [articleDateEs, setArticleDateEs] = useState("");
     const [articleTitleCa, setArticleTitleCa] = useState("");
@@ -55,6 +56,38 @@ export default function AdminPage() {
     const [articleDateEn, setArticleDateEn] = useState("");
 
     const [articleFormError, setArticleFormError] = useState("");
+    const [articleContentEs, setArticleContentEs] = useState("");
+    const [articleContentCa, setArticleContentCa] = useState("");
+    const [articleContentEn, setArticleContentEn] = useState("");
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: "image" | "thumbnail") => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (target === "image") setIsUploadingImage(true);
+        else setIsUploadingThumbnail(true);
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const res = await uploadImageAction(formData);
+            if (res.success && res.url) {
+                if (target === "image") setArticleImage(res.url);
+                else setArticleThumbnail(res.url);
+            } else {
+                alert(res.error || "Error al subir la imagen");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            alert("Error al conectar con el servidor de subidas.");
+        } finally {
+            if (target === "image") setIsUploadingImage(false);
+            else setIsUploadingThumbnail(false);
+        }
+    };
 
     // Load initial data
     const loadData = async () => {
@@ -183,13 +216,16 @@ export default function AdminPage() {
         setArticleImage(art.image);
         setArticleThumbnail(art.thumbnail);
         setArticleLink(art.link);
-        
+
         setArticleTitleEs(esTrans?.title || "");
         setArticleDateEs(esTrans?.date || "");
+        setArticleContentEs(esTrans?.content || "");
         setArticleTitleCa(caTrans?.title || "");
         setArticleDateCa(caTrans?.date || "");
+        setArticleContentCa(caTrans?.content || "");
         setArticleTitleEn(enTrans?.title || "");
         setArticleDateEn(enTrans?.date || "");
+        setArticleContentEn(enTrans?.content || "");
 
         setArticleFormError("");
     };
@@ -200,13 +236,16 @@ export default function AdminPage() {
         setArticleImage("");
         setArticleThumbnail("");
         setArticleLink("");
-        
+
         setArticleTitleEs("");
         setArticleDateEs("");
+        setArticleContentEs("");
         setArticleTitleCa("");
         setArticleDateCa("");
+        setArticleContentCa("");
         setArticleTitleEn("");
         setArticleDateEn("");
+        setArticleContentEn("");
 
         setArticleFormError("");
     };
@@ -228,10 +267,13 @@ export default function AdminPage() {
                 link: articleLink || "#",
                 titleEs: articleTitleEs,
                 dateEs: articleDateEs,
+                contentEs: articleContentEs,
                 titleCa: articleTitleCa,
                 dateCa: articleDateCa,
+                contentCa: articleContentCa,
                 titleEn: articleTitleEn,
                 dateEn: articleDateEn,
+                contentEn: articleContentEn,
             }, localeStr);
             if (res.success && res.article) {
                 setArticles((prev) => prev.map((a) => a.id === editingArticleId ? res.article! : a));
@@ -247,10 +289,13 @@ export default function AdminPage() {
                 link: articleLink || undefined,
                 titleEs: articleTitleEs,
                 dateEs: articleDateEs,
+                contentEs: articleContentEs,
                 titleCa: articleTitleCa,
                 dateCa: articleDateCa,
+                contentCa: articleContentCa,
                 titleEn: articleTitleEn,
                 dateEn: articleDateEn,
+                contentEn: articleContentEn,
             }, localeStr);
             if (res.success && res.article) {
                 setArticles((prev) => [res.article!, ...prev]);
@@ -401,8 +446,8 @@ export default function AdminPage() {
                     <button
                         onClick={() => setActiveTab("orders")}
                         className={`pb-4 px-2 font-bold font-outfit text-lg transition-all border-b-2 cursor-pointer ${activeTab === "orders"
-                                ? "border-primary text-primary"
-                                : "border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                            ? "border-primary text-primary"
+                            : "border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                             }`}
                     >
                         Órdenes de Compra ({orders.length})
@@ -410,8 +455,8 @@ export default function AdminPage() {
                     <button
                         onClick={() => setActiveTab("products")}
                         className={`pb-4 px-2 font-bold font-outfit text-lg transition-all border-b-2 cursor-pointer ${activeTab === "products"
-                                ? "border-primary text-primary"
-                                : "border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                            ? "border-primary text-primary"
+                            : "border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                             }`}
                     >
                         Catálogo de Entradas ({products.length})
@@ -419,8 +464,8 @@ export default function AdminPage() {
                     <button
                         onClick={() => setActiveTab("articles")}
                         className={`pb-4 px-2 font-bold font-outfit text-lg transition-all border-b-2 cursor-pointer ${activeTab === "articles"
-                                ? "border-primary text-primary"
-                                : "border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                            ? "border-primary text-primary"
+                            : "border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                             }`}
                     >
                         Artículos de Prensa ({articles.length})
@@ -487,10 +532,10 @@ export default function AdminPage() {
                                                         value={order.status}
                                                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
                                                         className={`px-3 py-2 rounded-xl text-sm font-bold font-outfit focus:outline-none border border-slate-200 dark:border-slate-800 ${order.status === "completed"
-                                                                ? "bg-green-500/10 text-green-500"
-                                                                : order.status === "paid"
-                                                                    ? "bg-blue-500/10 text-blue-500"
-                                                                    : "bg-yellow-500/10 text-yellow-500"
+                                                            ? "bg-green-500/10 text-green-500"
+                                                            : order.status === "paid"
+                                                                ? "bg-blue-500/10 text-blue-500"
+                                                                : "bg-yellow-500/10 text-yellow-500"
                                                             }`}
                                                     >
                                                         <option value="pending">Pendiente</option>
@@ -774,28 +819,52 @@ export default function AdminPage() {
                                             <label className="text-xs font-semibold text-slate-500 block">
                                                 URL de Imagen Completa
                                             </label>
-                                            <input
-                                                type="text"
-                                                value={articleImage}
-                                                onChange={(e) => setArticleImage(e.target.value)}
-                                                placeholder="Ej: https://images.unsplash.com/..."
-                                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
-                                                required
-                                            />
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={articleImage}
+                                                    onChange={(e) => setArticleImage(e.target.value)}
+                                                    placeholder="Ej: https://images.unsplash.com/..."
+                                                    className="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                    required
+                                                />
+                                                <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 px-4 py-3 rounded-xl flex items-center justify-center font-switzer text-xs font-bold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
+                                                    {isUploadingImage ? "Subiendo..." : "Subir Archivo"}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={(e) => handleFileUpload(e, "image")}
+                                                        disabled={isUploadingImage}
+                                                    />
+                                                </label>
+                                            </div>
                                         </div>
 
                                         <div className="space-y-1">
                                             <label className="text-xs font-semibold text-slate-500 block">
-                                                URL de Miniatura (Thumbnail)
+                                                Miniatura (Thumbnail)
                                             </label>
-                                            <input
-                                                type="text"
-                                                value={articleThumbnail}
-                                                onChange={(e) => setArticleThumbnail(e.target.value)}
-                                                placeholder="Ej: https://images.unsplash.com/..."
-                                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
-                                                required
-                                            />
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={articleThumbnail}
+                                                    onChange={(e) => setArticleThumbnail(e.target.value)}
+                                                    placeholder="Ej: https://images.unsplash.com/..."
+                                                    className="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                    required
+                                                />
+                                                <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 px-4 py-3 rounded-xl flex items-center justify-center font-switzer text-xs font-bold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
+                                                    {isUploadingThumbnail ? "Subiendo..." : "Subir Archivo"}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={(e) => handleFileUpload(e, "thumbnail")}
+                                                        disabled={isUploadingThumbnail}
+                                                    />
+                                                </label>
+                                            </div>
                                         </div>
 
                                         <div className="space-y-1">
@@ -830,6 +899,13 @@ export default function AdminPage() {
                                                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
                                                     required
                                                 />
+                                                <textarea
+                                                    value={articleContentEs}
+                                                    onChange={(e) => setArticleContentEs(e.target.value)}
+                                                    placeholder="Contenido/Cuerpo de la noticia (ES)"
+                                                    rows={5}
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                />
                                             </div>
                                         </div>
 
@@ -852,6 +928,13 @@ export default function AdminPage() {
                                                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
                                                     required
                                                 />
+                                                <textarea
+                                                    value={articleContentCa}
+                                                    onChange={(e) => setArticleContentCa(e.target.value)}
+                                                    placeholder="Contingut de la notícia (CA)"
+                                                    rows={5}
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                                />
                                             </div>
                                         </div>
 
@@ -873,6 +956,13 @@ export default function AdminPage() {
                                                     placeholder="Visual Date (EN) - Ej: Saturday 14 June"
                                                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
                                                     required
+                                                />
+                                                <textarea
+                                                    value={articleContentEn}
+                                                    onChange={(e) => setArticleContentEn(e.target.value)}
+                                                    placeholder="Article body content (EN)"
+                                                    rows={5}
+                                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
                                                 />
                                             </div>
                                         </div>

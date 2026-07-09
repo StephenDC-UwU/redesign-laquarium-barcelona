@@ -67,6 +67,7 @@ model ArticleTranslation {
   locale    String   // "es", "ca", "en"
   title     String
   date      String
+  content   String   @default("")
   article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
   @@unique([articleId, locale])
