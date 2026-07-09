@@ -115,3 +115,67 @@ export async function deleteProductAction(id: string): Promise<{ success: boolea
         return { success: false, error: "Error al eliminar el producto." };
     }
 }
+
+export async function getHourlyCapacityAction(): Promise<number> {
+    try {
+        const capacitySetting = await db.systemSetting.findUnique({
+            where: { key: "hourlyCapacity" }
+        });
+        return capacitySetting ? parseInt(capacitySetting.value, 10) : 50;
+    } catch (e) {
+        console.error("Error in getHourlyCapacityAction:", e);
+        return 50;
+    }
+}
+
+export async function updateHourlyCapacityAction(capacity: number): Promise<{ success: boolean; error?: string }> {
+    try {
+        if (capacity <= 0) {
+            return { success: false, error: "La capacidad debe ser un número positivo." };
+        }
+        await db.systemSetting.upsert({
+            where: { key: "hourlyCapacity" },
+            update: { value: capacity.toString() },
+            create: { key: "hourlyCapacity", value: capacity.toString() }
+        });
+        revalidatePath("/[locale]/admin", "layout");
+        revalidatePath("/[locale]/cart", "layout");
+        return { success: true };
+    } catch (e) {
+        console.error("Error in updateHourlyCapacityAction:", e);
+        return { success: false, error: "Hubo un error al actualizar la capacidad." };
+    }
+}
+
+export async function getOccupancyReportAction(date: string): Promise<Record<string, number>> {
+    try {
+        const orders = await db.order.findMany({
+            where: {
+                visitDate: date,
+                status: { in: ["paid", "completed"] }
+            }
+        });
+
+        const occupied: Record<string, number> = {};
+        const slots = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+        for (const slot of slots) {
+            occupied[slot] = 0;
+        }
+
+        for (const order of orders) {
+            if (order.visitTime && slots.includes(order.visitTime)) {
+                const items = order.items as any[];
+                if (Array.isArray(items)) {
+                    for (const item of items) {
+                        occupied[order.visitTime] += item.quantity || 0;
+                    }
+                }
+            }
+        }
+        return occupied;
+    } catch (e) {
+        console.error("Error in getOccupancyReportAction:", e);
+        return {};
+    }
+}
+

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import { createStripeSessionAction, getOrderByIdAction } from "@/actions/cartActions";
+import { createStripeSessionAction, getOrderByIdAction, checkCapacityAction } from "@/actions/cartActions";
 import { useState, useTransition, useEffect, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Trash2, Plus, Minus, CreditCard, ShoppingBag, CheckCircle, ArrowLeft } from "lucide-react";
@@ -11,6 +11,10 @@ export default function CartPage() {
     const { cart, updateQuantity, removeFromCart, clearCart, totalAmount, itemCount } = useCart();
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
+    const [visitDate, setVisitDate] = useState("");
+    const [visitTime, setVisitTime] = useState("");
+    const [capacityData, setCapacityData] = useState<{ capacity: number; occupied: Record<string, number> } | null>(null);
+    const [loadingCapacity, setLoadingCapacity] = useState(false);
     const [successOrder, setSuccessOrder] = useState<any>(null);
     const [errorMsg, setErrorMsg] = useState("");
     const [isPending, startTransition] = useTransition();
@@ -18,9 +22,83 @@ export default function CartPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const locale = params?.locale || "es";
+
+    // Custom calendar helper states
+    const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear());
+    const [currentMonth, setCurrentMonth] = useState(() => new Date().getMonth());
+
+    const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    const dayNames = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"];
+
+    const getDaysInMonth = (year: number, month: number) => {
+        return new Date(year, month + 1, 0).getDate();
+    };
+
+    const getFirstDayOfMonth = (year: number, month: number) => {
+        const day = new Date(year, month, 1).getDay();
+        return day === 0 ? 6 : day - 1; // Align with Monday as index 0
+    };
+
+    const handlePrevMonth = () => {
+        const today = new Date();
+        const minMonth = today.getMonth();
+        const minYear = today.getFullYear();
+        if (currentYear === minYear && currentMonth === minMonth) return;
+        
+        if (currentMonth === 0) {
+            setCurrentMonth(11);
+            setCurrentYear(prev => prev - 1);
+        } else {
+            setCurrentMonth(prev => prev - 1);
+        }
+    };
+
+    const handleNextMonth = () => {
+        if (currentMonth === 11) {
+            setCurrentMonth(0);
+            setCurrentYear(prev => prev + 1);
+        } else {
+            setCurrentMonth(prev => prev + 1);
+        }
+    };
     
     // Track if cart has been cleared on success
     const clearedRef = useRef(false);
+
+    // Obtener la fecha mínima (hoy) para el selector de fecha
+    const getMinDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    // Consultar aforo cuando cambia la fecha o la cantidad de ítems
+    useEffect(() => {
+        if (!visitDate) {
+            setCapacityData(null);
+            return;
+        }
+        setLoadingCapacity(true);
+        checkCapacityAction(visitDate)
+            .then((data) => {
+                setCapacityData(data);
+                setLoadingCapacity(false);
+                // Si la hora previamente seleccionada ya no tiene aforo, limpiarla
+                if (visitTime) {
+                    const maxCapacity = data.capacity;
+                    const currentBooked = data.occupied[visitTime] || 0;
+                    if (currentBooked + itemCount > maxCapacity) {
+                        setVisitTime("");
+                    }
+                }
+            })
+            .catch((err) => {
+                console.error("Error al verificar aforo:", err);
+                setLoadingCapacity(false);
+            });
+    }, [visitDate, itemCount, visitTime]);
 
     // Check if redirected from Stripe after success
     useEffect(() => {
@@ -50,6 +128,11 @@ export default function CartPage() {
             return;
         }
 
+        if (!visitDate || !visitTime) {
+            setErrorMsg("Por favor, selecciona la fecha y hora de tu visita.");
+            return;
+        }
+
         const itemsPayload = cart.map((item) => ({
             id: item.id,
             name: item.name,
@@ -63,6 +146,8 @@ export default function CartPage() {
                 fullName,
                 items: itemsPayload,
                 total: totalAmount,
+                visitDate,
+                visitTime,
             }, locale as string);
 
             if (res.success && res.url) {
@@ -101,6 +186,18 @@ export default function CartPage() {
                             <span className="text-slate-500 font-medium">Email:</span>
                             <span className="text-secondary dark:text-white">{successOrder.email}</span>
                         </div>
+                        {successOrder.visitDate && (
+                            <div className="flex justify-between mb-2">
+                                <span className="text-slate-500 font-medium">Fecha de Visita:</span>
+                                <span className="font-bold text-secondary dark:text-white">{successOrder.visitDate}</span>
+                            </div>
+                        )}
+                        {successOrder.visitTime && (
+                            <div className="flex justify-between mb-2">
+                                <span className="text-slate-500 font-medium">Hora de Visita:</span>
+                                <span className="font-bold text-secondary dark:text-white">{successOrder.visitTime}</span>
+                            </div>
+                        )}
                         <div className="border-t border-slate-200 dark:border-slate-800 my-2 pt-2 flex justify-between font-bold text-base">
                             <span className="text-slate-500">Total:</span>
                             <span className="text-primary">{successOrder.total.toFixed(2)}€</span>
@@ -285,6 +382,153 @@ export default function CartPage() {
                                         className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground disabled:opacity-50"
                                         required
                                     />
+                                </div>
+
+                                <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+                                    <h3 className="text-base font-bold font-outfit text-secondary dark:text-white">
+                                        Fecha y Hora de Visita
+                                    </h3>
+
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-semibold text-slate-500 block">
+                                            Selecciona una Fecha
+                                        </label>
+                                        
+                                        {/* Custom Calendar Card */}
+                                        <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-4 bg-slate-50 dark:bg-slate-950 font-switzer">
+                                            {/* Header */}
+                                            <div className="flex justify-between items-center mb-4">
+                                                <button
+                                                    type="button"
+                                                    onClick={handlePrevMonth}
+                                                    className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 cursor-pointer disabled:opacity-30"
+                                                    disabled={currentYear === new Date().getFullYear() && currentMonth === new Date().getMonth()}
+                                                >
+                                                    ←
+                                                </button>
+                                                <span className="font-bold text-sm text-secondary dark:text-white capitalize">
+                                                    {monthNames[currentMonth]} {currentYear}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleNextMonth}
+                                                    className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 cursor-pointer"
+                                                >
+                                                    →
+                                                </button>
+                                            </div>
+
+                                            {/* Weekday Labels */}
+                                            <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400 mb-2">
+                                                {dayNames.map((d) => (
+                                                    <div key={d}>{d}</div>
+                                                ))}
+                                            </div>
+
+                                            {/* Days Grid */}
+                                            <div className="grid grid-cols-7 gap-1">
+                                                {/* Offset Empty Cells */}
+                                                {Array.from({ length: getFirstDayOfMonth(currentYear, currentMonth) }).map((_, i) => (
+                                                    <div key={`empty-${i}`} />
+                                                ))}
+
+                                                {/* Days of Month */}
+                                                {Array.from({ length: getDaysInMonth(currentYear, currentMonth) }).map((_, i) => {
+                                                    const day = i + 1;
+                                                    const dayStr = String(day).padStart(2, "0");
+                                                    const monthStr = String(currentMonth + 1).padStart(2, "0");
+                                                    const dateStr = `${currentYear}-${monthStr}-${dayStr}`;
+                                                    const isSelected = visitDate === dateStr;
+                                                    const isPast = dateStr < getMinDate();
+
+                                                    return (
+                                                        <button
+                                                            key={day}
+                                                            type="button"
+                                                            disabled={isPast || isPending}
+                                                            onClick={() => setVisitDate(dateStr)}
+                                                            className={`h-9 w-9 mx-auto flex items-center justify-center rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                                                                isSelected
+                                                                    ? "bg-primary text-white shadow-md shadow-primary/20 scale-105"
+                                                                    : isPast
+                                                                        ? "text-slate-300 dark:text-slate-700 cursor-not-allowed"
+                                                                        : "text-secondary dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800"
+                                                            }`}
+                                                        >
+                                                            {day}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                        {visitDate && (
+                                            <p className="text-xs text-primary font-bold">
+                                                Fecha seleccionada: {visitDate}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-semibold text-slate-500 block">
+                                            Selecciona una Hora
+                                        </label>
+                                        
+                                        {!visitDate ? (
+                                            <div className="text-xs text-slate-400 p-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-center font-switzer">
+                                                Selecciona primero una fecha en el calendario
+                                            </div>
+                                        ) : loadingCapacity ? (
+                                            <div className="text-xs text-slate-400 p-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-center font-switzer">
+                                                Consultando aforo...
+                                            </div>
+                                        ) : (
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                {["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"].map((slot) => {
+                                                    const booked = capacityData?.occupied[slot] || 0;
+                                                    const limit = capacityData?.capacity || 50;
+                                                    
+                                                    // Check if slot has already passed today
+                                                    const isPassed = (() => {
+                                                        if (visitDate !== getMinDate()) return false;
+                                                        const [slotHour] = slot.split(":").map(Number);
+                                                        const currentHour = new Date().getHours();
+                                                        return slotHour <= currentHour;
+                                                    })();
+                                                    
+                                                    const isFull = booked + itemCount > limit;
+                                                    const isDisabled = isPassed || isFull;
+                                                    const isSelected = visitTime === slot;
+                                                    const available = Math.max(0, limit - booked);
+
+                                                    return (
+                                                        <button
+                                                            key={slot}
+                                                            type="button"
+                                                            disabled={isDisabled || isPending}
+                                                            onClick={() => setVisitTime(slot)}
+                                                            className={`py-3 px-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center border cursor-pointer ${
+                                                                isSelected
+                                                                    ? "bg-primary border-primary text-white shadow-md shadow-primary/20"
+                                                                    : isDisabled
+                                                                        ? "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-300 dark:text-slate-700 cursor-not-allowed opacity-50"
+                                                                        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-secondary dark:text-slate-300 hover:border-primary hover:text-primary"
+                                                            }`}
+                                                        >
+                                                            <span className="text-sm font-bold font-outfit">{slot}</span>
+                                                            <span className="text-[9px] opacity-80 mt-0.5">
+                                                                {isPassed 
+                                                                    ? "Pasado" 
+                                                                    : isFull 
+                                                                        ? "Agotado" 
+                                                                        : `${available} plazas`
+                                                                }
+                                                            </span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {errorMsg && (

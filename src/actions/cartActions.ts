@@ -48,13 +48,51 @@ export async function createOrderAction(formData: {
         price: number;
     }[];
     total: number;
+    visitDate: string;
+    visitTime: string;
 }): Promise<{ success: boolean; order?: Order; error?: string }> {
     try {
-        if (!formData.email || !formData.fullName) {
-            return { success: false, error: "El email y el nombre completo son obligatorios." };
+        if (!formData.email || !formData.fullName || !formData.visitDate || !formData.visitTime) {
+            return { success: false, error: "El email, nombre completo, fecha y hora de visita son obligatorios." };
         }
         if (formData.items.length === 0) {
             return { success: false, error: "El carrito está vacío." };
+        }
+
+        // 1. Obtener capacidad máxima de aforo por hora
+        const capacitySetting = await db.systemSetting.findUnique({
+            where: { key: "hourlyCapacity" }
+        });
+        const maxCapacity = capacitySetting ? parseInt(capacitySetting.value, 10) : 50;
+
+        // 2. Sumar cantidad de personas reservadas en esa fecha y hora (órdenes pagadas o completadas)
+        const existingOrders = await db.order.findMany({
+            where: {
+                visitDate: formData.visitDate,
+                visitTime: formData.visitTime,
+                status: { in: ["paid", "completed"] }
+            }
+        });
+
+        let currentBooked = 0;
+        for (const order of existingOrders) {
+            const items = order.items as any[];
+            if (Array.isArray(items)) {
+                for (const item of items) {
+                    currentBooked += item.quantity || 0;
+                }
+            }
+        }
+
+        // 3. Calcular cantidad del nuevo pedido
+        const newItemsCount = formData.items.reduce((sum, item) => sum + item.quantity, 0);
+
+        if (currentBooked + newItemsCount > maxCapacity) {
+            const plazasDisponibles = Math.max(0, maxCapacity - currentBooked);
+            return {
+                success: false,
+                error: `Aforo completo para las ${formData.visitTime} el día ${formData.visitDate}. Solo quedan ${plazasDisponibles} plazas disponibles.`
+            };
         }
 
         const newOrder = await db.order.create({
@@ -63,6 +101,8 @@ export async function createOrderAction(formData: {
                 fullName: formData.fullName,
                 total: formData.total,
                 items: formData.items as any, // Cast as Prisma JsonValue
+                visitDate: formData.visitDate,
+                visitTime: formData.visitTime,
                 status: "pending",
             }
         });
@@ -90,6 +130,8 @@ export async function createStripeSessionAction(
             price: number;
         }[];
         total: number;
+        visitDate: string;
+        visitTime: string;
     },
     locale: string
 ): Promise<{ success: boolean; url?: string; error?: string }> {
@@ -160,6 +202,49 @@ export async function getUserOrdersAction(email: string): Promise<Order[]> {
     } catch (e) {
         console.error("Error in getUserOrdersAction:", e);
         return [];
+    }
+}
+
+export async function checkCapacityAction(date: string): Promise<{
+    capacity: number;
+    occupied: Record<string, number>;
+}> {
+    try {
+        const capacitySetting = await db.systemSetting.findUnique({
+            where: { key: "hourlyCapacity" }
+        });
+        const capacity = capacitySetting ? parseInt(capacitySetting.value, 10) : 50;
+
+        const orders = await db.order.findMany({
+            where: {
+                visitDate: date,
+                status: { in: ["paid", "completed"] }
+            }
+        });
+
+        const occupied: Record<string, number> = {};
+        
+        // Inicializar franjas horarias
+        const slots = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+        for (const slot of slots) {
+            occupied[slot] = 0;
+        }
+
+        for (const order of orders) {
+            if (order.visitTime && slots.includes(order.visitTime)) {
+                const items = order.items as any[];
+                if (Array.isArray(items)) {
+                    for (const item of items) {
+                        occupied[order.visitTime] += item.quantity || 0;
+                    }
+                }
+            }
+        }
+
+        return { capacity, occupied };
+    } catch (e) {
+        console.error("Error in checkCapacityAction:", e);
+        return { capacity: 50, occupied: {} };
     }
 }
 

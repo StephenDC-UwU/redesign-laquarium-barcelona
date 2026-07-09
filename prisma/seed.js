@@ -112,6 +112,22 @@ async function main() {
     }
   }
 
+  // 3. Configuración de aforo
+  const capacitySetting = await prisma.systemSetting.findUnique({
+    where: { key: "hourlyCapacity" }
+  });
+  if (capacitySetting) {
+    console.log("La configuración de aforo ya existe. Saltando seed de aforo...");
+  } else {
+    console.log("Seeding hourly capacity config...");
+    await prisma.systemSetting.create({
+      data: {
+        key: "hourlyCapacity",
+        value: "50"
+      }
+    });
+  }
+
   console.log("Seeding finished.");
 }
 
