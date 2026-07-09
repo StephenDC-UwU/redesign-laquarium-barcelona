@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { Article } from "@prisma/client";
+import { Article } from "@prisma/client";   
 import { revalidatePath } from "next/cache";
 
 export async function getArticlesAction(locale: string = "es"): Promise<any[]> {
