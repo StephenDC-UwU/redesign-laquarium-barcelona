@@ -111,7 +111,7 @@ function Footer({ dict }: FooterProps) {
 
 
                 {/* Columnv 4: Social medias */}
-                <div className="flex items-center gap-4 justify-end mt-8 md:mt-0 pt-4 md:col-span-12">
+                <div className="flex items-center gap-4 justify-center md:justify-end mt-8 md:mt-0 pt-4 col-span-1 md:col-span-12">
                     <Link
                         href=""
                     >
@@ -165,13 +165,13 @@ function Footer({ dict }: FooterProps) {
 
                 <div className="flex items-start gap-4 w-full text-left mb-8">
                     <div className="pt-1">
-                        <input 
-                            type="checkbox" 
-                            id="terms" 
+                        <input
+                            type="checkbox"
+                            id="terms"
                             checked={acceptedTerms}
                             onChange={(e) => setAcceptedTerms(e.target.checked)}
                             disabled={status === "loading"}
-                            className="w-4 h-4 rounded border-white/20 bg-transparent text-primary focus:ring-primary accent-primary cursor-pointer" 
+                            className="w-4 h-4 rounded border-white/20 bg-transparent text-primary focus:ring-primary accent-primary cursor-pointer"
                         />
                     </div>
                     <label htmlFor="terms" className="text-xs text-primary opacity-80 leading-relaxed cursor-pointer font-light">
@@ -186,7 +186,7 @@ function Footer({ dict }: FooterProps) {
                     <p className="text-green-500 text-sm mb-4">¡Te has suscrito con éxito!</p>
                 )}
 
-                <button 
+                <button
                     type="submit"
                     disabled={status === "loading"}
                     className="px-16 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-sm transition-colors shadow-lg disabled:opacity-50"
