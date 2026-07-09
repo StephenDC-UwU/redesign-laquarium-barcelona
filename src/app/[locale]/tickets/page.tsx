@@ -58,7 +58,7 @@ export default function TicketsPage() {
     return (
         <div className="min-h-screen pt-40 pb-20 bg-white dark:bg-slate-950 text-slate-900 dark:text-white px-4 md:px-8 xl:px-24">
             <div className="max-w-6xl mx-auto">
-                
+
                 {/* Header & Promo Code Section */}
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-16">
                     <div>
@@ -99,11 +99,12 @@ export default function TicketsPage() {
                             return (
                                 <div
                                     key={product.id}
-                                    className={`bg-white dark:bg-slate-900 border ${
-                                        showTopSalesBadge
-                                            ? "border-[#00c0a5]"
-                                            : "border-slate-200 dark:border-slate-800"
-                                    } rounded-none shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col`}
+                                    className={`bg-white dark:bg-slate-900 border ${showTopSalesBadge
+                                        ? "border-[#00c0a5]"
+                                        : "border-slate-200 dark:border-slate-800"
+                                        } rounded-none shadow-sm hover:shadow-lg transition-all duration-300
+                                        h-[480px]
+                                        flex flex-col`}
                                 >
                                     {/* Top Sales Badge */}
                                     {showTopSalesBadge && (
@@ -113,7 +114,7 @@ export default function TicketsPage() {
                                     )}
 
                                     {/* Image Section */}
-                                    <div className="relative h-48 w-full bg-slate-100 overflow-hidden">
+                                    <div className="relative h-full w-full bg-slate-100 overflow-hidden">
                                         <Image
                                             src="/promotions/shark.png"
                                             alt={product.name}
@@ -124,11 +125,11 @@ export default function TicketsPage() {
                                     </div>
 
                                     {/* Content Section */}
-                                    <div className="p-6 flex flex-col flex-1">
+                                    <div className="p-6 flex flex-col ">
                                         <h3 className="text-2xl font-bold font-outfit text-slate-900 dark:text-white mb-2 leading-tight">
                                             {product.name}
                                         </h3>
-                                        <p className="text-slate-500 dark:text-slate-400 font-switzer text-sm mb-4 flex-1">
+                                        <p className="text-slate-500 dark:text-slate-400 font-switzer text-sm mb-4 line-clamp-3 flex-1">
                                             {product.description || "!Tu entrada a L'Aquarium con reserva !"}
                                         </p>
 
@@ -152,11 +153,10 @@ export default function TicketsPage() {
                                         <div className="flex justify-center mt-2">
                                             <button
                                                 onClick={() => handleAddToCart(product)}
-                                                className={`px-8 py-3 rounded-none text-sm font-bold font-outfit text-white transition-all flex items-center gap-2 cursor-pointer shadow-md ${
-                                                    isAdded
-                                                        ? "bg-green-600 hover:bg-green-700"
-                                                        : "bg-[#00c0a5] hover:bg-[#00a890]"
-                                                }`}
+                                                className={`px-8 py-3 rounded-none text-sm font-bold font-outfit text-white transition-all flex items-center gap-2 cursor-pointer shadow-md ${isAdded
+                                                    ? "bg-green-600 hover:bg-green-700"
+                                                    : "bg-[#00c0a5] hover:bg-[#00a890]"
+                                                    }`}
                                             >
                                                 {isAdded ? (
                                                     <>

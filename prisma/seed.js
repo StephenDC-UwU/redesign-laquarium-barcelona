@@ -75,33 +75,41 @@ async function main() {
     }
   ];
 
-  console.log("Seeding articles...");
-  await prisma.article.deleteMany({});
-  for (const article of articlesData) {
-    await prisma.article.create({
-      data: {
-        listDate: article.listDate,
-        image: article.image,
-        thumbnail: article.thumbnail,
-        link: article.link,
-        translations: {
-          create: article.translations
-        }
-      },
-    });
+  const articleCount = await prisma.article.count();
+  if (articleCount > 0) {
+    console.log("Los artículos ya existen en la base de datos. Saltando seed de artículos...");
+  } else {
+    console.log("Seeding articles...");
+    for (const article of articlesData) {
+      await prisma.article.create({
+        data: {
+          listDate: article.listDate,
+          image: article.image,
+          thumbnail: article.thumbnail,
+          link: article.link,
+          translations: {
+            create: article.translations
+          }
+        },
+      });
+    }
   }
 
-  console.log("Seeding products/tickets...");
-  await prisma.product.deleteMany({});
-  for (const prod of productsData) {
-    await prisma.product.create({
-      data: {
-        price: prod.price,
-        translations: {
-          create: prod.translations
+  const productCount = await prisma.product.count();
+  if (productCount > 0) {
+    console.log("Los productos ya existen en la base de datos. Saltando seed de productos...");
+  } else {
+    console.log("Seeding products/tickets...");
+    for (const prod of productsData) {
+      await prisma.product.create({
+        data: {
+          price: prod.price,
+          translations: {
+            create: prod.translations
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   console.log("Seeding finished.");
