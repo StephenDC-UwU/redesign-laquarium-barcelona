@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { Product, Order } from "@prisma/client";
+import { Order } from "@prisma/client";
 
 export async function getOrdersAction(): Promise<Order[]> {
     try {
