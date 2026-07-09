@@ -25,7 +25,7 @@ interface HeaderProps {
 }
 
 function Header({ dict, currentLocale }: HeaderProps) {
-    const header = dict.header;
+    const navDict = dict.nav;
     const activeSection = useActiveSection();
     const pathname = usePathname();
     const { user, logout } = useAuth();
@@ -58,16 +58,16 @@ function Header({ dict, currentLocale }: HeaderProps) {
                     {/* Left Links (Hidden < xl) */}
                     <ul className="hidden xl:flex flex-row justify-around w-full z-10 gap-6">
                         <li className="z-20 cursor-pointer hover:text-secondary">
-                            <Link href={"/"}>{header.header_nav_visite}</Link>
+                            <Link href={"/"}>{navDict.nav_visite}</Link>
                         </li>
                         <li className="z-20 cursor-pointer hover:text-secondary">
-                            <Link href={"/"}>{header.header_nav_nosotros}</Link>
+                            <Link href={"/"}>{navDict.nav_nosotros}</Link>
                         </li>
                         <li className="z-20 cursor-pointer hover:text-secondary">
-                            <Link href={"/"}>{header.header_nav_exhibicion}</Link>
+                            <Link href={"/"}>{navDict.nav_exhibicion}</Link>
                         </li>
                         <li className="z-20 cursor-pointer hover:text-secondary">
-                            <Link href={"/"}>{header.header_nav_educacion}</Link>
+                            <Link href={"/"}>{navDict.nav_educacion}</Link>
                         </li>
                     </ul>
                 </div>
@@ -89,10 +89,10 @@ function Header({ dict, currentLocale }: HeaderProps) {
                 {/* 3. RIGHT: Right Links */}
                 <ul className="flex flex-row items-center justify-end  xl:justify-around z-10 ml-2 lg:ml-0 gap-0 md:gap-4 xl:gap-6 w-full">
                     <li className="hidden xl:block z-20 cursor-pointer hover:text-secondary">
-                        <Link href={"/"}>{header.header_nav_noticias}</Link>
+                        <Link href={"/"}>{navDict.nav_noticias}</Link>
                     </li>
                     <li className="hidden xl:block z-20 cursor-pointer hover:text-secondary">
-                        <Link href={"/"}>{header.header_nav_blog}</Link>
+                        <Link href={"/"}>{navDict.nav_blog}</Link>
                     </li>
                     <li className="z-20 flex items-center flex-row gap-2 lg:gap-6 ">
                         <LanguageSwitcher currentLocal={currentLocale} />

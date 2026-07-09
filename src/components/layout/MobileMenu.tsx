@@ -6,15 +6,15 @@ import { Dictionary } from "@/dictionaries";
 
 export default function MobileMenu({ dict }: { dict: Dictionary }) {
     const [isOpen, setIsOpen] = useState(false);
-    const header = dict.header;
+    const header = dict.nav;
 
     const links = [
-        { label: header.header_nav_visite, href: "/" },
-        { label: header.header_nav_nosotros, href: "/" },
-        { label: header.header_nav_exhibicion, href: "/" },
-        { label: header.header_nav_educacion, href: "/" },
-        { label: header.header_nav_noticias, href: "/" },
-        { label: header.header_nav_blog, href: "/" },
+        { label: header.nav_visite, href: "/" },
+        { label: header.nav_nosotros, href: "/" },
+        { label: header.nav_exhibicion, href: "/" },
+        { label: header.nav_educacion, href: "/" },
+        { label: header.nav_noticias, href: "/" },
+        { label: header.nav_blog, href: "/" },
     ];
 
     // Prevent body scroll when mobile menu is open
@@ -43,7 +43,7 @@ export default function MobileMenu({ dict }: { dict: Dictionary }) {
 
                     {/* Header of mobile menu */}
                     <div className="flex justify-between items-center p-6 border-b border-white/10">
-                        <span className="text-3xl font-outfit font-bold">L'Aquarium</span>
+                        <span className="text-3xl font-outfit font-bold">{dict.company.title}</span>
                         <button
                             onClick={() => setIsOpen(false)}
                             className="p-2 hover:text-primary transition-colors cursor-pointer bg-white/10 rounded-full"

@@ -1,16 +1,23 @@
 export const es = {
-    header: {
-        header_nav_visite: "Visita",
-        header_nav_nosotros: "Nosotros",
-        header_nav_exhibicion: "Exhibición",
-        header_nav_educacion: "Educación",
-        header_nav_tickets: "Entradas",
-        header_nav_hours: "Horarios y Precios",
-        header_nav_noticias: "Noticias",
-        header_nav_blog: "Blog",
-        header_nav_how_to_get_there: "Cómo llegar",
-        header_nav_services: "Servicios",
-        header_nav_contact: "Contacto"
+    company:{
+        title: "L'Aquàrium",
+        subtle: "Barcelona",
+        address: "Moll D'Espanya Del Port Vell, S/N",
+        phone: "Tel. +935 22 31 93",
+        email: "Info@Aquariumbcn.Com"
+    },
+    nav: {
+        nav_visite: "Visita",
+        nav_nosotros: "Nosotros",
+        nav_exhibicion: "Exhibición",
+        nav_educacion: "Educación",
+        nav_tickets: "Entradas",
+        nav_hours: "Horarios y Precios",
+        nav_noticias: "Noticias",
+        nav_blog: "Blog",
+        nav_how_to_get_there: "Cómo llegar",
+        nav_services: "Servicios",
+        nav_contact: "Contacto"
     },
     hero: {
         hero_title: "¡Hora de Comer!",
@@ -38,7 +45,12 @@ export const es = {
         item3_description: "Programas educativos diseñados para escuelas. Los niños aprenderán sobre la conservación marina mientras se divierten explorando nuestros acuarios interactivos.",
     },
     footer: {
-        text: "Este es el pie de página"
+        footer_legal: "Legal",
+        footer_privacy: "Privacy policy",
+        footer_cookies: "Cookie policy",
+        footer_accesibility: "Accessibility",
+        footer_contact: "Contact",
+        footer_members: "Members"
     },
     home: {
         title: "Inicio"

@@ -1,63 +1,75 @@
 export const en = {
-    header: {
-        header_nav_visite: "Visit",
-        header_nav_nosotros: "About Us",
-        header_nav_exhibicion: "Exhibition",
-        header_nav_educacion: "Education",
-        header_nav_tickets: "Tickets",
-        header_nav_hours: "Hours & Prices",
-        header_nav_noticias: "News",
-        header_nav_blog: "Blog",
-        header_nav_how_to_get_there: "How to Get There",
-        header_nav_services: "Services",
-        header_nav_contact: "Contact"
+        company:{
+        title: "L'Aquàrium",
+        subtle: "Barcelona",
+        address: "Moll D'Espanya Del Port Vell, S/N",
+        phone: "Tel. +935 22 31 93",
+        email: "Info@Aquariumbcn.Com"
+    },
+    nav: {
+        nav_visite: "Visita",
+        nav_nosotros: "Nosotros",
+        nav_exhibicion: "Exhibición",
+        nav_educacion: "Educación",
+        nav_tickets: "Entradas",
+        nav_hours: "Horarios y Precios",
+        nav_noticias: "Noticias",
+        nav_blog: "Blog",
+        nav_how_to_get_there: "Cómo llegar",
+        nav_services: "Servicios",
+        nav_contact: "Contacto"
     },
     hero: {
-        hero_title: "Feeding Time!",
-        hero_subtitle: "Sharks aren't the only ones who enjoy a good meal: come and watch our marine residents being fed!",
-        hero_button: "Get your tickets"
+        hero_title: "¡Hora de Comer!",
+        hero_subtitle: "Los tiburones no son los únicos que disfrutan de una buena comida: ¡ven a ver cómo se alimentan nuestros habitantes marinos!",
+        hero_button: "Compra tus entradas"
     },
-    news: {
-        news_title: "News",
-    },
-    discover: {
-        discover_title: "Discover",
-        discover_button_check: "Check",
-        item1_title: "CELEBRATE YOUR BIRTHDAY",
-        item1_subtitle: "Dive into an underwater adventure!",
-        item1_description: "This year, my birthday will be celebrated among sharks and friends! Get ready for an unforgettable party surrounded by the ocean's most amazing creatures.",
-        item2_title: "SHARK DIVING",
-        item2_subtitle: "An experience for the bravest",
-        item2_description: "Dare to swim with our sharks under expert supervision. Discover the majesty of these incredible predators in their natural habitat.",
-        item3_title: "SCHOOL VISITS",
-        item3_subtitle: "Interactive and fun learning",
-        item3_description: "Educational programs designed for schools. Children will learn about marine conservation while having fun exploring our interactive aquariums.",
+    news:{
+        news_title: "Noticias",
     },
     experience: {
-        title: "Come live a unique experience",
-        button: "Buy"
+        title: "Ven vive una experiencia unica",
+        button: "Comprar"
+    },
+    discover: {
+        discover_title: "Descubre",
+        discover_button_check: "Consultar",
+        item1_title: "VEN A CELEBRAR TU CUMPLEAÑOS",
+        item1_subtitle: "¡Sumérgete en una aventura bajo el mar!",
+        item1_description: "¡Este año, mi cumpleaños se celebra entre tiburones y amigos! Prepárate para una fiesta inolvidable rodeado de las criaturas más asombrosas del océano.",
+        item2_title: "BUCEO CON TIBURONES",
+        item2_subtitle: "Una experiencia para los más valientes",
+        item2_description: "Atrévete a nadar con nuestros tiburones bajo la supervisión de expertos. Descubre la majestuosidad de estos increíbles depredadores en su hábitat natural.",
+        item3_title: "VISITAS ESCOLARES",
+        item3_subtitle: "Aprendizaje interactivo y divertido",
+        item3_description: "Programas educativos diseñados para escuelas. Los niños aprenderán sobre la conservación marina mientras se divierten explorando nuestros acuarios interactivos.",
     },
     footer: {
-        text: "This is the Footer"
+        footer_legal: "Legal",
+        footer_privacy: "Privacy policy",
+        footer_cookies: "Cookie policy",
+        footer_accesibility: "Accessibility",
+        footer_contact: "Contact",
+        footer_members: "Members"
     },
     home: {
-        title: "Home"
+        title: "Inicio"
     },
     intro: {
-        card1_text: "Open 365 days a year starting from 10:00h.",
-        card1_btn: "Check",
-        badge1_text: "Hours",
-        badge2_text: "Tickets",
-        card2_text: "Don't wait any longer, buy your tickets here.",
-        card2_btn: "Buy",
-        card3_text: "How to Get There & Services",
-        card3_btn: "Check"
+        card1_text: "Abierto los 365 días del año a partir de las 10.00h.",
+        card1_btn: "Consultar",
+        badge1_text: "Horario",
+        badge2_text: "Entradas",
+        card2_text: "No esperes más, compra aquí tus entradas.",
+        card2_btn: "Comprar",
+        card3_text: "Cómo llegar y Servicios",
+        card3_btn: "Consultar"
     },
     promotions: {
-        title: "Promotions",
-        promo1: "Shark Experience",
-        promo2: "Reef Experience",
-        promo3: "Guadi's Underwater Universe",
-        promo4: "Fish Feeding Experience"
+        title: "Promociones",
+        promo1: "Experiencia con Tiburones",
+        promo2: "Experiencia en arrecife",
+        promo3: "El universo de Guadi bajo el agua",
+        promo4: "Experiencia alimentando peces"
     }
 };
