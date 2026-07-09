@@ -51,7 +51,7 @@ function Header({ dict, currentLocale }: HeaderProps) {
             <div className="w-[95%] xl:w-[85%] mx-auto grid grid-cols-[1fr_1fr_1fr] lg:grid-cols-[1fr_auto_1fr] items-center ">
 
                 {/* 1. LEFT: Hamburger (Mobile) + Left Links (Desktop) */}
-                <div className="flex items-center justify-start gap-4">
+                <div className="flex items-center justify-start  gap-4">
                     {/* Mobile Hamburger (Only visible < xl) */}
                     <MobileMenu dict={dict} />
 
@@ -73,7 +73,7 @@ function Header({ dict, currentLocale }: HeaderProps) {
                 </div>
 
                 {/* 2. CENTER: Logo */}
-                <div className="flex justify-center items-start  z-10">
+                <div className="flex justify-start xl:justify-center items-start  z-10">
                     <div className="z-20 cursor-pointer transition-transform duration-500 hover:scale-110">
                         <Link href={"/"} className="block">
                             <Image
@@ -87,7 +87,7 @@ function Header({ dict, currentLocale }: HeaderProps) {
                 </div>
 
                 {/* 3. RIGHT: Right Links */}
-                <ul className="flex flex-row items-center justify-end  xl:justify-around z-10 ml-2 lg:ml-0 gap-0 md:gap-4 xl:gap-6 w-full">
+                <ul className="flex flex-row items-center justify-start md:justify-end xl:justify-around z-10 ml-2 lg:ml-0 gap-0 md:gap-4 xl:gap-6 w-full">
                     <li className="hidden xl:block z-20 cursor-pointer hover:text-secondary">
                         <Link href={"/"}>{navDict.nav_noticias}</Link>
                     </li>
