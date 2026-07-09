@@ -221,7 +221,7 @@ export default function Promotion({ dict }: PromotionProps) {
                     {duplicatedItems.map((item, index) => (
                         <div
                             key={`${item.id}-${index}`}
-                            className="promo-card flex-none w-[80px] md:w-[320px] text-center group select-none md:pt-4"
+                            className="promo-card flex-none w-[260px] md:w-[320px] text-center group select-none md:pt-4"
                         >
                             <div className="w-56 h-56 md:w-74 md:h-74 mx-auto rounded-full overflow-hidden border-4 border-slate-100 dark:border-slate-800 shadow-xl relative aspect-square transition-all duration-500 group-hover:scale-105 group-hover:border-primary group-hover:shadow-primary/20 pointer-events-none">
                                 <Image
