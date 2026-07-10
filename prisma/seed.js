@@ -8,53 +8,148 @@ const pool = new pg.Pool({
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
+function slugify(text) {
+  return text
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\--+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+}
+
 async function main() {
-  const articlesData = [
-    {
-      listDate: "2026-06-14",
-      image: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?q=80&w=1000&auto=format&fit=crop",
-      thumbnail: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=300&auto=format&fit=crop",
+  // Clean database
+  console.log("Cleaning up old articles...");
+  await prisma.articleTranslation.deleteMany({});
+  await prisma.article.deleteMany({});
+  
+  console.log("Cleaning up products...");
+  await prisma.productTranslation.deleteMany({});
+  await prisma.product.deleteMany({});
+
+  const topics = ["Actualidad", "Acuario", "Promociones"];
+  const years = [2024, 2025, 2026];
+  const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+
+  const articlesData = [];
+
+  // Generate 25 News Articles
+  for (let i = 1; i <= 25; i++) {
+    const topic = topics[(i - 1) % topics.length];
+    const year = years[(i - 1) % years.length];
+    const month = months[(i - 1) % months.length];
+    const day = String((i % 28) + 1).padStart(2, '0');
+    const listDate = `${year}-${month}-${day}`;
+    
+    // Choose an image
+    const imageId = 1500 + i;
+    const image = `https://images.unsplash.com/photo-${imageId === 1501 ? '1582967788606-a171c1080cb0' : '1544551763-46a013bb70d5'}?q=80&w=1000&auto=format&fit=crop`;
+    const thumbnail = `https://images.unsplash.com/photo-${imageId === 1501 ? '1582967788606-a171c1080cb0' : '1544551763-46a013bb70d5'}?q=80&w=300&auto=format&fit=crop`;
+
+    const titleEs = `Noticia Aquarium ${i}: Encontrando Una Nueva Especie`;
+    const slug = slugify(`noticia-aquarium-${i}-encontrando-una-nueva-especie`);
+
+    articlesData.push({
+      listDate,
+      category: "news",
+      topic,
+      slug,
+      featured: i === 1, // First item is featured
+      image,
+      thumbnail,
       link: "#",
       translations: [
-        { locale: "es", title: "Encontrando Una Nueva Especie", date: "Sábado 14 Junio 2026" },
-        { locale: "ca", title: "Trobant Una Nova Espècie", date: "Dissabte 14 Juny 2026" },
-        { locale: "en", title: "Finding A New Species", date: "Saturday 14 June 2026" }
+        { 
+          locale: "es", 
+          title: titleEs, 
+          date: `Día ${day}/${month}/${year}`, 
+          content: `Contenido extenso de la noticia número ${i}. Descubre todo sobre las especies del acuario, las novedades científicas y los programas de conservación que desarrollamos día a día.` 
+        },
+        { 
+          locale: "ca", 
+          title: `Notícia Aquarium ${i}: Trobant Una Nova Espècie`, 
+          date: `Dia ${day}/${month}/${year}`, 
+          content: `Contingut extens de la notícia número ${i}. Descobreix tot sobre les espècies de l'aquari, les novetats científiques i els programes de conservació que desenvolupem dia a dia.` 
+        },
+        { 
+          locale: "en", 
+          title: `Aquarium News ${i}: Finding A New Species`, 
+          date: `Day ${day}/${month}/${year}`, 
+          content: `Extensive content of news number ${i}. Discover everything about the species of the aquarium, scientific news and the conservation programs we develop day by day.` 
+        }
       ]
-    },
-    {
-      listDate: "2026-06-15",
-      image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1000&auto=format&fit=crop",
-      thumbnail: "https://images.unsplash.com/photo-1524704796725-9fc3044a58b2?q=80&w=300&auto=format&fit=crop",
+    });
+  }
+
+  // Generate 25 Blog Articles
+  for (let i = 1; i <= 25; i++) {
+    const topic = topics[(i - 1) % topics.length];
+    const year = years[(i - 1) % years.length];
+    const month = months[(i - 1) % months.length];
+    const day = String((i % 28) + 1).padStart(2, '0');
+    const listDate = `${year}-${month}-${day}`;
+    
+    // Choose an image
+    const image = `https://images.unsplash.com/photo-1560275669-46c5a89d7a4c?q=80&w=1000&auto=format&fit=crop`;
+    const thumbnail = `https://images.unsplash.com/photo-1560275669-46c5a89d7a4c?q=80&w=300&auto=format&fit=crop`;
+
+    const titleEs = `Blog Aquarium ${i}: Secretos del Océano`;
+    const slug = slugify(`blog-aquarium-${i}-secretos-del-oceano`);
+
+    articlesData.push({
+      listDate,
+      category: "blog",
+      topic,
+      slug,
+      featured: i === 1, // First item is featured
+      image,
+      thumbnail,
       link: "#",
       translations: [
-        { locale: "es", title: "Nuevos Horarios de Verano", date: "Domingo 15 Junio 2026" },
-        { locale: "ca", title: "Nous Horaris d'Estiu", date: "Diumenge 15 Juny 2026" },
-        { locale: "en", title: "New Summer Hours", date: "Sunday 15 June 2026" }
+        { 
+          locale: "es", 
+          title: titleEs, 
+          date: `Día ${day}/${month}/${year}`, 
+          content: `Entrada del blog número ${i} sobre curiosidades de los tiburones, cuidados del ecosistema de arrecifes de coral y el trabajo de nuestros cuidadores marinos.` 
+        },
+        { 
+          locale: "ca", 
+          title: `Blog Aquarium ${i}: Secrets de l'Oceà`, 
+          date: `Dia ${day}/${month}/${year}`, 
+          content: `Entrada del blog número ${i} sobre curiositats dels taurons, cures de l'ecosistema de coralls i el treball dels nostres cuidadors marins.` 
+        },
+        { 
+          locale: "en", 
+          title: `Aquarium Blog ${i}: Secrets of the Ocean`, 
+          date: `Day ${day}/${month}/${year}`, 
+          content: `Blog post number ${i} about shark facts, caring for the coral reef ecosystem, and the daily work of our marine aquarists.` 
+        }
       ]
-    },
-    {
-      listDate: "2026-06-16",
-      image: "https://images.unsplash.com/photo-1580974928064-f0aeef70895a?q=80&w=1000&auto=format&fit=crop",
-      thumbnail: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?q=80&w=300&auto=format&fit=crop",
-      link: "#",
-      translations: [
-        { locale: "es", title: "Programa de Conservación Marina", date: "Lunes 16 Junio 2026" },
-        { locale: "ca", title: "Programa de Conservació Marina", date: "Dilluns 16 Juny 2026" },
-        { locale: "en", title: "Marine Conservation Program", date: "Monday 16 June 2026" }
-      ]
-    },
-    {
-      listDate: "2026-06-17",
-      image: "https://images.unsplash.com/photo-1580974928064-f0aeef70895a?q=80&w=1000&auto=format&fit=crop",
-      thumbnail: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?q=80&w=300&auto=format&fit=crop",
-      link: "#",
-      translations: [
-        { locale: "es", title: "Visita de Expertos Biólogos", date: "Martes 17 Junio 2026" },
-        { locale: "ca", title: "Visita d'Experts Biòlegs", date: "Dimarts 17 Juny 2026" },
-        { locale: "en", title: "Marine Biologists Visit", date: "Tuesday 17 June 2026" }
-      ]
-    }
-  ];
+    });
+  }
+
+  console.log("Seeding articles...");
+  for (const article of articlesData) {
+    await prisma.article.create({
+      data: {
+        listDate: article.listDate,
+        category: article.category,
+        topic: article.topic,
+        slug: article.slug,
+        featured: article.featured,
+        image: article.image,
+        thumbnail: article.thumbnail,
+        link: article.link,
+        translations: {
+          create: article.translations
+        }
+      },
+    });
+  }
 
   const productsData = [
     {
@@ -75,50 +170,23 @@ async function main() {
     }
   ];
 
-  const articleCount = await prisma.article.count();
-  if (articleCount > 0) {
-    console.log("Los artículos ya existen en la base de datos. Saltando seed de artículos...");
-  } else {
-    console.log("Seeding articles...");
-    for (const article of articlesData) {
-      await prisma.article.create({
-        data: {
-          listDate: article.listDate,
-          image: article.image,
-          thumbnail: article.thumbnail,
-          link: article.link,
-          translations: {
-            create: article.translations
-          }
-        },
-      });
-    }
-  }
-
-  const productCount = await prisma.product.count();
-  if (productCount > 0) {
-    console.log("Los productos ya existen en la base de datos. Saltando seed de productos...");
-  } else {
-    console.log("Seeding products/tickets...");
-    for (const prod of productsData) {
-      await prisma.product.create({
-        data: {
-          price: prod.price,
-          translations: {
-            create: prod.translations
-          }
+  console.log("Seeding products/tickets...");
+  for (const prod of productsData) {
+    await prisma.product.create({
+      data: {
+        price: prod.price,
+        translations: {
+          create: prod.translations
         }
-      });
-    }
+      }
+    });
   }
 
-  // 3. Configuración de aforo
+  // Aforo setting
   const capacitySetting = await prisma.systemSetting.findUnique({
     where: { key: "hourlyCapacity" }
   });
-  if (capacitySetting) {
-    console.log("La configuración de aforo ya existe. Saltando seed de aforo...");
-  } else {
+  if (!capacitySetting) {
     console.log("Seeding hourly capacity config...");
     await prisma.systemSetting.create({
       data: {

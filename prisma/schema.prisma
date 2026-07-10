@@ -54,10 +54,14 @@ model User {
 
 model Article {
   id           String               @id @default(uuid())
+  slug         String               @unique
   image        String
   thumbnail    String
   link         String               @default("#")
   listDate     String
+  category     String               @default("news") // "news" or "blog"
+  topic        String               @default("Actualidad") // "Actualidad", "Acuario", "Promociones"
+  featured     Boolean              @default(false)
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
   translations ArticleTranslation[]

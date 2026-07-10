@@ -53,7 +53,7 @@ function Header({ dict, currentLocale }: HeaderProps) {
                 {/* 1. LEFT: Hamburger (Mobile) + Left Links (Desktop) */}
                 <div className="flex items-center justify-start  gap-4">
                     {/* Mobile Hamburger (Only visible < xl) */}
-                    <MobileMenu dict={dict} />
+                    <MobileMenu dict={dict} currentLocale={currentLocale} />
 
                     {/* Left Links (Hidden < xl) */}
                     <ul className="hidden xl:flex flex-row justify-around w-full z-10 gap-6">
@@ -89,10 +89,10 @@ function Header({ dict, currentLocale }: HeaderProps) {
                 {/* 3. RIGHT: Right Links */}
                 <ul className="flex flex-row items-center justify-start md:justify-end xl:justify-around z-10 ml-2 lg:ml-0 gap-0 md:gap-4 xl:gap-6 w-full">
                     <li className="hidden xl:block z-20 cursor-pointer hover:text-secondary">
-                        <Link href={"/"}>{navDict.nav_noticias}</Link>
+                        <Link href={`/${currentLocale}/articles/news`}>{navDict.nav_noticias}</Link>
                     </li>
                     <li className="hidden xl:block z-20 cursor-pointer hover:text-secondary">
-                        <Link href={"/"}>{navDict.nav_blog}</Link>
+                        <Link href={`/${currentLocale}/articles/blogs`}>{navDict.nav_blog}</Link>
                     </li>
                     <li className="z-20 flex items-center flex-row gap-2 lg:gap-6 ">
                         <LanguageSwitcher currentLocal={currentLocale} />

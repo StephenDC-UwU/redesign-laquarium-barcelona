@@ -4,17 +4,19 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { Dictionary } from "@/dictionaries";
 
-export default function MobileMenu({ dict }: { dict: Dictionary }) {
+import { Locale } from "@/types/Locale";
+
+export default function MobileMenu({ dict, currentLocale }: { dict: Dictionary; currentLocale: Locale }) {
     const [isOpen, setIsOpen] = useState(false);
     const header = dict.nav;
 
     const links = [
-        { label: header.nav_visite, href: "/" },
-        { label: header.nav_nosotros, href: "/" },
-        { label: header.nav_exhibicion, href: "/" },
-        { label: header.nav_educacion, href: "/" },
-        { label: header.nav_noticias, href: "/" },
-        { label: header.nav_blog, href: "/" },
+        { label: header.nav_visite, href: `/${currentLocale}` },
+        { label: header.nav_nosotros, href: `/${currentLocale}` },
+        { label: header.nav_exhibicion, href: `/${currentLocale}` },
+        { label: header.nav_educacion, href: `/${currentLocale}` },
+        { label: header.nav_noticias, href: `/${currentLocale}/articles/news` },
+        { label: header.nav_blog, href: `/${currentLocale}/articles/blogs` },
     ];
 
     // Prevent body scroll when mobile menu is open

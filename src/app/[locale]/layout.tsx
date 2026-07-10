@@ -33,6 +33,7 @@ export const metadata: Metadata = {
 };
 
 import SectionObserver from "@/components/layout/SectionObserver";
+import PageTransitionLoader from "@/components/layout/PageTransitionLoader";
 
 export default async function RootLayout({
   children,
@@ -54,6 +55,7 @@ export default async function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>
+              <PageTransitionLoader />
               <SectionObserver />
               <Header dict={dict} currentLocale={currentLocale} />
               {children}

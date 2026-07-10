@@ -5,9 +5,19 @@ import Promotion from "@/components/home/Promotion";
 import Experience from "@/components/home/Experience";
 import Discover from "@/components/home/Discover";
 import News from "@/components/home/News";
+import { Metadata } from "next";
 
 interface HomeProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: HomeProps): Promise<Metadata> {
+  const { locale } = await params;
+  const dict = await getDictionary(locale);
+  return {
+    title: `L'Aquàrium Barcelona - Acuario del Mediterráneo`,
+    description: "Visita L'Aquàrium Barcelona. Sumérgete en el Oceanario paseando bajo los tiburones, descubre los arrecifes tropicales y aprende sobre la conservación del mar mediterráneo.",
+  };
 }
 
 export default async function Home({ params }: HomeProps) {
