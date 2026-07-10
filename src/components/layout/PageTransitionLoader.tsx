@@ -23,26 +23,46 @@ export default function PageTransitionLoader() {
         return () => clearInterval(interval);
     }, [isVisible]);
 
-    // Handle smooth page exit transitions on pathname changes
+    // Handle smooth page exit transitions when rendering is complete or when the URL changes
     useEffect(() => {
         if (!isLoading) return;
 
-        // Keep loader visible for at least 600ms for a smooth breathing animation
-        const delayTimer = setTimeout(() => {
-            setIsFadingOut(true);
+        let delayTimer: NodeJS.Timeout;
+        let fadeTimer: NodeJS.Timeout;
+        let completed = false;
 
-            // Wait 400ms for opacity fade-out transition, then unmount
-            const fadeTimer = setTimeout(() => {
-                setIsLoading(false);
-                setIsVisible(false);
-                setIsFadingOut(false);
-            }, 400);
+        const handleComplete = () => {
+            if (completed) return;
+            completed = true;
 
-            return () => clearTimeout(fadeTimer);
-        }, 600);
+            // Keep loader visible for at least 600ms for a smooth breathing animation
+            delayTimer = setTimeout(() => {
+                setIsFadingOut(true);
 
-        return () => clearTimeout(delayTimer);
-    }, [pathname, searchParams, isLoading]);
+                // Wait 400ms for opacity fade-out transition, then unmount
+                fadeTimer = setTimeout(() => {
+                    setIsLoading(false);
+                    setIsVisible(false);
+                    setIsFadingOut(false);
+                }, 400);
+            }, 600);
+        };
+
+        window.addEventListener("page-rendering-complete", handleComplete);
+
+        // Fallback: If the URL pathname/searchParams update, the page transition has finished.
+        // This handles cases where template.tsx is reused by Next.js and doesn't re-mount.
+        const pathTimer = setTimeout(() => {
+            handleComplete();
+        }, 100);
+
+        return () => {
+            window.removeEventListener("page-rendering-complete", handleComplete);
+            clearTimeout(delayTimer);
+            clearTimeout(fadeTimer);
+            clearTimeout(pathTimer);
+        };
+    }, [isLoading, pathname, searchParams]);
 
     // Setup listeners to start loading state
     useEffect(() => {

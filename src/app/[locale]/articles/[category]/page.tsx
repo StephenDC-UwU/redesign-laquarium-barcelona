@@ -1,5 +1,5 @@
 import { getDictionary } from "@/dictionaries";
-import { getFilteredArticlesAction, getArticlesFilterMetadataAction } from "@/actions/newsActions";
+import { getFilteredArticlesAction, getArticlesFilterMetadataAction } from "@/actions/articleActions";
 import ArticlesClientPage from "@/components/articles/ArticlesClientPage";
 import { Locale } from "@/types/Locale";
 import { Metadata } from "next";

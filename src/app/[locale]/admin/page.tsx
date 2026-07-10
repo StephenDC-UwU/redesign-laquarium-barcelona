@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { getOrdersAction, updateOrderStatusAction, deleteOrderAction, createProductAction, deleteProductAction, getHourlyCapacityAction, updateHourlyCapacityAction, getOccupancyReportAction } from "@/actions/adminActions";
 import { getAvailableProductsAction, LocalizedProduct, checkCapacityAction } from "@/actions/cartActions";
-import { getArticlesAction, createArticleAction, updateArticleAction, deleteArticleAction, getArticleTranslationsAction } from "@/actions/newsActions";
+import { getArticlesAction, createArticleAction, updateArticleAction, deleteArticleAction, getArticleTranslationsAction } from "@/actions/articleActions";
 import { uploadImageAction } from "@/actions/uploadActions";
 import { Order } from "@prisma/client";
 import { DollarSign, Ticket, FileText, Trash2, Plus, ArrowLeft, RefreshCw, Layers, Lock, LogIn, Newspaper, Edit } from "lucide-react";

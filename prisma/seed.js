@@ -94,8 +94,8 @@ async function main() {
     const listDate = `${year}-${month}-${day}`;
     
     // Choose an image
-    const image = `https://images.unsplash.com/photo-1560275669-46c5a89d7a4c?q=80&w=1000&auto=format&fit=crop`;
-    const thumbnail = `https://images.unsplash.com/photo-1560275669-46c5a89d7a4c?q=80&w=300&auto=format&fit=crop`;
+    const image = `https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?q=80&w=1000&auto=format&fit=crop`;
+    const thumbnail = `https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?q=80&w=300&auto=format&fit=crop`;
 
     const titleEs = `Blog Aquarium ${i}: Secretos del Océano`;
     const slug = slugify(`blog-aquarium-${i}-secretos-del-oceano`);

@@ -1,6 +1,7 @@
 import { getDictionary } from "@/dictionaries";
-import { getArticleBySlugAction } from "@/actions/newsActions";
+import { getArticleBySlugAction } from "@/actions/articleActions";
 import { notFound } from "next/navigation";
+import SafeImage from "@/components/ui/SafeImage";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -88,7 +89,7 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
 
                 {/* Main Hero Image */}
                 <div className="relative w-full aspect-[16/9] md:aspect-[21/9] rounded-[24px] md:rounded-[32px] overflow-hidden shadow-2xl border border-white/10 mb-12">
-                    <Image
+                    <SafeImage
                         src={article.image}
                         alt={article.title}
                         fill

@@ -7,18 +7,23 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Check } from "lucide-react";
 
-export default function TicketsClient() {
+interface TicketsClientProps {
+    initialProducts?: LocalizedProduct[];
+}
+
+export default function TicketsClient({ initialProducts = [] }: TicketsClientProps) {
     const { addToCart } = useCart();
     const params = useParams();
     const locale = params?.locale || "es";
     const localeStr = Array.isArray(locale) ? locale[0] : locale;
-    const [products, setProducts] = useState<LocalizedProduct[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [products, setProducts] = useState<LocalizedProduct[]>(initialProducts);
+    const [loading, setLoading] = useState(initialProducts.length === 0);
     const [promoCode, setPromoCode] = useState("");
     const [appliedPromo, setAppliedPromo] = useState(false);
     const [addedIds, setAddedIds] = useState<string[]>([]);
 
     useEffect(() => {
+        if (initialProducts.length > 0) return;
         const fetchProducts = async () => {
             try {
                 const fetched = await getAvailableProductsAction(localeStr);
@@ -30,7 +35,7 @@ export default function TicketsClient() {
             }
         };
         fetchProducts();
-    }, [localeStr]);
+    }, [localeStr, initialProducts]);
 
     const handleAddToCart = (product: LocalizedProduct) => {
         addToCart({

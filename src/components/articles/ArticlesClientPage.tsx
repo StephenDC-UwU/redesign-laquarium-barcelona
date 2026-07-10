@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { useRouter } from "next/navigation";
 import { Search, SlidersHorizontal, X, Calendar, BookOpen, Clock } from "lucide-react";
 import { Dictionary } from "@/dictionaries";
-import { getFilteredArticlesAction } from "@/actions/newsActions";
+import { getFilteredArticlesAction } from "@/actions/articleActions";
 
 interface ArticlesClientPageProps {
     dict: Dictionary;
@@ -411,7 +411,7 @@ export default function ArticlesClientPage({
                             className="relative w-full h-[400px] md:h-[550px] rounded-[32px] overflow-hidden group shadow-2xl transition-all duration-500 cursor-pointer border border-white/10"
                             onClick={() => handleNavigate(`/${locale}/articles/${category}/${featuredArticle.slug}`)}
                         >
-                            <Image
+                            <SafeImage
                                 src={featuredArticle.image}
                                 alt={featuredArticle.title}
                                 fill
@@ -445,7 +445,7 @@ export default function ArticlesClientPage({
                                         className="relative aspect-[16/10] rounded-[24px] overflow-hidden group shadow-xl cursor-pointer border border-white/10 flex flex-col justify-end p-6 text-white"
                                         onClick={() => handleNavigate(`/${locale}/articles/${category}/${art.slug}`)}
                                     >
-                                        <Image
+                                        <SafeImage
                                             src={art.image}
                                             alt={art.title}
                                             fill
@@ -472,7 +472,7 @@ export default function ArticlesClientPage({
                                 className="lg:col-span-7 relative min-h-[400px] rounded-[24px] overflow-hidden group shadow-xl cursor-pointer border border-white/10 flex flex-col justify-end p-8 text-white"
                                 onClick={() => handleNavigate(`/${locale}/articles/${category}/${articles[3].slug}`)}
                             >
-                                <Image
+                                <SafeImage
                                     src={articles[3].image}
                                     alt={articles[3].title}
                                     fill
@@ -500,7 +500,7 @@ export default function ArticlesClientPage({
                             className="relative w-full aspect-[21/9] min-h-[220px] rounded-[24px] overflow-hidden group shadow-2xl transition-all duration-500 cursor-pointer border border-white/10 flex flex-col justify-center items-center text-center p-6 text-white"
                             onClick={() => handleNavigate(`/${locale}/articles/${category}/${articles[4].slug}`)}
                         >
-                            <Image
+                            <SafeImage
                                 src={articles[4].image}
                                 alt={articles[4].title}
                                 fill
@@ -531,7 +531,7 @@ export default function ArticlesClientPage({
                                     className="relative aspect-square rounded-[24px] overflow-hidden border border-slate-105 dark:border-slate-850/50 hover:shadow-2xl transition-all duration-500 flex flex-col justify-end p-6 text-white group cursor-pointer"
                                     onClick={() => handleNavigate(`/${locale}/articles/${category}/${art.slug}`)}
                                 >
-                                    <Image
+                                    <SafeImage
                                         src={art.thumbnail || art.image}
                                         alt={art.title}
                                         fill

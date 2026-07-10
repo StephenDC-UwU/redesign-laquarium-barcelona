@@ -2,6 +2,7 @@ import { getDictionary } from "@/dictionaries";
 import { Locale } from "@/types/Locale";
 import { Metadata } from "next";
 import TicketsClient from "./TicketsClient";
+import { getAvailableProductsAction } from "@/actions/cartActions";
 
 interface TicketsPageProps {
     params: Promise<{ locale: string }>;
@@ -18,6 +19,10 @@ export async function generateMetadata({ params }: TicketsPageProps): Promise<Me
     };
 }
 
-export default async function TicketsPage() {
-    return <TicketsClient />;
+export default async function TicketsPage({ params }: TicketsPageProps) {
+    const { locale } = await params;
+    const currentLocale = locale as Locale;
+    const products = await getAvailableProductsAction(currentLocale);
+
+    return <TicketsClient initialProducts={products} />;
 }

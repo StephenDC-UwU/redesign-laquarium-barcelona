@@ -4,10 +4,10 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, useState, useEffect } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { Dictionary } from "@/dictionaries";
 
-import { getArticlesAction } from "@/actions/newsActions";
+import { getArticlesAction } from "@/actions/articleActions";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -173,7 +173,7 @@ export default function News({ dict, locale }: NewsProps) {
                         className="relative w-full aspect-square md:aspect-[4/3] rounded-[40px] overflow-hidden shadow-2xl group cursor-pointer"
                         onClick={() => window.location.href = featured.link}
                     >
-                        <Image
+                        <SafeImage
                             src={featured.image}
                             alt={featured.title}
                             fill
@@ -225,7 +225,7 @@ export default function News({ dict, locale }: NewsProps) {
                                     >
                                         {/* Thumbnail */}
                                         <div className="relative w-24 h-24 md:w-28 md:h-24 flex-shrink-0 rounded-3xl overflow-hidden border-2 border-transparent group-hover:border-primary transition-colors pointer-events-none">
-                                            <Image
+                                            <SafeImage
                                                 src={news.thumbnail}
                                                 alt={news.title}
                                                 fill
