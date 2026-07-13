@@ -79,7 +79,7 @@ export async function loginUserAction(formData: {
 export async function adminLoginAction(passwordInput: string): Promise<{ success: boolean; error?: string }> {
     try {
         // Simple secure check. Can use an env variable, or fallback to 'admin123' if not set.
-        const adminPass = process.env.ADMIN_PASSWORD || "admin123";
+        const adminPass = process.env.ADMIN_PASSWORD;
         if (passwordInput === adminPass) {
             return { success: true };
         }
