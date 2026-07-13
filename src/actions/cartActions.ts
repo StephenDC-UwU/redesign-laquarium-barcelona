@@ -59,11 +59,21 @@ export async function createOrderAction(formData: {
             return { success: false, error: "El carrito está vacío." };
         }
 
-        // 1. Obtener capacidad máxima de aforo por hora
-        const capacitySetting = await db.systemSetting.findUnique({
-            where: { key: "hourlyCapacity" }
+        // 1. Obtener capacidad máxima de aforo por hora para la fecha de visita
+        const dateSpecificCapacityKey = `capacity_${formData.visitDate}`;
+        const dateSpecificCapacitySetting = await db.systemSetting.findUnique({
+            where: { key: dateSpecificCapacityKey }
         });
-        const maxCapacity = capacitySetting ? parseInt(capacitySetting.value, 10) : 50;
+        
+        let maxCapacity = 50;
+        if (dateSpecificCapacitySetting) {
+            maxCapacity = parseInt(dateSpecificCapacitySetting.value, 10);
+        } else {
+            const capacitySetting = await db.systemSetting.findUnique({
+                where: { key: "hourlyCapacity" }
+            });
+            maxCapacity = capacitySetting ? parseInt(capacitySetting.value, 10) : 50;
+        }
 
         // 2. Sumar cantidad de personas reservadas en esa fecha y hora (órdenes pagadas o completadas)
         const existingOrders = await db.order.findMany({
@@ -210,10 +220,20 @@ export async function checkCapacityAction(date: string): Promise<{
     occupied: Record<string, number>;
 }> {
     try {
-        const capacitySetting = await db.systemSetting.findUnique({
-            where: { key: "hourlyCapacity" }
+        const dateSpecificCapacityKey = `capacity_${date}`;
+        const dateSpecificCapacitySetting = await db.systemSetting.findUnique({
+            where: { key: dateSpecificCapacityKey }
         });
-        const capacity = capacitySetting ? parseInt(capacitySetting.value, 10) : 50;
+        
+        let capacity = 50;
+        if (dateSpecificCapacitySetting) {
+            capacity = parseInt(dateSpecificCapacitySetting.value, 10);
+        } else {
+            const capacitySetting = await db.systemSetting.findUnique({
+                where: { key: "hourlyCapacity" }
+            });
+            capacity = capacitySetting ? parseInt(capacitySetting.value, 10) : 50;
+        }
 
         const orders = await db.order.findMany({
             where: {

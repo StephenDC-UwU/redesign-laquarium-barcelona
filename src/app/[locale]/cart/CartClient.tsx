@@ -44,7 +44,7 @@ export default function CartClient() {
         const minMonth = today.getMonth();
         const minYear = today.getFullYear();
         if (currentYear === minYear && currentMonth === minMonth) return;
-        
+
         if (currentMonth === 0) {
             setCurrentMonth(11);
             setCurrentYear(prev => prev - 1);
@@ -61,7 +61,7 @@ export default function CartClient() {
             setCurrentMonth(prev => prev + 1);
         }
     };
-    
+
     // Track if cart has been cleared on success
     const clearedRef = useRef(false);
 
@@ -205,10 +205,10 @@ export default function CartClient() {
                     </div>
                     <div className="flex flex-col gap-3">
                         <Link
-                            href={`/${locale}/admin`}
+                            href={`/${locale}/profile`}
                             className="w-full bg-secondary dark:bg-white text-white dark:text-black py-4 rounded-full font-bold font-outfit hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer shadow-lg"
                         >
-                            Ver Órdenes en Panel Admin
+                            Ver Órdenes en tu panel
                         </Link>
                         <Link
                             href={`/${locale}`}
@@ -393,7 +393,7 @@ export default function CartClient() {
                                         <label className="text-xs font-semibold text-slate-500 block">
                                             Selecciona una Fecha
                                         </label>
-                                        
+
                                         {/* Custom Calendar Card */}
                                         <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-4 bg-slate-50 dark:bg-slate-950 font-switzer">
                                             {/* Header */}
@@ -447,13 +447,12 @@ export default function CartClient() {
                                                             type="button"
                                                             disabled={isPast || isPending}
                                                             onClick={() => setVisitDate(dateStr)}
-                                                            className={`h-9 w-9 mx-auto flex items-center justify-center rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                                                                isSelected
-                                                                    ? "bg-primary text-white shadow-md shadow-primary/20 scale-105"
-                                                                    : isPast
-                                                                        ? "text-slate-300 dark:text-slate-700 cursor-not-allowed"
-                                                                        : "text-secondary dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800"
-                                                            }`}
+                                                            className={`h-9 w-9 mx-auto flex items-center justify-center rounded-xl text-xs font-semibold transition-all cursor-pointer ${isSelected
+                                                                ? "bg-primary text-white shadow-md shadow-primary/20 scale-105"
+                                                                : isPast
+                                                                    ? "text-slate-300 dark:text-slate-700 cursor-not-allowed"
+                                                                    : "text-secondary dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800"
+                                                                }`}
                                                         >
                                                             {day}
                                                         </button>
@@ -472,7 +471,7 @@ export default function CartClient() {
                                         <label className="text-xs font-semibold text-slate-500 block">
                                             Selecciona una Hora
                                         </label>
-                                        
+
                                         {!visitDate ? (
                                             <div className="text-xs text-slate-400 p-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-center font-switzer">
                                                 Selecciona primero una fecha en el calendario
@@ -486,7 +485,7 @@ export default function CartClient() {
                                                 {["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"].map((slot) => {
                                                     const booked = capacityData?.occupied[slot] || 0;
                                                     const limit = capacityData?.capacity || 50;
-                                                    
+
                                                     // Check if slot has already passed today
                                                     const isPassed = (() => {
                                                         if (visitDate !== getMinDate()) return false;
@@ -494,7 +493,7 @@ export default function CartClient() {
                                                         const currentHour = new Date().getHours();
                                                         return slotHour <= currentHour;
                                                     })();
-                                                    
+
                                                     const isFull = booked + itemCount > limit;
                                                     const isDisabled = isPassed || isFull;
                                                     const isSelected = visitTime === slot;
@@ -506,20 +505,19 @@ export default function CartClient() {
                                                             type="button"
                                                             disabled={isDisabled || isPending}
                                                             onClick={() => setVisitTime(slot)}
-                                                            className={`py-3 px-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center border cursor-pointer ${
-                                                                isSelected
-                                                                    ? "bg-primary border-primary text-white shadow-md shadow-primary/20"
-                                                                    : isDisabled
-                                                                        ? "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-300 dark:text-slate-700 cursor-not-allowed opacity-50"
-                                                                        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-secondary dark:text-slate-300 hover:border-primary hover:text-primary"
-                                                            }`}
+                                                            className={`py-3 px-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center border cursor-pointer ${isSelected
+                                                                ? "bg-primary border-primary text-white shadow-md shadow-primary/20"
+                                                                : isDisabled
+                                                                    ? "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-300 dark:text-slate-700 cursor-not-allowed opacity-50"
+                                                                    : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-secondary dark:text-slate-300 hover:border-primary hover:text-primary"
+                                                                }`}
                                                         >
                                                             <span className="text-sm font-bold font-outfit">{slot}</span>
                                                             <span className="text-[9px] opacity-80 mt-0.5">
-                                                                {isPassed 
-                                                                    ? "Pasado" 
-                                                                    : isFull 
-                                                                        ? "Agotado" 
+                                                                {isPassed
+                                                                    ? "Pasado"
+                                                                    : isFull
+                                                                        ? "Agotado"
                                                                         : `${available} plazas`
                                                                 }
                                                             </span>

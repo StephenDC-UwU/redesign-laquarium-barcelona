@@ -179,3 +179,133 @@ export async function getOccupancyReportAction(date: string): Promise<Record<str
     }
 }
 
+export async function getProductTranslationsAction(id: string): Promise<any[]> {
+    try {
+        return await db.productTranslation.findMany({
+            where: { productId: id }
+        });
+    } catch (e) {
+        console.error("Error in getProductTranslationsAction:", e);
+        return [];
+    }
+}
+
+export async function updateProductAction(
+    id: string,
+    data: {
+        price: number;
+        nameEs: string;
+        descriptionEs: string;
+        tagEs?: string;
+        nameCa: string;
+        descriptionCa: string;
+        tagCa?: string;
+        nameEn: string;
+        descriptionEn: string;
+        tagEn?: string;
+    },
+    locale: string = "es"
+): Promise<{ success: boolean; product?: any; error?: string }> {
+    try {
+        if (!data.nameEs || !data.nameCa || !data.nameEn || data.price <= 0) {
+            return { success: false, error: "El nombre en todos los idiomas y un precio válido son requeridos." };
+        }
+
+        await db.product.update({
+            where: { id },
+            data: { price: data.price }
+        });
+
+        // ES translation
+        await db.productTranslation.upsert({
+            where: { productId_locale: { productId: id, locale: "es" } },
+            update: { name: data.nameEs, description: data.descriptionEs, tag: data.tagEs || null },
+            create: { productId: id, locale: "es", name: data.nameEs, description: data.descriptionEs, tag: data.tagEs || null }
+        });
+
+        // CA translation
+        await db.productTranslation.upsert({
+            where: { productId_locale: { productId: id, locale: "ca" } },
+            update: { name: data.nameCa, description: data.descriptionCa, tag: data.tagCa || null },
+            create: { productId: id, locale: "ca", name: data.nameCa, description: data.descriptionCa, tag: data.tagCa || null }
+        });
+
+        // EN translation
+        await db.productTranslation.upsert({
+            where: { productId_locale: { productId: id, locale: "en" } },
+            update: { name: data.nameEn, description: data.descriptionEn, tag: data.tagEn || null },
+            create: { productId: id, locale: "en", name: data.nameEn, description: data.descriptionEn, tag: data.tagEn || null }
+        });
+
+        const updatedProduct = await db.product.findUnique({
+            where: { id },
+            include: {
+                translations: {
+                    where: { locale }
+                }
+            }
+        });
+
+        revalidatePath("/[locale]", "layout");
+        revalidatePath("/[locale]/admin", "layout");
+
+        if (!updatedProduct) return { success: false, error: "Producto no encontrado." };
+
+        return {
+            success: true,
+            product: {
+                id: updatedProduct.id,
+                price: updatedProduct.price,
+                createdAt: updatedProduct.createdAt,
+                updatedAt: updatedProduct.updatedAt,
+                name: updatedProduct.translations[0]?.name || "",
+                description: updatedProduct.translations[0]?.description || "",
+                tag: updatedProduct.translations[0]?.tag || null,
+            }
+        };
+    } catch (e) {
+        console.error("Error in updateProductAction:", e);
+        return { success: false, error: "Error al actualizar el producto." };
+    }
+}
+
+export async function getDailyCapacityAction(date: string): Promise<number> {
+    try {
+        const dateSpecificCapacityKey = `capacity_${date}`;
+        const dateSpecificCapacitySetting = await db.systemSetting.findUnique({
+            where: { key: dateSpecificCapacityKey }
+        });
+        if (dateSpecificCapacitySetting) {
+            return parseInt(dateSpecificCapacitySetting.value, 10);
+        }
+        // Fallback to default
+        const defaultCapacitySetting = await db.systemSetting.findUnique({
+            where: { key: "hourlyCapacity" }
+        });
+        return defaultCapacitySetting ? parseInt(defaultCapacitySetting.value, 10) : 50;
+    } catch (e) {
+        console.error("Error in getDailyCapacityAction:", e);
+        return 50;
+    }
+}
+
+export async function updateDailyCapacityAction(date: string, capacity: number): Promise<{ success: boolean; error?: string }> {
+    try {
+        if (capacity <= 0) {
+            return { success: false, error: "La capacidad debe ser un número positivo." };
+        }
+        const dateSpecificCapacityKey = `capacity_${date}`;
+        await db.systemSetting.upsert({
+            where: { key: dateSpecificCapacityKey },
+            update: { value: capacity.toString() },
+            create: { key: dateSpecificCapacityKey, value: capacity.toString() }
+        });
+        revalidatePath("/[locale]/admin", "layout");
+        revalidatePath("/[locale]/cart", "layout");
+        return { success: true };
+    } catch (e) {
+        console.error("Error in updateDailyCapacityAction:", e);
+        return { success: false, error: "Hubo un error al actualizar la capacidad." };
+    }
+}
+
