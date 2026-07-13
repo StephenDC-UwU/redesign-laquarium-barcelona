@@ -54,8 +54,8 @@ export async function getArticlesAction(locale: string = "es"): Promise<any[]> {
 export async function createArticleAction(
     data: {
         listDate: string;
-        image: string;
-        thumbnail: string;
+        image?: string;
+        thumbnail?: string;
         link?: string;
         category?: string;
         titleEs: string;
@@ -71,7 +71,7 @@ export async function createArticleAction(
     locale: string = "es"
 ): Promise<{ success: boolean; article?: any; error?: string }> {
     try {
-        if (!data.listDate || !data.image || !data.thumbnail || !data.titleEs || !data.titleCa || !data.titleEn) {
+        if (!data.listDate || !data.titleEs || !data.titleCa || !data.titleEn) {
             return { success: false, error: "Todos los campos obligatorios deben estar completos." };
         }
         const slug = slugify(data.titleEs);
@@ -79,8 +79,8 @@ export async function createArticleAction(
             data: {
                 slug,
                 listDate: data.listDate,
-                image: data.image,
-                thumbnail: data.thumbnail,
+                image: data.image || "",
+                thumbnail: data.thumbnail || "",
                 link: data.link || "#",
                 category: data.category || "news",
                 translations: {
