@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Order } from "@prisma/client";
-import { Trash2, Calendar, Search, SlidersHorizontal, ArrowUpDown } from "lucide-react";
+import { Trash2, Calendar, Search, SlidersHorizontal, ArrowUpDown, Printer } from "lucide-react";
 
 interface OrdersProps {
     orders: Order[]; // Already filtered and sorted orders passed from parent
@@ -57,6 +57,10 @@ export default function Orders({
     const [calYear, setCalYear] = useState(() => new Date().getFullYear());
     const [calMonth, setCalMonth] = useState(() => new Date().getMonth());
 
+    // Print states
+    const [printMode, setPrintMode] = useState<"ticket" | "list" | null>(null);
+    const [selectedPrintOrder, setSelectedPrintOrder] = useState<Order | null>(null);
+
     // Reset filters helper
     const handleResetFilters = () => {
         setSearchQuery("");
@@ -67,6 +71,23 @@ export default function Orders({
         setSortBy("date_desc");
     };
 
+    // Print triggers
+    const handlePrintTicket = (order: Order) => {
+        setSelectedPrintOrder(order);
+        setPrintMode("ticket");
+        setTimeout(() => {
+            window.print();
+        }, 150);
+    };
+
+    const handlePrintList = () => {
+        setSelectedPrintOrder(null);
+        setPrintMode("list");
+        setTimeout(() => {
+            window.print();
+        }, 150);
+    };
+
     const isAnyFilterActive = 
         searchQuery !== "" || 
         statusFilter !== "all" || 
@@ -75,23 +96,240 @@ export default function Orders({
         maxPrice !== "" || 
         sortBy !== "date_desc";
 
+    // Count and sums for list printing
+    const printSalesSum = orders
+        .filter((o) => o.status === "paid" || o.status === "completed")
+        .reduce((sum, o) => sum + o.total, 0);
+
+    const printTicketsCount = orders
+        .filter((o) => o.status === "paid" || o.status === "completed")
+        .reduce((sum, o) => sum + ((o.items as any[]) || []).reduce((acc: number, it: any) => acc + it.quantity, 0), 0);
+
     return (
         <div className="space-y-6">
-            {/* Filters Bar */}
+            {/* Inline CSS overrides to handle window.print cleanly */}
+            <style dangerouslySetInnerHTML={{ __html: `
+                @media print {
+                    /* Hide everything by default */
+                    body * {
+                        visibility: hidden;
+                    }
+                    /* Show only print-area container */
+                    #print-area, #print-area * {
+                        visibility: visible;
+                    }
+                    #print-area {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        color: #000 !important;
+                        background: #fff !important;
+                    }
+                    /* Ticket formatting */
+                    .ticket-print-layout {
+                        width: 78mm;
+                        padding: 4mm;
+                        font-family: monospace;
+                        font-size: 11px;
+                        line-height: 1.3;
+                    }
+                    /* General table styling for visitor list */
+                    .list-print-layout {
+                        width: 100%;
+                        font-family: sans-serif;
+                        font-size: 12px;
+                    }
+                    .list-print-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 15px;
+                    }
+                    .list-print-table th, .list-print-table td {
+                        border: 1px solid #ddd;
+                        padding: 8px;
+                        text-align: left;
+                    }
+                    .list-print-table th {
+                        background-color: #f2f2f2;
+                        font-weight: bold;
+                    }
+                }
+            ` }} />
+
+            {/* Hidden Print Container */}
+            <div id="print-area" className="hidden print:block">
+                {printMode === "ticket" && selectedPrintOrder && (
+                    <div className="ticket-print-layout mx-auto">
+                        <div className="text-center font-bold text-sm uppercase tracking-wider mb-1">
+                            L'Aquàrium Barcelona
+                        </div>
+                        <div className="text-center text-[10px] uppercase text-slate-600 mb-3">
+                            Ticket de Entrada Oficial
+                        </div>
+                        <div className="border-t border-dashed border-black my-2" />
+                        
+                        <div className="space-y-1">
+                            <p><strong>Pedido ID:</strong> {selectedPrintOrder.id}</p>
+                            <p><strong>Titular:</strong> {selectedPrintOrder.fullName}</p>
+                            <p><strong>Email:</strong> {selectedPrintOrder.email}</p>
+                            {selectedPrintOrder.visitDate && (
+                                <p><strong>Fecha Visita:</strong> {selectedPrintOrder.visitDate}</p>
+                            )}
+                            {selectedPrintOrder.visitTime && (
+                                <p><strong>Hora Acceso:</strong> {selectedPrintOrder.visitTime}</p>
+                            )}
+                        </div>
+
+                        <div className="border-t border-dashed border-black my-2" />
+                        
+                        <div className="space-y-1">
+                            <span className="font-bold block mb-1">Detalle del Ticket:</span>
+                            {((selectedPrintOrder.items as any[]) || []).map((item, idx) => (
+                                <div key={idx} className="flex justify-between">
+                                    <span>{item.name} x{item.quantity}</span>
+                                    <span>{(item.price * item.quantity).toFixed(2)}€</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="border-t border-dashed border-black my-2" />
+                        
+                        <div className="flex justify-between font-bold text-xs uppercase">
+                            <span>Total Pagado:</span>
+                            <span>{selectedPrintOrder.total.toFixed(2)}€</span>
+                        </div>
+
+                        <div className="border-t border-dashed border-black my-2" />
+
+                        <div className="flex flex-col items-center justify-center pt-4 pb-2">
+                            {/* QR Code image fetched using free api.qrserver.com */}
+                            <img
+                                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${selectedPrintOrder.id}`}
+                                alt="Validación QR"
+                                className="w-32 h-32 object-contain"
+                            />
+                            <span className="text-[8px] mt-2 tracking-wider text-slate-500 uppercase text-center block">
+                                Presenta en acceso para escanear
+                            </span>
+                        </div>
+                    </div>
+                )}
+
+                {printMode === "list" && (
+                    <div className="list-print-layout p-6">
+                        <div className="flex justify-between items-start border-b pb-4">
+                            <div>
+                                <h1 className="text-xl font-bold uppercase tracking-wide">
+                                    L'Aquàrium Barcelona
+                                </h1>
+                                <p className="text-xs text-slate-500 mt-1">
+                                    Listado de Visitantes y Control de Caja
+                                </p>
+                            </div>
+                            <div className="text-right text-xs text-slate-600">
+                                <p><strong>Fecha de Emisión:</strong> {new Date().toLocaleDateString()}</p>
+                                <p><strong>Hora:</strong> {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+                            </div>
+                        </div>
+
+                        {/* Summary of filters applied */}
+                        <div className="mt-4 p-3 bg-slate-50 border rounded-xl text-xs space-y-1">
+                            <span className="font-bold text-slate-700 block">Filtros Activos:</span>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-600">
+                                <p><strong>Búsqueda:</strong> {searchQuery || "Ninguno"}</p>
+                                <p><strong>Estado:</strong> {statusFilter === "all" ? "Todos" : statusFilter}</p>
+                                <p><strong>Fecha Visita:</strong> {dateFilter || "Cualquiera"}</p>
+                                <p><strong>Precios:</strong> {minPrice || "0"}€ - {maxPrice || "Max"}€</p>
+                            </div>
+                        </div>
+
+                        {/* Table */}
+                        <table className="list-print-table">
+                            <thead>
+                                <tr>
+                                    <th>ID Pedido</th>
+                                    <th>Cliente</th>
+                                    <th>Fecha Visita</th>
+                                    <th>Hora</th>
+                                    <th>Tickets Comprados</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {orders.map((order) => {
+                                    const qty = ((order.items as any[]) || []).reduce((sum, it) => sum + it.quantity, 0);
+                                    return (
+                                        <tr key={order.id}>
+                                            <td className="font-mono text-xs">{order.id}</td>
+                                            <td>
+                                                <p className="font-semibold">{order.fullName}</p>
+                                                <p className="text-[10px] text-slate-500 font-mono">{order.email}</p>
+                                            </td>
+                                            <td>{order.visitDate || new Date(order.createdAt).toLocaleDateString()}</td>
+                                            <td>{order.visitTime || "-"}</td>
+                                            <td className="text-xs">
+                                                {((order.items as any[]) || []).map((it, i) => (
+                                                    <span key={i} className="block">
+                                                        {it.name} (x{it.quantity})
+                                                    </span>
+                                                ))}
+                                            </td>
+                                            <td className="font-bold">{order.total.toFixed(2)}€</td>
+                                            <td className="capitalize text-xs font-semibold">{order.status}</td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+
+                        {/* List Footer stats */}
+                        <div className="mt-6 border-t pt-4 grid grid-cols-3 gap-4 text-center">
+                            <div className="p-3 bg-slate-50 border rounded-xl">
+                                <span className="text-[10px] uppercase font-bold text-slate-500 block">Total Transacciones</span>
+                                <span className="text-lg font-bold">{orders.length}</span>
+                            </div>
+                            <div className="p-3 bg-slate-50 border rounded-xl">
+                                <span className="text-[10px] uppercase font-bold text-slate-500 block">Entradas Totales</span>
+                                <span className="text-lg font-bold">{printTicketsCount}</span>
+                            </div>
+                            <div className="p-3 bg-slate-50 border rounded-xl">
+                                <span className="text-[10px] uppercase font-bold text-slate-500 block">Ingresos Acumulados</span>
+                                <span className="text-lg font-bold text-primary">{printSalesSum.toFixed(2)}€</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Filters Bar UI */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <h4 className="text-sm font-bold font-outfit text-slate-500 uppercase tracking-wider flex items-center gap-2">
                         <SlidersHorizontal className="w-4 h-4 text-primary" />
                         Filtros de Búsqueda
                     </h4>
-                    {isAnyFilterActive && (
+                    
+                    <div className="flex gap-2">
                         <button
-                            onClick={handleResetFilters}
-                            className="text-xs text-primary font-bold hover:underline cursor-pointer flex items-center gap-1 self-start sm:self-auto"
+                            type="button"
+                            onClick={handlePrintList}
+                            className="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold font-outfit rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
                         >
-                            Limpiar filtros
+                            <Printer className="w-3.5 h-3.5" />
+                            Imprimir Listado
                         </button>
-                    )}
+
+                        {isAnyFilterActive && (
+                            <button
+                                onClick={handleResetFilters}
+                                className="text-xs text-primary font-bold hover:underline cursor-pointer flex items-center gap-1.5"
+                            >
+                                Limpiar filtros
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4">
@@ -348,13 +586,23 @@ export default function Orders({
                                     <option value="completed">Completado</option>
                                 </select>
 
-                                <button
-                                    onClick={() => onDeleteOrder(order.id)}
-                                    className="p-2 text-slate-400 hover:text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer"
-                                    aria-label="Eliminar orden"
-                                >
-                                    <Trash2 className="w-5 h-5" />
-                                </button>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => handlePrintTicket(order)}
+                                        className="p-2 text-slate-400 hover:text-primary rounded-full hover:bg-primary/10 transition-all cursor-pointer"
+                                        aria-label="Imprimir ticket"
+                                    >
+                                        <Printer className="w-5 h-5" />
+                                    </button>
+                                    
+                                    <button
+                                        onClick={() => onDeleteOrder(order.id)}
+                                        className="p-2 text-slate-400 hover:text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer"
+                                        aria-label="Eliminar orden"
+                                    >
+                                        <Trash2 className="w-5 h-5" />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}

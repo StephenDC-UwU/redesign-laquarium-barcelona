@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { getUserOrdersAction } from "@/actions/cartActions";
 import { Order } from "@prisma/client";
-import { User, Ticket, Calendar, Clock, CreditCard, ArrowLeft, RefreshCw, ShoppingBag } from "lucide-react";
+import { User, Ticket, Calendar, Clock, CreditCard, ArrowLeft, RefreshCw, ShoppingBag, Printer } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
@@ -16,6 +16,9 @@ export default function ProfileClient() {
     const params = useParams();
     const router = useRouter();
     const locale = params?.locale || "es";
+
+    // Print state
+    const [selectedPrintOrder, setSelectedPrintOrder] = useState<Order | null>(null);
 
     const loadOrders = () => {
         if (!user?.email) return;
@@ -35,6 +38,13 @@ export default function ProfileClient() {
         loadOrders();
     }, [user]);
 
+    const handlePrint = (order: Order) => {
+        setSelectedPrintOrder(order);
+        setTimeout(() => {
+            window.print();
+        }, 150);
+    };
+
     if (!user) {
         return (
             <div className="min-h-screen pt-32 pb-20 flex items-center justify-center bg-background px-4">
@@ -48,6 +58,109 @@ export default function ProfileClient() {
 
     return (
         <div className="min-h-screen pt-32 pb-20 bg-background text-foreground px-4 md:px-8 xl:px-24">
+            {/* Inline CSS overrides to handle window.print cleanly */}
+            <style dangerouslySetInnerHTML={{ __html: `
+                @media print {
+                    /* Hide everything by default */
+                    body * {
+                        visibility: hidden;
+                    }
+                    /* Show only print-area container */
+                    #print-area, #print-area * {
+                        visibility: visible;
+                    }
+                    #print-area {
+                        position: absolute;
+                        left: 50%;
+                        top: 50%;
+                        transform: translate(-50%, -50%);
+                        width: 140mm;
+                        color: #000 !important;
+                        background: #fff !important;
+                        box-shadow: none !important;
+                        border: 1px solid #ccc !important;
+                        border-radius: 12px !important;
+                        overflow: hidden;
+                    }
+                }
+            ` }} />
+
+            {/* Hidden Print Container for Customer Ticket (Boarding Pass visual style) */}
+            {selectedPrintOrder && (
+                <div id="print-area" className="hidden print:block max-w-xl mx-auto border border-slate-300 rounded-3xl overflow-hidden font-switzer bg-white">
+                    {/* Header */}
+                    <div className="bg-gradient-to-r from-cyan-600 to-blue-700 text-white p-6 relative">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h2 className="text-2xl font-black tracking-widest font-outfit uppercase">L'Aquàrium</h2>
+                                <p className="text-[10px] tracking-wider uppercase opacity-85">Barcelona Official Ticket</p>
+                            </div>
+                            <div className="text-right">
+                                <span className="text-[10px] bg-white/20 px-3 py-1 rounded-full font-bold uppercase">
+                                    Acceso Autorizado
+                                </span>
+                            </div>
+                        </div>
+                        {/* Bottom decorative wave or accent */}
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-400" />
+                    </div>
+
+                    {/* Ticket Body split */}
+                    <div className="p-6 grid grid-cols-3 gap-6 items-center">
+                        <div className="col-span-2 space-y-4 text-slate-800">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <span className="text-[10px] text-slate-400 font-bold uppercase block">Visitante</span>
+                                    <span className="text-sm font-bold">{selectedPrintOrder.fullName}</span>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] text-slate-400 font-bold uppercase block">ID Reserva</span>
+                                    <span className="text-xs font-mono font-bold text-slate-600">{selectedPrintOrder.id}</span>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] text-slate-400 font-bold uppercase block">Fecha de Visita</span>
+                                    <span className="text-xs font-bold">{selectedPrintOrder.visitDate || new Date(selectedPrintOrder.createdAt).toLocaleDateString()}</span>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] text-slate-400 font-bold uppercase block">Hora de Entrada</span>
+                                    <span className="text-xs font-bold">{selectedPrintOrder.visitTime || "Flexible"}</span>
+                                </div>
+                            </div>
+
+                            <div className="border-t border-slate-100 pt-3">
+                                <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Entradas</span>
+                                <div className="space-y-1">
+                                    {((selectedPrintOrder.items as any[]) || []).map((item, idx) => (
+                                        <div key={idx} className="flex justify-between text-xs">
+                                            <span>{item.name}</span>
+                                            <span className="font-bold">x{item.quantity}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* QR Side */}
+                        <div className="col-span-1 border-l border-dashed border-slate-200 pl-6 flex flex-col items-center justify-center text-center">
+                            <img
+                                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${selectedPrintOrder.id}`}
+                                alt="Validación QR"
+                                className="w-28 h-28 object-contain mx-auto"
+                            />
+                            <span className="text-[9px] font-bold text-slate-500 mt-2 uppercase tracking-wide">
+                                Escanear en Puerta
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Footer banner */}
+                    <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-600">
+                        <span>Total Pagado: <strong className="text-primary text-sm font-bold">{selectedPrintOrder.total.toFixed(2)}€</strong></span>
+                        <span className="text-slate-500 italic">Disfruta de tu visita a L'Aquàrium</span>
+                    </div>
+                </div>
+            )}
+
             <div className="max-w-4xl mx-auto">
                 {/* Header Section */}
                 <div className="flex items-center gap-4 mb-8">
@@ -155,7 +268,7 @@ export default function ProfileClient() {
                                                     </span>
                                                 </div>
                                             </div>
-                                            <div>
+                                            <div className="flex items-center gap-2">
                                                 <span
                                                     className={`px-3 py-1 rounded-full text-xs font-bold font-outfit uppercase tracking-wider ${order.status === "completed"
                                                             ? "bg-green-500/10 text-green-500"
@@ -186,9 +299,21 @@ export default function ProfileClient() {
                                             <span className="text-xs font-semibold text-slate-400 flex items-center gap-1">
                                                 <CreditCard size={14} /> Total pagado
                                             </span>
-                                            <span className="font-bold font-outfit text-lg text-primary">
-                                                {order.total.toFixed(2)}€
-                                            </span>
+                                            
+                                            <div className="flex items-center gap-4">
+                                                <span className="font-bold font-outfit text-lg text-primary">
+                                                    {order.total.toFixed(2)}€
+                                                </span>
+
+                                                <button
+                                                    onClick={() => handlePrint(order)}
+                                                    className="px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold font-outfit transition-all flex items-center gap-1.5 cursor-pointer text-slate-600 dark:text-slate-300"
+                                                    title="Imprimir entrada"
+                                                >
+                                                    <Printer size={14} />
+                                                    Imprimir Entrada
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
