@@ -133,22 +133,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const adminLogin = async (password: string) => {
         const res = await adminLoginAction(password);
-        if (res.success) {
-            if (!process.env.ADMIN_ID || !process.env.ADMIN_EMAIL || !process.env.ADMIN_FULLNAME || !process.env.ADMIN_ROLE) {
-                return { success: false, error: "Error: Environment variables are not set" };
-            }
-            const mockAdmin: UserSession = {
-                id: process.env.ADMIN_ID,
-                email: process.env.ADMIN_EMAIL,
-                fullName: process.env.ADMIN_FULLNAME,
-                role: process.env.ADMIN_ROLE,
-            };
-            setUser(mockAdmin);
+        if (res.success && res.user) {
+            setUser(res.user);
             setIsAdmin(true);
-            saveSession(mockAdmin);
+            saveSession(res.user);
             return { success: true };
         }
-        return { success: false, error: res.error };
+        return { success: false, error: res.error || "Error al iniciar sesión como administrador" };
     };
 
     const logout = () => {

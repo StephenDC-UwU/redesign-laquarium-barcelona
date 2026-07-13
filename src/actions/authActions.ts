@@ -76,12 +76,28 @@ export async function loginUserAction(formData: {
     }
 }
 
-export async function adminLoginAction(passwordInput: string): Promise<{ success: boolean; error?: string }> {
+export async function adminLoginAction(passwordInput: string): Promise<{ success: boolean; user?: any; error?: string }> {
     try {
-        // Simple secure check. Can use an env variable, or fallback to 'admin123' if not set.
         const adminPass = process.env.ADMIN_PASSWORD;
+        const adminId = process.env.ADMIN_ID;
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const adminFullName = process.env.ADMIN_FULLNAME;
+        const adminRole = process.env.ADMIN_ROLE;
+
+        if (!adminPass || !adminId || !adminEmail || !adminFullName || !adminRole) {
+            return { success: false, error: "El acceso administrativo no está completamente configurado en las variables de entorno." };
+        }
+
         if (passwordInput === adminPass) {
-            return { success: true };
+            return { 
+                success: true, 
+                user: {
+                    id: adminId,
+                    email: adminEmail,
+                    fullName: adminFullName,
+                    role: adminRole,
+                }
+            };
         }
         return { success: false, error: "Contraseña incorrecta." };
     } catch (e) {
