@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 
 /**
- * Detecta qué sección está actualmente activa (visible en el centro de la pantalla).
- * Inyecta un atributo `data-active-section="nombre-del-id"` en la etiqueta <body> 
- * para que puedas estilizar tu layout globalmente desde tu CSS.
+ * Detects which section is currently active (visible in the center of the screen).
+ * Injects a `data-active-section="id-name"` attribute on the <body> tag
+ * so you can style your layout globally from your CSS.
  */
 export function useActiveSection(sectionSelector: string = "section[id]") {
     const [activeSection, setActiveSection] = useState<string>("");
@@ -21,8 +21,8 @@ export function useActiveSection(sectionSelector: string = "section[id]") {
                         if (id) {
                             setActiveSection(id);
                             
-                            // 🔥 Inyecta la sección activa en el body para CSS global 🔥
-                            // Ejemplo en globals.css:
+                            // 🔥 Injects the active section into the body for global CSS 🔥
+                            // Example in globals.css:
                             // body[data-active-section="intro"] nav { background-color: white; }
                             document.body.setAttribute("data-active-section", id);
                         }
@@ -30,7 +30,7 @@ export function useActiveSection(sectionSelector: string = "section[id]") {
                 });
             },
             {
-                // El disparador se activa cuando la sección cruza el 40% superior de la pantalla
+                // The trigger fires when the section crosses the top 40% of the screen
                 rootMargin: "-20% 0px -60% 0px", 
                 threshold: 0
             }

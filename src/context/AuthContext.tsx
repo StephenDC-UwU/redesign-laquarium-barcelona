@@ -21,6 +21,34 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+const SECRET_KEY = "laquarium-bcn-session-salt-and-pepper";
+const SESSION_EXPIRATION_TIME = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+
+// Client-side obfuscation cipher to secure stored user details from simple inspection
+function encryptSession(data: any): string {
+    const jsonStr = JSON.stringify(data);
+    let result = "";
+    for (let i = 0; i < jsonStr.length; i++) {
+        const charCode = jsonStr.charCodeAt(i) ^ SECRET_KEY.charCodeAt(i % SECRET_KEY.length);
+        result += String.fromCharCode(charCode);
+    }
+    return btoa(unescape(encodeURIComponent(result)));
+}
+
+function decryptSession(cipherText: string): any {
+    try {
+        const decoded = decodeURIComponent(escape(atob(cipherText)));
+        let result = "";
+        for (let i = 0; i < decoded.length; i++) {
+            const charCode = decoded.charCodeAt(i) ^ SECRET_KEY.charCodeAt(i % SECRET_KEY.length);
+            result += String.fromCharCode(charCode);
+        }
+        return JSON.parse(result);
+    } catch (e) {
+        return null;
+    }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<UserSession | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
@@ -28,18 +56,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         setMounted(true);
-        const storedUser = localStorage.getItem("aquarium_user");
-        const storedAdmin = localStorage.getItem("aquarium_admin") === "true";
+        const storedEncryptedUser = localStorage.getItem("aquarium_user_secure");
 
-        if (storedUser) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch (e) {
-                console.error("Error loading user context:", e);
+        if (storedEncryptedUser) {
+            const sessionData = decryptSession(storedEncryptedUser);
+            if (sessionData && sessionData.expiresAt && sessionData.expiresAt > Date.now()) {
+                setUser(sessionData.data);
+                setIsAdmin(sessionData.data.role === "admin");
+            } else {
+                // Session expired or corrupted
+                localStorage.removeItem("aquarium_user_secure");
+                setUser(null);
+                setIsAdmin(false);
             }
         }
-        setIsAdmin(storedAdmin);
     }, []);
+
+    // Session timeout watchdog
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const storedEncryptedUser = localStorage.getItem("aquarium_user_secure");
+            if (storedEncryptedUser) {
+                const sessionData = decryptSession(storedEncryptedUser);
+                if (sessionData && sessionData.expiresAt && sessionData.expiresAt <= Date.now()) {
+                    logout();
+                    alert("Tu sesión ha expirado por inactividad. Por favor, inicia sesión de nuevo.");
+                }
+            }
+        }, 30000); // Check every 30 seconds
+
+        return () => clearInterval(interval);
+    }, []);
+
+    const saveSession = (session: UserSession) => {
+        const expiresAt = Date.now() + SESSION_EXPIRATION_TIME;
+        const payload = {
+            data: session,
+            expiresAt,
+        };
+        const encrypted = encryptSession(payload);
+        localStorage.setItem("aquarium_user_secure", encrypted);
+    };
 
     const login = async (email: string, password: string) => {
         const res = await loginUserAction({ email, password });
@@ -52,10 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             };
             setUser(session);
             setIsAdmin(session.role === "admin");
-            localStorage.setItem("aquarium_user", JSON.stringify(session));
-            if (session.role === "admin") {
-                localStorage.setItem("aquarium_admin", "true");
-            }
+            saveSession(session);
             return { success: true };
         }
         return { success: false, error: res.error };
@@ -71,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 role: res.user.role,
             };
             setUser(session);
-            localStorage.setItem("aquarium_user", JSON.stringify(session));
+            saveSession(session);
             return { success: true };
         }
         return { success: false, error: res.error };
@@ -80,16 +134,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const adminLogin = async (password: string) => {
         const res = await adminLoginAction(password);
         if (res.success) {
+            if (!process.env.ADMIN_ID || !process.env.ADMIN_EMAIL || !process.env.ADMIN_FULLNAME || !process.env.ADMIN_ROLE) {
+                return { success: false, error: "Error: Environment variables are not set" };
+            }
             const mockAdmin: UserSession = {
-                id: "admin-root",
-                email: "admin@aquarium.com",
-                fullName: "Root Admin",
-                role: "admin",
+                id: process.env.ADMIN_ID,
+                email: process.env.ADMIN_EMAIL,
+                fullName: process.env.ADMIN_FULLNAME,
+                role: process.env.ADMIN_ROLE,
             };
             setUser(mockAdmin);
             setIsAdmin(true);
-            localStorage.setItem("aquarium_user", JSON.stringify(mockAdmin));
-            localStorage.setItem("aquarium_admin", "true");
+            saveSession(mockAdmin);
             return { success: true };
         }
         return { success: false, error: res.error };
@@ -98,8 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const logout = () => {
         setUser(null);
         setIsAdmin(false);
-        localStorage.removeItem("aquarium_user");
-        localStorage.removeItem("aquarium_admin");
+        localStorage.removeItem("aquarium_user_secure");
     };
 
     return (

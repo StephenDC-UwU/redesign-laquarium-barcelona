@@ -16,7 +16,7 @@ interface FooterProps {
 
 function Footer({ dict }: FooterProps) {
 
-    const [activeModal, setActiveModal] = useState<"aviso" | "privacidad" | "cookies" | null>(null);
+    const [activeModal, setActiveModal] = useState<"legal" | "privacy" | "cookies" | null>(null);
     const [email, setEmail] = useState("");
     const [acceptedTerms, setAcceptedTerms] = useState(false);
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -24,14 +24,15 @@ function Footer({ dict }: FooterProps) {
 
     const handleSubscribe = async (e: React.FormEvent) => {
         e.preventDefault();
+        const reqDict = dict.newsletter.newsletter_request;
         if (!email) {
             setStatus("error");
-            setErrorMessage("Por favor, introduce un correo electrónico.");
+            setErrorMessage(reqDict.newsletter_warning);
             return;
         }
         if (!acceptedTerms) {
             setStatus("error");
-            setErrorMessage("Debes aceptar las condiciones de privacidad.");
+            setErrorMessage(reqDict.newsletter_terms_warning);
             return;
         }
 
@@ -46,11 +47,11 @@ function Footer({ dict }: FooterProps) {
                 setAcceptedTerms(false);
             } else {
                 setStatus("error");
-                setErrorMessage(res.error || "Ocurrió un error.");
+                setErrorMessage(res.error || reqDict.newsletter_error);
             }
         } catch (error) {
             setStatus("error");
-            setErrorMessage("Ocurrió un error al enviar el formulario.");
+            setErrorMessage(reqDict.newsletter_error);
         }
     };
 
@@ -73,10 +74,10 @@ function Footer({ dict }: FooterProps) {
                     <h2 className="text-6xl font-semibold font-outfit mb-0 leading-none">{companyDict.title}</h2>
                     <h3 className="text-3xl font-semibold font-outfit mb-8">{companyDict.subtle}</h3>
 
-                    <div className="text-sm space-y-3 opacity-70 font-light tracking-wide">
-                        <p>{companyDict.address}</p>
-                        <p>{companyDict.phone}</p>
-                        <p>{companyDict.email}</p>
+                    <div className="flex flex-col text-sm space-y-2 opacity-70 font-light tracking-wide">
+                        <Link href={companyDict.map_link} target="_blank"><p>{companyDict.address}</p></Link>
+                        <Link href={`tel:${companyDict.phone}`}><p>{companyDict.phone}</p></Link>
+                        <Link href={`mailto:${companyDict.email}`}><p>{companyDict.email}</p></Link>
                     </div>
                 </div>
 
@@ -89,8 +90,8 @@ function Footer({ dict }: FooterProps) {
                         <li><Link href="#" className="hover:text-primary transition-colors block">{navDict.nav_educacion}</Link></li>
                     </ul>
                     <ul className="flex flex-col gap-2 text-sm font-semibold tracking-wide">
-                        <li><button onClick={() => setActiveModal("aviso")} className="hover:text-primary transition-colors text-left block">{footerDict.footer_legal}</button></li>
-                        <li><button onClick={() => setActiveModal("privacidad")} className="hover:text-primary transition-colors text-left block">{footerDict.footer_privacy}</button></li>
+                        <li><button onClick={() => setActiveModal("legal")} className="hover:text-primary transition-colors text-left block">{footerDict.footer_legal}</button></li>
+                        <li><button onClick={() => setActiveModal("privacy")} className="hover:text-primary transition-colors text-left block">{footerDict.footer_privacy}</button></li>
                         <li><button onClick={() => setActiveModal("cookies")} className="hover:text-primary transition-colors text-left block">{footerDict.footer_cookies}</button></li>
                         <li><Link href="#" className="hover:text-primary transition-colors block">{footerDict.footer_accesibility}</Link></li>
                     </ul>
@@ -175,7 +176,7 @@ function Footer({ dict }: FooterProps) {
                         />
                     </div>
                     <label htmlFor="terms" className="text-xs text-primary opacity-80 leading-relaxed cursor-pointer font-light">
-                        {newsletterDict.newsletter_terms_part_1} <button type="button" onClick={() => setActiveModal("privacidad")} className="underline hover:text-white transition-colors">{newsletterDict.newsletter_terms_part_2}</button> {newsletterDict.newsletter_terms_part_3}
+                        {newsletterDict.newsletter_terms_part_1} <button type="button" onClick={() => setActiveModal("privacy")} className="underline hover:text-white transition-colors">{newsletterDict.newsletter_terms_part_2}</button> {newsletterDict.newsletter_terms_part_3}
                     </label>
                 </div>
 
@@ -183,7 +184,7 @@ function Footer({ dict }: FooterProps) {
                     <p className="text-red-500 text-sm mb-4">{errorMessage}</p>
                 )}
                 {status === "success" && (
-                    <p className="text-green-500 text-sm mb-4">¡Te has suscrito con éxito!</p>
+                    <p className="text-green-500 text-sm mb-4">{newsletterDict.newsletter_request.newsletter_success}</p>
                 )}
 
                 <button
@@ -191,16 +192,16 @@ function Footer({ dict }: FooterProps) {
                     disabled={status === "loading"}
                     className="px-16 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-sm transition-colors shadow-lg disabled:opacity-50"
                 >
-                    {status === "loading" ? "Enviando..." : newsletterDict.newsletter_send}
+                    {status === "loading" ? newsletterDict.newsletter_sending : newsletterDict.newsletter_send}
                 </button>
             </form>
 
             {/* Modals */}
-            <Modal isOpen={activeModal === "aviso"} onClose={() => setActiveModal(null)} title="Aviso Legal">
+            <Modal isOpen={activeModal === "legal"} onClose={() => setActiveModal(null)} title="Aviso Legal">
                 <LegalNoticeModal dict={dict} />
             </Modal>
 
-            <Modal isOpen={activeModal === "privacidad"} onClose={() => setActiveModal(null)} title="Política de Privacidad">
+            <Modal isOpen={activeModal === "privacy"} onClose={() => setActiveModal(null)} title="Política de Privacidad">
                 <PrivacyModal dict={dict} />
             </Modal>
 

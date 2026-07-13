@@ -4,7 +4,8 @@ export const en = {
         subtle: "Barcelona",
         address: "Moll D'Espanya Del Port Vell, S/N",
         phone: "Tel. +935 22 31 93",
-        email: "Info@Aquariumbcn.Com"
+        email: "Info@Aquariumbcn.com",
+        map_link: "https://maps.app.goo.gl/wLH4ZiGUXMmGA1JH7"
     },
     nav: {
         nav_visite: "Visit",
@@ -79,6 +80,13 @@ export const en = {
         newsletter_terms_part_1: "*I Declare That I Have Understood The",
         newsletter_terms_part_2: "Information Provided",
         newsletter_terms_part_3: "And I Consent To The Processing That Will Be Carried Out Of My Personal Data.",
-        newsletter_send: "Send",  
+        newsletter_send: "Send",
+        newsletter_sending: "Enviando...",
+        newsletter_request: {
+            newsletter_success: "You have successfully subscribed!",
+            newsletter_error: "An error occurred.",
+            newsletter_warning: "Please enter an email address.",
+            newsletter_terms_warning: "You must accept the privacy conditions.",
+        }  
     },
 };
