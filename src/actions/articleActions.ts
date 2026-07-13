@@ -57,6 +57,7 @@ export async function createArticleAction(
         image: string;
         thumbnail: string;
         link?: string;
+        category?: string;
         titleEs: string;
         dateEs: string;
         contentEs?: string;
@@ -81,6 +82,7 @@ export async function createArticleAction(
                 image: data.image,
                 thumbnail: data.thumbnail,
                 link: data.link || "#",
+                category: data.category || "news",
                 translations: {
                     create: [
                         { locale: "es", title: data.titleEs, date: data.dateEs, content: data.contentEs || "" },
@@ -106,6 +108,7 @@ export async function createArticleAction(
                 thumbnail: newArticle.thumbnail,
                 link: newArticle.link,
                 listDate: newArticle.listDate,
+                category: newArticle.category,
                 createdAt: newArticle.createdAt,
                 updatedAt: newArticle.updatedAt,
                 title: newArticle.translations[0]?.title || "",
@@ -126,6 +129,7 @@ export async function updateArticleAction(
         image?: string;
         thumbnail?: string;
         link?: string;
+        category?: string;
         titleEs?: string;
         dateEs?: string;
         contentEs?: string;
@@ -144,6 +148,7 @@ export async function updateArticleAction(
         if (data.image !== undefined) updateData.image = data.image;
         if (data.thumbnail !== undefined) updateData.thumbnail = data.thumbnail;
         if (data.link !== undefined) updateData.link = data.link;
+        if (data.category !== undefined) updateData.category = data.category;
 
         await db.article.update({
             where: { id },
@@ -227,6 +232,7 @@ export async function updateArticleAction(
                 thumbnail: finalArticle.thumbnail,
                 link: finalArticle.link,
                 listDate: finalArticle.listDate,
+                category: finalArticle.category,
                 createdAt: finalArticle.createdAt,
                 updatedAt: finalArticle.updatedAt,
                 title: finalArticle.translations[0]?.title || "",
