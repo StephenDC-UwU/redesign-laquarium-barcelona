@@ -6,6 +6,7 @@ import {
     getArticleTranslationsAction 
 } from "@/actions/articleActions";
 import { uploadImageAction } from "@/actions/uploadActions";
+import { Dictionary } from "@/dictionaries";
 
 // Modular subcomponents
 import ArticleFilters from "./components/ArticleFilters";
@@ -13,18 +14,13 @@ import ArticleList from "./components/ArticleList";
 import ArticleForm from "./components/ArticleForm";
 
 interface ArticlesProps {
+    dict: Dictionary;
     articles: any[];
     setArticles: React.Dispatch<React.SetStateAction<any[]>>;
     articleFilterLocale: "es" | "ca" | "en";
     setArticleFilterLocale: (locale: "es" | "ca" | "en") => void;
     localeStr: string;
 }
-
-const monthNames = [
-    "enero", "febrero", "marzo", "abril", "mayo", "junio",
-    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
-];
-const dayNames = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
 const getDaysInMonth = (year: number, month: number) => {
     return new Date(year, month + 1, 0).getDate();
@@ -35,8 +31,8 @@ const getFirstDayOfMonth = (year: number, month: number) => {
     return day === 0 ? 6 : day - 1;
 };
 
-// Formats YYYY-MM-DD into a localized visual date string
-function getFormattedVisualDate(dateStr: string, lang: "es" | "ca" | "en") {
+// Formats YYYY-MM-DD into a localized visual date string using dictionary
+function getFormattedVisualDate(dateStr: string, lang: "es" | "ca" | "en", dict: Dictionary) {
     if (!dateStr) return "";
     const parts = dateStr.split("-");
     if (parts.length !== 3) return "";
@@ -44,20 +40,18 @@ function getFormattedVisualDate(dateStr: string, lang: "es" | "ca" | "en") {
     const month = parseInt(parts[1], 10) - 1;
     const day = parseInt(parts[2], 10);
     
-    if (lang === "es") {
-        const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-        return `${day} de ${months[month]} de ${year}`;
-    }
-    if (lang === "ca") {
-        const months = ["Gener", "Febrer", "Març", "Abril", "Maig", "Juny", "Juliol", "Agost", "Setembre", "Octubre", "Novembre", "Desembre"];
-        return `${day} de ${months[month]} de ${year}`;
+    const monthName = dict.admin.orders.months[month];
+    const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+    
+    if (lang === "es" || lang === "ca") {
+        return `${day} de ${capitalizedMonth} de ${year}`;
     }
     // English
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    return `${months[month]} ${day}, ${year}`;
+    return `${capitalizedMonth} ${day}, ${year}`;
 }
 
 export default function Articles({
+    dict,
     articles,
     setArticles,
     articleFilterLocale,
@@ -99,99 +93,73 @@ export default function Articles({
     const [showFilterCalendar, setShowFilterCalendar] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
 
-    // Form calendar popover states
+    // Form calendar states
     const [showCalendar, setShowCalendar] = useState(false);
     const [calYear, setCalYear] = useState(() => new Date().getFullYear());
     const [calMonth, setCalMonth] = useState(() => new Date().getMonth());
 
-    // Filter calendar popover states
+    // Filter calendar states
     const [filterCalYear, setFilterCalYear] = useState(() => new Date().getFullYear());
     const [filterCalMonth, setFilterCalMonth] = useState(() => new Date().getMonth());
 
-    // Restore draft from localStorage
-    useEffect(() => {
-        const savedDraft = localStorage.getItem("article_form_draft");
-        if (savedDraft) {
-            try {
-                const draft = JSON.parse(savedDraft);
-                if (draft.editingArticleId) setEditingArticleId(draft.editingArticleId);
-                if (draft.articleListDate) setArticleListDate(draft.articleListDate);
-                if (draft.articleLink) setArticleLink(draft.articleLink);
-                if (draft.articleImage) setArticleImage(draft.articleImage);
-                if (draft.articleThumbnail) setArticleThumbnail(draft.articleThumbnail);
-                if (draft.articleCategory) setArticleCategory(draft.articleCategory);
-                if (draft.articleTitleEs) setArticleTitleEs(draft.articleTitleEs);
-                if (draft.articleTitleCa) setArticleTitleCa(draft.articleTitleCa);
-                if (draft.articleTitleEn) setArticleTitleEn(draft.articleTitleEn);
-                if (draft.articleContentEs) setArticleContentEs(draft.articleContentEs);
-                if (draft.articleContentCa) setArticleContentCa(draft.articleContentCa);
-                if (draft.articleContentEn) setArticleContentEn(draft.articleContentEn);
-            } catch (e) {
-                console.error("Failed to restore article draft:", e);
-            }
-        }
-    }, []);
+    const articlesPerPage = 5;
 
-    // Save draft to localStorage on changes
-    useEffect(() => {
-        const draft = {
-            editingArticleId,
-            articleListDate,
-            articleLink,
-            articleImage,
-            articleThumbnail,
-            articleCategory,
-            articleTitleEs,
-            articleTitleCa,
-            articleTitleEn,
-            articleContentEs,
-            articleContentCa,
-            articleContentEn,
-        };
-        localStorage.setItem("article_form_draft", JSON.stringify(draft));
-    }, [
-        editingArticleId,
-        articleListDate,
-        articleLink,
-        articleImage,
-        articleThumbnail,
-        articleCategory,
-        articleTitleEs,
-        articleTitleCa,
-        articleTitleEn,
-        articleContentEs,
-        articleContentCa,
-        articleContentEn,
-    ]);
+    const handleCancelEditArticle = () => {
+        setEditingArticleId(null);
+        setArticleListDate(() => {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        });
+        setArticleLink("");
+        setArticleImage("");
+        setArticleThumbnail("");
+        setArticleCategory("news");
 
-    const clearDraft = () => {
-        localStorage.removeItem("article_form_draft");
+        setArticleTitleEs("");
+        setArticleTitleCa("");
+        setArticleTitleEn("");
+        setArticleContentEs("");
+        setArticleContentCa("");
+        setArticleContentEn("");
+        setArticleFormError("");
     };
 
-    // Filter logic
-    const filteredArticles = articles.filter((art) => {
-        if (articleFilterCategory !== "all" && art.category !== articleFilterCategory) {
-            return false;
-        }
-        if (articleFilterDate && art.listDate !== articleFilterDate) {
-            return false;
-        }
-        return true;
-    });
+    const handleEditArticle = async (art: any) => {
+        const trans = await getArticleTranslationsAction(art.id);
+        const esTrans = trans.find((t) => t.locale === "es");
+        const caTrans = trans.find((t) => t.locale === "ca");
+        const enTrans = trans.find((t) => t.locale === "en");
 
-    const itemsPerPage = 6;
-    const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
-    const paginatedArticles = filteredArticles.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
+        setEditingArticleId(art.id);
+        setArticleListDate(art.listDate);
+        setArticleLink(art.link || "");
+        setArticleImage(art.image || "");
+        setArticleThumbnail(art.thumbnail || "");
+        setArticleCategory(art.category as "news" | "blog");
 
-    // Sync active locale
-    useEffect(() => {
-        if (localeStr === "es" || localeStr === "ca" || localeStr === "en") {
-            setActiveArticleFormLocale(localeStr as "es" | "ca" | "en");
+        setArticleTitleEs(esTrans?.title || "");
+        setArticleContentEs(esTrans?.content || "");
+
+        setArticleTitleCa(caTrans?.title || "");
+        setArticleContentCa(caTrans?.content || "");
+
+        setArticleTitleEn(enTrans?.title || "");
+        setArticleContentEn(enTrans?.content || "");
+        setArticleFormError("");
+    };
+
+    const handleDeleteArticle = async (artId: string) => {
+        if (!confirm(dict.admin.articles.confirm_delete)) return;
+        const res = await deleteArticleAction(artId);
+        if (res.success) {
+            setArticles((prev) => prev.filter((a) => a.id !== artId));
+        } else {
+            alert(res.error || dict.admin.articles.error_delete);
         }
-    }, [localeStr]);
+    };
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: "image" | "thumbnail") => {
         const file = e.target.files?.[0];
@@ -206,78 +174,17 @@ export default function Articles({
 
             const res = await uploadImageAction(formData);
             if (res.success && res.url) {
-                if (target === "image") {
-                    setArticleImage(res.url);
-                } else {
-                    setArticleThumbnail(res.url);
-                }
+                if (target === "image") setArticleImage(res.url);
+                else setArticleThumbnail(res.url);
             } else {
-                alert(res.error || "Error al subir la imagen");
+                alert(res.error || dict.admin.products.error_upload);
             }
         } catch (error) {
             console.error("Upload error:", error);
-            alert("Error al conectar con el servidor de subidas.");
+            alert(dict.admin.products.error_upload_connection);
         } finally {
             if (target === "image") setIsUploadingImage(false);
             else setIsUploadingThumbnail(false);
-        }
-    };
-
-    const handleCancelEditArticle = () => {
-        setEditingArticleId(null);
-        setArticleLink("");
-        setArticleImage("");
-        setArticleThumbnail("");
-        setArticleCategory("news");
-
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        setArticleListDate(`${year}-${month}-${day}`);
-
-        setArticleTitleEs("");
-        setArticleTitleCa("");
-        setArticleTitleEn("");
-        setArticleContentEs("");
-        setArticleContentCa("");
-        setArticleContentEn("");
-        setArticleFormError("");
-        clearDraft();
-    };
-
-    const handleEditArticle = async (art: any) => {
-        const trans = await getArticleTranslationsAction(art.id);
-        const esTrans = trans.find((t) => t.locale === "es");
-        const caTrans = trans.find((t) => t.locale === "ca");
-        const enTrans = trans.find((t) => t.locale === "en");
-
-        setEditingArticleId(art.id);
-        setArticleLink(art.link || "");
-        setArticleImage(art.image || "");
-        setArticleThumbnail(art.thumbnail || "");
-        setArticleCategory(art.category === "blog" ? "blog" : "news");
-        setArticleListDate(art.listDate || "");
-
-        setArticleTitleEs(esTrans?.title || "");
-        setArticleContentEs(esTrans?.content || "");
-
-        setArticleTitleCa(caTrans?.title || "");
-        setArticleContentCa(caTrans?.content || "");
-
-        setArticleTitleEn(enTrans?.title || "");
-        setArticleContentEn(enTrans?.content || "");
-
-        setArticleFormError("");
-    };
-
-    const handleDeleteArticle = async (id: string) => {
-        if (!confirm("¿Estás seguro de que deseas eliminar esta noticia?")) return;
-        const res = await deleteArticleAction(id);
-        if (res.success) {
-            setArticles((prev) => prev.filter((a) => a.id !== id));
-        } else {
-            alert(res.error || "Error al eliminar la noticia");
         }
     };
 
@@ -285,26 +192,26 @@ export default function Articles({
         e.preventDefault();
         setArticleFormError("");
 
-        const hasLink = !!articleLink.trim();
+        const isLinkArticle = !!articleLink.trim();
 
-        if (!hasLink) {
+        if (!isLinkArticle) {
             if (!articleTitleEs.trim() || !articleTitleCa.trim() || !articleTitleEn.trim()) {
-                setArticleFormError("Al no ingresar un enlace, por favor introduce el título en todos los idiomas.");
+                setArticleFormError(dict.admin.articles.error_missing_title);
                 return;
             }
             if (!articleContentEs.trim() || !articleContentCa.trim() || !articleContentEn.trim()) {
-                setArticleFormError("Al no ingresar un enlace, por favor introduce el contenido/copete en todos los idiomas.");
+                setArticleFormError(dict.admin.articles.error_missing_content);
                 return;
             }
         }
 
-        const calculatedDateEs = getFormattedVisualDate(articleListDate, "es");
-        const calculatedDateCa = getFormattedVisualDate(articleListDate, "ca");
-        const calculatedDateEn = getFormattedVisualDate(articleListDate, "en");
+        const calculatedDateEs = getFormattedVisualDate(articleListDate, "es", dict);
+        const calculatedDateCa = getFormattedVisualDate(articleListDate, "ca", dict);
+        const calculatedDateEn = getFormattedVisualDate(articleListDate, "en", dict);
 
         if (editingArticleId) {
             const res = await updateArticleAction(editingArticleId, {
-                link: articleLink,
+                link: articleLink || undefined,
                 image: articleImage || undefined,
                 thumbnail: articleThumbnail || undefined,
                 listDate: articleListDate,
@@ -324,7 +231,7 @@ export default function Articles({
                 setArticles((prev) => prev.map((a) => a.id === editingArticleId ? res.article! : a));
                 handleCancelEditArticle();
             } else {
-                setArticleFormError(res.error || "Error al actualizar el artículo.");
+                setArticleFormError(res.error || dict.admin.articles.error_update);
             }
         } else {
             const res = await createArticleAction({
@@ -348,10 +255,27 @@ export default function Articles({
                 setArticles((prev) => [res.article!, ...prev]);
                 handleCancelEditArticle();
             } else {
-                setArticleFormError(res.error || "Error al crear el artículo.");
+                setArticleFormError(res.error || dict.admin.articles.error_create);
             }
         }
     };
+
+    // Filter and paginate articles
+    const filteredArticles = articles.filter((art) => {
+        if (articleFilterCategory !== "all" && art.category !== articleFilterCategory) {
+            return false;
+        }
+        if (articleFilterDate && art.listDate !== articleFilterDate) {
+            return false;
+        }
+        return true;
+    });
+
+    const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
+    const paginatedArticles = filteredArticles.slice(
+        (currentPage - 1) * articlesPerPage,
+        currentPage * articlesPerPage
+    );
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -377,6 +301,7 @@ export default function Articles({
             {/* Left Column: Filters and Articles List */}
             <div className="lg:col-span-2 space-y-6">
                 <ArticleFilters
+                    dict={dict}
                     articleFilterLocale={articleFilterLocale}
                     setArticleFilterLocale={setArticleFilterLocale}
                     articleFilterCategory={articleFilterCategory}
@@ -390,13 +315,12 @@ export default function Articles({
                     filterCalMonth={filterCalMonth}
                     setFilterCalMonth={setFilterCalMonth}
                     setCurrentPage={setCurrentPage}
-                    monthNames={monthNames}
-                    dayNames={dayNames}
                     getFirstDayOfMonth={getFirstDayOfMonth}
                     getDaysInMonth={getDaysInMonth}
                 />
 
                 <ArticleList
+                    dict={dict}
                     paginatedArticles={paginatedArticles}
                     currentPage={currentPage}
                     totalPages={totalPages}
@@ -408,6 +332,7 @@ export default function Articles({
 
             {/* Right Column: Article form */}
             <ArticleForm
+                dict={dict}
                 editingArticleId={editingArticleId}
                 articleLink={articleLink}
                 setArticleLink={setArticleLink}
@@ -445,8 +370,6 @@ export default function Articles({
                 setCalMonth={setCalMonth}
                 handleCancelEditArticle={handleCancelEditArticle}
                 handleCreateOrUpdateArticle={handleCreateOrUpdateArticle}
-                monthNames={monthNames}
-                dayNames={dayNames}
                 getFirstDayOfMonth={getFirstDayOfMonth}
                 getDaysInMonth={getDaysInMonth}
             />

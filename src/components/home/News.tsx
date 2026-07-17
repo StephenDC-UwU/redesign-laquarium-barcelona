@@ -171,7 +171,7 @@ export default function News({ dict, locale }: NewsProps) {
                     <div
                         ref={featuredRef}
                         className="relative w-full aspect-square md:aspect-[4/3] rounded-[40px] overflow-hidden shadow-2xl group cursor-pointer"
-                        onClick={() => window.location.href = featured.link}
+                        onClick={() => window.location.href = featured.slug ? `/${locale}/articles/${featured.type}/${featured.slug}` : featured.link}
                     >
                         <SafeImage
                             src={featured.image}
@@ -189,7 +189,7 @@ export default function News({ dict, locale }: NewsProps) {
                                 {featured.title}
                             </h3>
                             <button className="px-8 py-3 bg-primary hover:bg-primary-dark text-white font-bold  transition-colors shadow-lg shadow-primary/30">
-                                Consultar
+                                {newsDict.news_button_check}
                             </button>
                         </div>
                     </div>
@@ -211,14 +211,13 @@ export default function News({ dict, locale }: NewsProps) {
                             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                         >
                             {newsList.map((news, index) => (
-                                <div 
-                                    key={news.id} 
-                                    className={`news-list-item flex flex-col ${
-                                        index >= 5 ? "hidden md:flex" : ""
-                                    }`}
+                                <div
+                                    key={news.id}
+                                    className={`news-list-item flex flex-col ${index >= 5 ? "hidden md:flex" : ""
+                                        }`}
                                 >
                                     <a
-                                        href={news.link}
+                                        href={news.slug ? `/${locale}/articles/${news.type}/${news.slug}` : news.link}
                                         onClick={(e) => {
                                             if (isDragMove.current) {
                                                 e.preventDefault();
@@ -246,7 +245,7 @@ export default function News({ dict, locale }: NewsProps) {
                                                 {news.title}
                                             </h4>
                                             <span className="text-sm text-slate-500 font-switzer group-hover:underline">
-                                                Saber Mas
+                                                {newsDict.news_button_read_more}
                                             </span>
                                         </div>
                                     </a>

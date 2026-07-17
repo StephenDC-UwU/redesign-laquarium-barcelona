@@ -50,6 +50,7 @@ export async function deleteOrderAction(id: string): Promise<{ success: boolean;
 export async function createProductAction(
     data: {
         price: number;
+        image?: string;
         nameEs: string;
         descriptionEs: string;
         tagEs?: string;
@@ -69,6 +70,7 @@ export async function createProductAction(
         const newProduct = await db.product.create({
             data: {
                 price: data.price,
+                image: data.image || null,
                 translations: {
                     create: [
                         { locale: "es", name: data.nameEs, description: data.descriptionEs, tag: data.tagEs || null },
@@ -90,6 +92,7 @@ export async function createProductAction(
             product: {
                 id: newProduct.id,
                 price: newProduct.price,
+                image: newProduct.image,
                 createdAt: newProduct.createdAt,
                 updatedAt: newProduct.updatedAt,
                 name: newProduct.translations[0]?.name || "",
@@ -194,6 +197,7 @@ export async function updateProductAction(
     id: string,
     data: {
         price: number;
+        image?: string;
         nameEs: string;
         descriptionEs: string;
         tagEs?: string;
@@ -213,7 +217,10 @@ export async function updateProductAction(
 
         await db.product.update({
             where: { id },
-            data: { price: data.price }
+            data: { 
+                price: data.price,
+                image: data.image !== undefined ? data.image : undefined
+            }
         });
 
         // ES translation
@@ -256,6 +263,7 @@ export async function updateProductAction(
             product: {
                 id: updatedProduct.id,
                 price: updatedProduct.price,
+                image: updatedProduct.image,
                 createdAt: updatedProduct.createdAt,
                 updatedAt: updatedProduct.updatedAt,
                 name: updatedProduct.translations[0]?.name || "",

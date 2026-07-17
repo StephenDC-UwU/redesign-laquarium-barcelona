@@ -4,12 +4,14 @@ import {
     getDailyCapacityAction, 
     updateDailyCapacityAction 
 } from "@/actions/adminActions";
+import { Dictionary } from "@/dictionaries";
 
 interface ReservationsProps {
     isAdmin: boolean;
+    dict: Dictionary;
 }
 
-export default function Reservations({ isAdmin }: ReservationsProps) {
+export default function Reservations({ isAdmin, dict }: ReservationsProps) {
     const [selectedReportDate, setSelectedReportDate] = useState(() => {
         const today = new Date();
         const year = today.getFullYear();
@@ -43,10 +45,10 @@ export default function Reservations({ isAdmin }: ReservationsProps) {
         const res = await updateDailyCapacityAction(selectedReportDate, capacityInputValue);
 
         if (res.success) {
-            setCapacitySuccessMsg("Aforo para el día seleccionado actualizado correctamente.");
+            setCapacitySuccessMsg(dict.admin.reservations.success_update);
             setReportDateCapacity(capacityInputValue);
         } else {
-            setCapacityError(res.error || "Hubo un error al actualizar el aforo.");
+            setCapacityError(res.error || dict.admin.reservations.error_update);
         }
     };
 
@@ -55,24 +57,24 @@ export default function Reservations({ isAdmin }: ReservationsProps) {
             {/* Configuration Form */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
                 <h3 className="text-xl font-bold font-outfit text-secondary dark:text-white flex items-center gap-2">
-                    Configuración de Aforo
+                    {dict.admin.reservations.capacity_config}
                 </h3>
                 <form onSubmit={handleUpdateCapacity} className="space-y-4">
                     <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 space-y-1">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block font-outfit">
-                            Fecha Seleccionada
+                            {dict.admin.reservations.selected_date}
                         </span>
                         <span className="text-sm font-bold text-secondary dark:text-white font-mono block">
                             {selectedReportDate}
                         </span>
                         <span className="text-[10px] text-slate-500 font-switzer block mt-1">
-                            (Cambia la fecha desde el monitor de la derecha)
+                            {dict.admin.reservations.change_date_help}
                         </span>
                     </div>
 
                     <div className="space-y-1">
                         <label className="text-xs font-semibold text-slate-500 block">
-                            Capacidad Máxima por Hora
+                            {dict.admin.reservations.max_capacity_per_hour}
                         </label>
                         <input
                             type="number"
@@ -99,7 +101,7 @@ export default function Reservations({ isAdmin }: ReservationsProps) {
                         type="submit"
                         className="w-full bg-primary hover:bg-primary-light text-white font-bold font-outfit py-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-primary/10"
                     >
-                        Guardar Configuración
+                        {dict.admin.reservations.save_config}
                     </button>
                 </form>
             </div>
@@ -108,7 +110,7 @@ export default function Reservations({ isAdmin }: ReservationsProps) {
             <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <h3 className="text-xl font-bold font-outfit text-secondary dark:text-white">
-                        Monitor de Reservas por Hora
+                        {dict.admin.reservations.hourly_bookings_monitor}
                     </h3>
                     <div>
                         <input
@@ -130,7 +132,7 @@ export default function Reservations({ isAdmin }: ReservationsProps) {
                                 <div className="flex justify-between text-sm font-switzer">
                                     <span className="font-bold text-slate-700 dark:text-slate-300">{slot}</span>
                                     <span className="text-slate-500">
-                                        {booked} / {reportDateCapacity} personas ({pct.toFixed(0)}%)
+                                        {booked} / {reportDateCapacity} {dict.admin.reservations.people} ({pct.toFixed(0)}%)
                                     </span>
                                 </div>
                                 <div className="w-full bg-slate-100 dark:bg-slate-800 h-3 rounded-full overflow-hidden">

@@ -12,6 +12,7 @@ datasource db {
 model Product {
   id           String               @id @default(uuid())
   price        Float
+  image        String?
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
   translations ProductTranslation[]

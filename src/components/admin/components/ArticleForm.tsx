@@ -1,8 +1,10 @@
 import React from "react";
 import { Plus, Newspaper, RefreshCw, X, Calendar } from "lucide-react";
 import MarkdownEditor from "./MarkdownEditor";
+import { Dictionary } from "@/dictionaries";
 
 interface ArticleFormProps {
+    dict: Dictionary;
     editingArticleId: string | null;
     articleLink: string;
     setArticleLink: (val: string) => void;
@@ -40,13 +42,12 @@ interface ArticleFormProps {
     setCalMonth: React.Dispatch<React.SetStateAction<number>>;
     handleCancelEditArticle: () => void;
     handleCreateOrUpdateArticle: (e: React.FormEvent) => void;
-    monthNames: string[];
-    dayNames: string[];
     getFirstDayOfMonth: (year: number, month: number) => number;
     getDaysInMonth: (year: number, month: number) => number;
 }
 
 export default function ArticleForm({
+    dict,
     editingArticleId,
     articleLink,
     setArticleLink,
@@ -84,8 +85,6 @@ export default function ArticleForm({
     setCalMonth,
     handleCancelEditArticle,
     handleCreateOrUpdateArticle,
-    monthNames,
-    dayNames,
     getFirstDayOfMonth,
     getDaysInMonth,
 }: ArticleFormProps) {
@@ -99,13 +98,13 @@ export default function ArticleForm({
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md space-y-6">
             <h3 className="text-xl font-bold font-outfit text-secondary dark:text-white flex items-center gap-2">
                 <Newspaper className="w-5 h-5 text-primary" />
-                {editingArticleId ? "Editar Artículo" : "Agregar Artículo"}
+                {editingArticleId ? dict.admin.articles.edit_article : dict.admin.articles.add_article}
             </h3>
             <form onSubmit={handleCreateOrUpdateArticle} className="space-y-4">
                 {/* Link */}
                 <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-500 block">
-                        Enlace del Artículo / Noticia (Opcional)
+                        {dict.admin.articles.article_link_label}
                     </label>
                     <input
                         type="url"
@@ -120,7 +119,7 @@ export default function ArticleForm({
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
                         <label className="text-xs font-semibold text-slate-500 block">
-                            Imagen Grande
+                            {dict.admin.articles.large_image}
                         </label>
                         <div className="relative">
                             <input
@@ -134,7 +133,7 @@ export default function ArticleForm({
                                 htmlFor="article-image-upload"
                                 className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-xs text-center block cursor-pointer text-slate-600 dark:text-slate-400 hover:border-primary transition-all"
                             >
-                                {isUploadingImage ? <RefreshCw className="w-4 h-4 animate-spin mx-auto" /> : articleImage ? "Cambiar Imagen" : "Subir Imagen"}
+                                {isUploadingImage ? <RefreshCw className="w-4 h-4 animate-spin mx-auto" /> : articleImage ? dict.admin.articles.change_image : dict.admin.articles.upload_image}
                             </label>
                         </div>
                         {articleImage && (
@@ -153,7 +152,7 @@ export default function ArticleForm({
 
                     <div className="space-y-1">
                         <label className="text-xs font-semibold text-slate-500 block">
-                            Miniatura (Thumbnail)
+                            {dict.admin.articles.thumbnail}
                         </label>
                         <div className="relative">
                             <input
@@ -167,7 +166,7 @@ export default function ArticleForm({
                                 htmlFor="article-thumbnail-upload"
                                 className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-xs text-center block cursor-pointer text-slate-600 dark:text-slate-400 hover:border-primary transition-all"
                             >
-                                {isUploadingThumbnail ? <RefreshCw className="w-4 h-4 animate-spin mx-auto" /> : articleThumbnail ? "Cambiar Min." : "Subir Min."}
+                                {isUploadingThumbnail ? <RefreshCw className="w-4 h-4 animate-spin mx-auto" /> : articleThumbnail ? dict.admin.articles.change_image : dict.admin.articles.upload_image}
                             </label>
                         </div>
                         {articleThumbnail && (
@@ -188,22 +187,22 @@ export default function ArticleForm({
                 {/* Category Select */}
                 <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-500 block">
-                        Categoría
+                        {dict.admin.articles.category}
                     </label>
                     <select
                         value={articleCategory}
                         onChange={(e) => setArticleCategory(e.target.value as "news" | "blog")}
                         className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground cursor-pointer"
                     >
-                        <option value="news">Noticia (News)</option>
-                        <option value="blog">Blog</option>
+                        <option value="news">{dict.admin.articles.news}</option>
+                        <option value="blog">{dict.admin.articles.blog}</option>
                     </select>
                 </div>
 
                 {/* Ordering Date with Popover Calendar */}
                 <div className="space-y-1 relative">
                     <label className="text-xs font-semibold text-slate-500 block">
-                        Fecha de Ordenamiento / Publicación
+                        {dict.admin.articles.list_date}
                     </label>
                     <div className="relative">
                         <div className="flex gap-2">
@@ -229,7 +228,7 @@ export default function ArticleForm({
                                 }}
                                 className="px-4 bg-primary/10 hover:bg-primary/20 text-primary font-bold font-outfit text-xs rounded-xl transition-all cursor-pointer h-[46px]"
                             >
-                                Hoy
+                                {dict.admin.articles.today}
                             </button>
                         </div>
 
@@ -251,7 +250,7 @@ export default function ArticleForm({
                                         ←
                                     </button>
                                     <span className="font-bold text-xs text-secondary dark:text-white capitalize">
-                                        {monthNames[calMonth]} {calYear}
+                                        {dict.admin.orders.months[calMonth]} {calYear}
                                     </span>
                                     <button
                                         type="button"
@@ -270,7 +269,7 @@ export default function ArticleForm({
                                 </div>
 
                                 <div className="grid grid-cols-7 gap-0.5 text-center text-[10px] font-bold text-slate-400 mb-2">
-                                    {dayNames.map((d) => (
+                                    {dict.admin.orders.days.map((d) => (
                                         <div key={d}>{d}</div>
                                     ))}
                                 </div>
@@ -315,7 +314,7 @@ export default function ArticleForm({
                 <div className="border-t border-slate-200 dark:border-slate-800 pt-3">
                     <div className="flex items-center justify-between mb-3">
                         <label className="text-xs font-semibold text-slate-500">
-                            Información en:
+                            {dict.admin.products.information_in}
                         </label>
                         <div className="flex bg-slate-100 dark:bg-slate-950 p-0.5 rounded-lg border border-slate-200/50 dark:border-slate-800/50">
                             {(["es", "ca", "en"] as const).map((lang) => {
@@ -351,7 +350,7 @@ export default function ArticleForm({
                                 type="text"
                                 value={articleTitleEs}
                                 onChange={(e) => setArticleTitleEs(e.target.value)}
-                                placeholder="Título (ES)"
+                                placeholder={`${dict.admin.articles.title_placeholder} (ES)`}
                                 className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
                             />
                         )}
@@ -360,7 +359,7 @@ export default function ArticleForm({
                                 type="text"
                                 value={articleTitleCa}
                                 onChange={(e) => setArticleTitleCa(e.target.value)}
-                                placeholder="Títol (CA)"
+                                placeholder={`${dict.admin.articles.title_placeholder} (CA)`}
                                 className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
                             />
                         )}
@@ -369,7 +368,7 @@ export default function ArticleForm({
                                 type="text"
                                 value={articleTitleEn}
                                 onChange={(e) => setArticleTitleEn(e.target.value)}
-                                placeholder="Title (EN)"
+                                placeholder={`${dict.admin.articles.title_placeholder} (EN)`}
                                 className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
                             />
                         )}
@@ -377,6 +376,7 @@ export default function ArticleForm({
 
                     {/* Content Markdown Editor */}
                     <MarkdownEditor
+                        dict={dict}
                         value={activeContentVal}
                         onChange={(val) => {
                             if (activeArticleFormLocale === "es") setArticleContentEs(val);
@@ -406,7 +406,7 @@ export default function ArticleForm({
                             onClick={handleCancelEditArticle}
                             className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold font-outfit py-4 rounded-xl transition-all text-center cursor-pointer"
                         >
-                            Cancelar
+                            {dict.admin.articles.cancel}
                         </button>
                     )}
                     <button
@@ -414,7 +414,7 @@ export default function ArticleForm({
                         className="flex-1 bg-primary hover:bg-primary-light text-white font-bold font-outfit py-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-primary/10"
                     >
                         {editingArticleId ? "Guardar" : <Plus size={18} />}
-                        {editingArticleId ? "Actualizar" : "Crear Artículo"}
+                        {editingArticleId ? dict.admin.articles.update : dict.admin.articles.create_article}
                     </button>
                 </div>
             </form>

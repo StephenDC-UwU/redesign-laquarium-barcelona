@@ -7,6 +7,7 @@ import { Order } from "@prisma/client";
 export interface LocalizedProduct {
     id: string;
     price: number;
+    image: string | null;
     createdAt: Date;
     updatedAt: Date;
     name: string;
@@ -26,6 +27,7 @@ export async function getAvailableProductsAction(locale: string = "es"): Promise
         return products.map(prod => ({
             id: prod.id,
             price: prod.price,
+            image: prod.image,
             createdAt: prod.createdAt,
             updatedAt: prod.updatedAt,
             name: prod.translations[0]?.name || "",

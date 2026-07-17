@@ -28,12 +28,14 @@ import {
 } from "@/actions/adminActions";
 import { getAvailableProductsAction, LocalizedProduct } from "@/actions/cartActions";
 import { getArticlesAction } from "@/actions/articleActions";
+import { Dictionary } from "@/dictionaries";
 
 interface AdminClientProps {
     localeStr: string;
+    dict: Dictionary;
 }
 
-export default function AdminClient({ localeStr }: AdminClientProps) {
+export default function AdminClient({ localeStr, dict }: AdminClientProps) {
     const { isAdmin, adminLogin } = useAuth();
     const [orders, setOrders] = useState<Order[]>([]);
     const [products, setProducts] = useState<LocalizedProduct[]>([]);
@@ -109,7 +111,7 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
         startTransition(async () => {
             const res = await adminLogin(passInput);
             if (!res.success) {
-                setAuthError(res.error || "Contraseña incorrecta.");
+                setAuthError(res.error || dict.admin.auth_incorrect_password);
             }
         });
     };
@@ -119,17 +121,17 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
         if (res.success && res.order) {
             setOrders((prev) => prev.map((o) => (o.id === orderId ? res.order! : o)));
         } else {
-            alert(res.error || "Error al actualizar el estado");
+            alert(res.error || dict.admin.auth_status_update_error);
         }
     };
 
     const handleDeleteOrder = async (orderId: string) => {
-        if (!confirm("¿Estás seguro de que deseas eliminar este pedido?")) return;
+        if (!confirm(dict.admin.confirm_delete_order)) return;
         const res = await deleteOrderAction(orderId);
         if (res.success) {
             setOrders((prev) => prev.filter((o) => o.id !== orderId));
         } else {
-            alert(res.error || "Error al eliminar");
+            alert(res.error || dict.admin.delete_error);
         }
     };
 
@@ -200,17 +202,17 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                             <Lock className="w-8 h-8" />
                         </div>
                         <h1 className="text-3xl font-bold font-outfit text-secondary dark:text-white">
-                            Acceso Administrador
+                            {dict.admin.admin_access}
                         </h1>
                         <p className="text-slate-500 dark:text-slate-400 font-switzer text-sm">
-                            Introduce la contraseña del administrador root para acceder.
+                            {dict.admin.admin_access_desc}
                         </p>
                     </div>
 
                     <form onSubmit={handleAdminAuth} className="space-y-4">
                         <div className="space-y-1">
                             <label className="text-xs font-semibold text-slate-500 block">
-                                Contraseña Root
+                                {dict.admin.root_password}
                             </label>
                             <input
                                 type="password"
@@ -235,7 +237,7 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                             className="w-full bg-primary hover:bg-primary-light disabled:bg-slate-300 dark:disabled:bg-slate-800 text-white font-bold font-outfit py-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-primary/10"
                         >
                             <LogIn size={18} />
-                            {isPending ? "Verificando..." : "Acceder al Panel"}
+                            {isPending ? dict.admin.verifying : dict.admin.access_dashboard}
                         </button>
                     </form>
                 </div>
@@ -252,16 +254,16 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                         <Link
                             href={`/${localeStr}`}
                             className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full hover:bg-primary hover:text-white transition-all cursor-pointer"
-                            aria-label="Volver a Inicio"
+                            aria-label={dict.admin.back_to_home}
                         >
                             <ArrowLeft className="w-6 h-6" />
                         </Link>
                         <div>
                             <h1 className="text-4xl font-bold font-outfit text-secondary dark:text-white">
-                                Panel de Control Admin
+                                {dict.admin.admin_control_panel}
                             </h1>
                             <p className="text-slate-500 dark:text-slate-400 font-switzer text-sm mt-1">
-                                Gestión de órdenes y catálogo de entradas de L'Aquàrium
+                                {dict.admin.admin_control_panel_desc}
                             </p>
                         </div>
                     </div>
@@ -272,7 +274,7 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                         className="self-start md:self-auto flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-outfit font-bold text-sm cursor-pointer disabled:opacity-50"
                     >
                         <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
-                        Recargar Datos
+                        {dict.admin.reload_data}
                     </button>
                 </div>
 
@@ -283,7 +285,7 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                             <DollarSign className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider font-switzer">Ingresos Totales</p>
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider font-switzer">{dict.admin.total_revenue}</p>
                             <h3 className="text-2xl font-bold font-outfit text-secondary dark:text-white mt-1">
                                 {totalSales.toFixed(2)}€
                             </h3>
@@ -295,7 +297,7 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                             <Ticket className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider font-switzer">Entradas Vendidas</p>
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider font-switzer">{dict.admin.sold_tickets}</p>
                             <h3 className="text-2xl font-bold font-outfit text-secondary dark:text-white mt-1">
                                 {totalTicketsCount}
                             </h3>
@@ -307,7 +309,7 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                             <FileText className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider font-switzer">Órdenes Pendientes</p>
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider font-switzer">{dict.admin.pending_orders}</p>
                             <h3 className="text-2xl font-bold font-outfit text-secondary dark:text-white mt-1">
                                 {pendingOrdersCount}
                             </h3>
@@ -324,7 +326,7 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                             : "border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                             }`}
                     >
-                        Órdenes de Compra ({orders.length})
+                        {dict.admin.purchase_orders} ({orders.length})
                     </button>
                     <button
                         onClick={() => setActiveTab("products")}
@@ -333,7 +335,7 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                             : "border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                             }`}
                     >
-                        Catálogo de Entradas ({products.length})
+                        {dict.admin.ticket_catalog} ({products.length})
                     </button>
                     <button
                         onClick={() => setActiveTab("articles")}
@@ -342,7 +344,7 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                             : "border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                             }`}
                     >
-                        Artículos de Prensa ({articles.length})
+                        {dict.admin.press_articles} ({articles.length})
                     </button>
                     <button
                         onClick={() => setActiveTab("capacity")}
@@ -351,7 +353,7 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                             : "border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                             }`}
                     >
-                        Aforo y Reservas
+                        {dict.admin.capacity_and_reservations}
                     </button>
                 </div>
 
@@ -359,12 +361,13 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                 {loading ? (
                     <div className="text-center py-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8">
                         <RefreshCw className="w-10 h-10 animate-spin text-primary mx-auto mb-4" />
-                        <p className="font-switzer text-slate-500">Cargando datos del servidor...</p>
+                        <p className="font-switzer text-slate-500">{dict.admin.loading_data}</p>
                     </div>
                 ) : (
                     <div>
                         {activeTab === "orders" && (
                             <Orders
+                                dict={dict}
                                 orders={sortedOrders}
                                 onStatusChange={handleStatusChange}
                                 onDeleteOrder={handleDeleteOrder}
@@ -384,6 +387,7 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                         )}
                         {activeTab === "products" && (
                             <Products
+                                dict={dict}
                                 products={products}
                                 setProducts={setProducts}
                                 productFilterLocale={productFilterLocale}
@@ -392,6 +396,7 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                         )}
                         {activeTab === "articles" && (
                             <Articles
+                                dict={dict}
                                 articles={articles}
                                 setArticles={setArticles}
                                 articleFilterLocale={articleFilterLocale}
@@ -400,7 +405,7 @@ export default function AdminClient({ localeStr }: AdminClientProps) {
                             />
                         )}
                         {activeTab === "capacity" && (
-                            <Reservations isAdmin={isAdmin} />
+                            <Reservations isAdmin={isAdmin} dict={dict} />
                         )}
                     </div>
                 )}

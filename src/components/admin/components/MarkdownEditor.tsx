@@ -1,14 +1,16 @@
 import React, { useState, useRef } from "react";
 import { Bold, Italic, Heading, List, Link2, Image, Edit, Eye } from "lucide-react";
 import { marked } from "marked";
+import { Dictionary } from "@/dictionaries";
 
 interface MarkdownEditorProps {
+    dict: Dictionary;
     value: string;
     onChange: (val: string) => void;
     placeholder?: string;
 }
 
-export default function MarkdownEditor({ value, onChange, placeholder }: MarkdownEditorProps) {
+export default function MarkdownEditor({ dict, value, onChange, placeholder }: MarkdownEditorProps) {
     const [editorMode, setEditorMode] = useState<"edit" | "preview">("edit");
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -45,7 +47,7 @@ export default function MarkdownEditor({ value, onChange, placeholder }: Markdow
         <div className="space-y-2 mt-3">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
                 <label className="text-xs font-semibold text-slate-500">
-                    Contenido (Soporta Markdown)
+                    {dict.admin.articles.content_markdown}
                 </label>
                 
                 <div className="flex bg-slate-100 dark:bg-slate-950 p-0.5 rounded-lg border border-slate-200/50 dark:border-slate-800/50">
@@ -59,7 +61,7 @@ export default function MarkdownEditor({ value, onChange, placeholder }: Markdow
                         }`}
                     >
                         <Edit size={10} />
-                        Editar
+                        {dict.admin.articles.tab_write}
                     </button>
                     <button
                         type="button"
@@ -71,7 +73,7 @@ export default function MarkdownEditor({ value, onChange, placeholder }: Markdow
                         }`}
                     >
                         <Eye size={10} />
-                        Ver Preview
+                        {dict.admin.articles.tab_preview}
                     </button>
                 </div>
             </div>
@@ -148,7 +150,7 @@ export default function MarkdownEditor({ value, onChange, placeholder }: Markdow
                         />
                     ) : (
                         <p className="text-xs text-slate-400 italic text-center pt-20">
-                            No hay contenido escrito para previsualizar.
+                            {dict.admin.articles.no_preview}
                         </p>
                     )}
                 </div>

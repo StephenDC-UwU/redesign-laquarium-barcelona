@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Order } from "@prisma/client";
 import { Trash2, Calendar, Search, SlidersHorizontal, ArrowUpDown, Printer } from "lucide-react";
+import { Dictionary } from "@/dictionaries";
 
 interface OrdersProps {
+    dict: Dictionary;
     orders: Order[]; // Already filtered and sorted orders passed from parent
     onStatusChange: (orderId: string, newStatus: string) => Promise<void>;
     onDeleteOrder: (orderId: string) => Promise<void>;
@@ -20,12 +22,6 @@ interface OrdersProps {
     setSortBy: (val: "date_desc" | "date_asc" | "total_desc" | "total_asc") => void;
 }
 
-const monthNames = [
-    "enero", "febrero", "marzo", "abril", "mayo", "junio",
-    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
-];
-const dayNames = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-
 const getDaysInMonth = (year: number, month: number) => {
     return new Date(year, month + 1, 0).getDate();
 };
@@ -35,9 +31,10 @@ const getFirstDayOfMonth = (year: number, month: number) => {
     return day === 0 ? 6 : day - 1;
 };
 
-export default function Orders({ 
-    orders, 
-    onStatusChange, 
+export default function Orders({
+    dict,
+    orders,
+    onStatusChange,
     onDeleteOrder,
     searchQuery,
     setSearchQuery,
@@ -88,12 +85,12 @@ export default function Orders({
         }, 150);
     };
 
-    const isAnyFilterActive = 
-        searchQuery !== "" || 
-        statusFilter !== "all" || 
-        dateFilter !== "" || 
-        minPrice !== "" || 
-        maxPrice !== "" || 
+    const isAnyFilterActive =
+        searchQuery !== "" ||
+        statusFilter !== "all" ||
+        dateFilter !== "" ||
+        minPrice !== "" ||
+        maxPrice !== "" ||
         sortBy !== "date_desc";
 
     // Count and sums for list printing
@@ -108,7 +105,8 @@ export default function Orders({
     return (
         <div className="space-y-6">
             {/* Inline CSS overrides to handle window.print cleanly */}
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 @media print {
                     /* Hide everything by default */
                     body * {
@@ -165,26 +163,26 @@ export default function Orders({
                             L'Aquàrium Barcelona
                         </div>
                         <div className="text-center text-[10px] uppercase text-slate-600 mb-3">
-                            Ticket de Entrada Oficial
+                            {dict.admin.orders.official_ticket}
                         </div>
                         <div className="border-t border-dashed border-black my-2" />
-                        
+
                         <div className="space-y-1">
-                            <p><strong>Pedido ID:</strong> {selectedPrintOrder.id}</p>
-                            <p><strong>Titular:</strong> {selectedPrintOrder.fullName}</p>
-                            <p><strong>Email:</strong> {selectedPrintOrder.email}</p>
+                            <p><strong>{dict.admin.orders.order_id}:</strong> {selectedPrintOrder.id}</p>
+                            <p><strong>{dict.admin.orders.holder}:</strong> {selectedPrintOrder.fullName}</p>
+                            <p><strong>{dict.admin.orders.email}:</strong> {selectedPrintOrder.email}</p>
                             {selectedPrintOrder.visitDate && (
-                                <p><strong>Fecha Visita:</strong> {selectedPrintOrder.visitDate}</p>
+                                <p><strong>{dict.admin.orders.visit_date}:</strong> {selectedPrintOrder.visitDate}</p>
                             )}
                             {selectedPrintOrder.visitTime && (
-                                <p><strong>Hora Acceso:</strong> {selectedPrintOrder.visitTime}</p>
+                                <p><strong>{dict.admin.orders.access_time}:</strong> {selectedPrintOrder.visitTime}</p>
                             )}
                         </div>
 
                         <div className="border-t border-dashed border-black my-2" />
-                        
+
                         <div className="space-y-1">
-                            <span className="font-bold block mb-1">Detalle del Ticket:</span>
+                            <span className="font-bold block mb-1">{dict.admin.orders.ticket_details}:</span>
                             {((selectedPrintOrder.items as any[]) || []).map((item, idx) => (
                                 <div key={idx} className="flex justify-between">
                                     <span>{item.name} x{item.quantity}</span>
@@ -194,9 +192,9 @@ export default function Orders({
                         </div>
 
                         <div className="border-t border-dashed border-black my-2" />
-                        
+
                         <div className="flex justify-between font-bold text-xs uppercase">
-                            <span>Total Pagado:</span>
+                            <span>{dict.admin.orders.total_paid}:</span>
                             <span>{selectedPrintOrder.total.toFixed(2)}€</span>
                         </div>
 
@@ -210,7 +208,7 @@ export default function Orders({
                                 className="w-32 h-32 object-contain"
                             />
                             <span className="text-[8px] mt-2 tracking-wider text-slate-500 uppercase text-center block">
-                                Presenta en acceso para escanear
+                                {dict.admin.orders.present_access_to_scan}
                             </span>
                         </div>
                     </div>
@@ -224,23 +222,23 @@ export default function Orders({
                                     L'Aquàrium Barcelona
                                 </h1>
                                 <p className="text-xs text-slate-500 mt-1">
-                                    Listado de Visitantes y Control de Caja
+                                    {dict.admin.orders.visitor_list_control}
                                 </p>
                             </div>
                             <div className="text-right text-xs text-slate-600">
-                                <p><strong>Fecha de Emisión:</strong> {new Date().toLocaleDateString()}</p>
-                                <p><strong>Hora:</strong> {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+                                <p><strong>{dict.admin.orders.issue_date}:</strong> {new Date().toLocaleDateString()}</p>
+                                <p><strong>{dict.admin.orders.time}:</strong> {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
                             </div>
                         </div>
 
                         {/* Summary of filters applied */}
                         <div className="mt-4 p-3 bg-slate-50 border rounded-xl text-xs space-y-1">
-                            <span className="font-bold text-slate-700 block">Filtros Activos:</span>
+                            <span className="font-bold text-slate-700 block">{dict.admin.orders.active_filters}:</span>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-600">
-                                <p><strong>Búsqueda:</strong> {searchQuery || "Ninguno"}</p>
-                                <p><strong>Estado:</strong> {statusFilter === "all" ? "Todos" : statusFilter}</p>
-                                <p><strong>Fecha Visita:</strong> {dateFilter || "Cualquiera"}</p>
-                                <p><strong>Precios:</strong> {minPrice || "0"}€ - {maxPrice || "Max"}€</p>
+                                <p><strong>{dict.admin.orders.search}:</strong> {searchQuery || dict.admin.orders.none}</p>
+                                <p><strong>{dict.admin.orders.status}:</strong> {statusFilter === "all" ? dict.admin.orders.all : (dict.admin.orders[statusFilter as keyof typeof dict.admin.orders] || statusFilter)}</p>
+                                <p><strong>{dict.admin.orders.visit_date}:</strong> {dateFilter || dict.admin.orders.any_date}</p>
+                                <p><strong>{dict.admin.orders.prices}:</strong> {minPrice || "0"}€ - {maxPrice || "Max"}€</p>
                             </div>
                         </div>
 
@@ -248,13 +246,13 @@ export default function Orders({
                         <table className="list-print-table">
                             <thead>
                                 <tr>
-                                    <th>ID Pedido</th>
-                                    <th>Cliente</th>
-                                    <th>Fecha Visita</th>
-                                    <th>Hora</th>
-                                    <th>Tickets Comprados</th>
-                                    <th>Total</th>
-                                    <th>Estado</th>
+                                    <th>{dict.admin.orders.table_order_id}</th>
+                                    <th>{dict.admin.orders.table_client}</th>
+                                    <th>{dict.admin.orders.table_visit_date}</th>
+                                    <th>{dict.admin.orders.table_time}</th>
+                                    <th>{dict.admin.orders.table_tickets_purchased}</th>
+                                    <th>{dict.admin.orders.table_total}</th>
+                                    <th>{dict.admin.orders.table_status}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -277,7 +275,9 @@ export default function Orders({
                                                 ))}
                                             </td>
                                             <td className="font-bold">{order.total.toFixed(2)}€</td>
-                                            <td className="capitalize text-xs font-semibold">{order.status}</td>
+                                            <td className="capitalize text-xs font-semibold">
+                                                {dict.admin.orders[order.status as keyof typeof dict.admin.orders] || order.status}
+                                            </td>
                                         </tr>
                                     );
                                 })}
@@ -287,15 +287,15 @@ export default function Orders({
                         {/* List Footer stats */}
                         <div className="mt-6 border-t pt-4 grid grid-cols-3 gap-4 text-center">
                             <div className="p-3 bg-slate-50 border rounded-xl">
-                                <span className="text-[10px] uppercase font-bold text-slate-500 block">Total Transacciones</span>
+                                <span className="text-[10px] uppercase font-bold text-slate-500 block">{dict.admin.orders.total_transactions}</span>
                                 <span className="text-lg font-bold">{orders.length}</span>
                             </div>
                             <div className="p-3 bg-slate-50 border rounded-xl">
-                                <span className="text-[10px] uppercase font-bold text-slate-500 block">Entradas Totales</span>
+                                <span className="text-[10px] uppercase font-bold text-slate-500 block">{dict.admin.orders.total_tickets}</span>
                                 <span className="text-lg font-bold">{printTicketsCount}</span>
                             </div>
                             <div className="p-3 bg-slate-50 border rounded-xl">
-                                <span className="text-[10px] uppercase font-bold text-slate-500 block">Ingresos Acumulados</span>
+                                <span className="text-[10px] uppercase font-bold text-slate-500 block">{dict.admin.orders.accumulated_income}</span>
                                 <span className="text-lg font-bold text-primary">{printSalesSum.toFixed(2)}€</span>
                             </div>
                         </div>
@@ -308,9 +308,9 @@ export default function Orders({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <h4 className="text-sm font-bold font-outfit text-slate-500 uppercase tracking-wider flex items-center gap-2">
                         <SlidersHorizontal className="w-4 h-4 text-primary" />
-                        Filtros de Búsqueda
+                        {dict.admin.orders.search_filters}
                     </h4>
-                    
+
                     <div className="flex gap-2">
                         <button
                             type="button"
@@ -318,7 +318,7 @@ export default function Orders({
                             className="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold font-outfit rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
                         >
                             <Printer className="w-3.5 h-3.5" />
-                            Imprimir Listado
+                            {dict.admin.orders.print_list}
                         </button>
 
                         {isAnyFilterActive && (
@@ -326,7 +326,7 @@ export default function Orders({
                                 onClick={handleResetFilters}
                                 className="text-xs text-primary font-bold hover:underline cursor-pointer flex items-center gap-1.5"
                             >
-                                Limpiar filtros
+                                {dict.admin.orders.clear_filters}
                             </button>
                         )}
                     </div>
@@ -336,14 +336,14 @@ export default function Orders({
                     {/* ID / Name Search */}
                     <div className="space-y-1 md:col-span-2">
                         <label className="text-xs font-semibold text-slate-500 block">
-                            Buscar Orden
+                            {dict.admin.orders.search_order}
                         </label>
                         <div className="relative">
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Buscar por ID, nombre o email..."
+                                placeholder={dict.admin.orders.search_placeholder}
                                 className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-xs text-foreground focus:outline-none focus:border-primary h-[38px]"
                             />
                             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -353,24 +353,24 @@ export default function Orders({
                     {/* Status Filter */}
                     <div className="space-y-1">
                         <label className="text-xs font-semibold text-slate-500 block">
-                            Estado
+                            {dict.admin.orders.status}
                         </label>
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value as any)}
                             className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-xs text-foreground focus:outline-none focus:border-primary h-[38px] cursor-pointer"
                         >
-                            <option value="all">Todos</option>
-                            <option value="pending">Pendiente</option>
-                            <option value="paid">Pagado</option>
-                            <option value="completed">Completado</option>
+                            <option value="all">{dict.admin.orders.all}</option>
+                            <option value="pending">{dict.admin.orders.pending}</option>
+                            <option value="paid">{dict.admin.orders.paid}</option>
+                            <option value="completed">{dict.admin.orders.completed}</option>
                         </select>
                     </div>
 
                     {/* Date Picker Popover */}
                     <div className="space-y-1 relative">
                         <label className="text-xs font-semibold text-slate-500 block">
-                            Fecha de Visita
+                            {dict.admin.orders.visit_date}
                         </label>
                         <div className="relative">
                             <button
@@ -378,7 +378,7 @@ export default function Orders({
                                 onClick={() => setShowCalendar(!showCalendar)}
                                 className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-xs text-left flex items-center justify-between text-foreground hover:border-primary transition-all cursor-pointer h-[38px]"
                             >
-                                <span className="truncate">{dateFilter || "Cualquier fecha"}</span>
+                                <span className="truncate">{dateFilter || dict.admin.orders.any_date}</span>
                                 <Calendar className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                             </button>
 
@@ -400,7 +400,7 @@ export default function Orders({
                                             ←
                                         </button>
                                         <span className="font-bold text-xs text-secondary dark:text-white capitalize">
-                                            {monthNames[calMonth]} {calYear}
+                                            {dict.admin.orders.months[calMonth]} {calYear}
                                         </span>
                                         <button
                                             type="button"
@@ -419,7 +419,7 @@ export default function Orders({
                                     </div>
 
                                     <div className="grid grid-cols-7 gap-0.5 text-center text-[10px] font-bold text-slate-400 mb-2">
-                                        {dayNames.map((d) => (
+                                        {dict.admin.orders.days.map((d) => (
                                             <div key={d}>{d}</div>
                                         ))}
                                     </div>
@@ -444,11 +444,10 @@ export default function Orders({
                                                         setDateFilter(dateStr);
                                                         setShowCalendar(false);
                                                     }}
-                                                    className={`h-7 w-7 mx-auto flex items-center justify-center rounded-lg text-[10px] font-semibold transition-all cursor-pointer ${
-                                                        isSelected
+                                                    className={`h-7 w-7 mx-auto flex items-center justify-center rounded-lg text-[10px] font-semibold transition-all cursor-pointer ${isSelected
                                                             ? "bg-primary text-white shadow-md shadow-primary/20 scale-105"
                                                             : "text-secondary dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                                                    }`}
+                                                        }`}
                                                 >
                                                     {day}
                                                 </button>
@@ -471,7 +470,7 @@ export default function Orders({
                                             }}
                                             className="px-2.5 py-1 bg-primary/10 hover:bg-primary/20 text-primary font-bold font-switzer text-[10px] rounded-lg transition-all cursor-pointer"
                                         >
-                                            Hoy
+                                            {dict.admin.orders.today}
                                         </button>
                                     </div>
                                 </div>
@@ -482,7 +481,7 @@ export default function Orders({
                     {/* Price Range */}
                     <div className="space-y-1">
                         <label className="text-xs font-semibold text-slate-500 block">
-                            Rango Total (€)
+                            {dict.admin.orders.total_range}
                         </label>
                         <div className="flex gap-1 items-center">
                             <input
@@ -506,7 +505,7 @@ export default function Orders({
                     {/* Sorting dropdown */}
                     <div className="space-y-1">
                         <label className="text-xs font-semibold text-slate-500 block">
-                            Ordenar por
+                            {dict.admin.orders.sort_by}
                         </label>
                         <div className="relative">
                             <select
@@ -514,10 +513,10 @@ export default function Orders({
                                 onChange={(e) => setSortBy(e.target.value as any)}
                                 className="w-full pl-7 pr-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-xs text-foreground focus:outline-none focus:border-primary h-[38px] cursor-pointer"
                             >
-                                <option value="date_desc">Fecha: Más nuevos</option>
-                                <option value="date_asc">Fecha: Más viejos</option>
-                                <option value="total_desc">Total: Mayor a menor</option>
-                                <option value="total_asc">Total: Menor a mayor</option>
+                                <option value="date_desc">{dict.admin.orders.sort_date_desc}</option>
+                                <option value="date_asc">{dict.admin.orders.sort_date_asc}</option>
+                                <option value="total_desc">{dict.admin.orders.sort_total_desc}</option>
+                                <option value="total_asc">{dict.admin.orders.sort_total_asc}</option>
                             </select>
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none" />
                         </div>
@@ -528,7 +527,7 @@ export default function Orders({
             {/* List */}
             {orders.length === 0 ? (
                 <div className="text-center py-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl">
-                    <p className="font-switzer text-slate-500">No hay órdenes que coincidan con los filtros.</p>
+                    <p className="font-switzer text-slate-500">{dict.admin.orders.no_orders}</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-4">
@@ -581,24 +580,24 @@ export default function Orders({
                                             : "bg-yellow-500/10 text-yellow-500"
                                         }`}
                                 >
-                                    <option value="pending">Pendiente</option>
-                                    <option value="paid">Pagado</option>
-                                    <option value="completed">Completado</option>
+                                    <option value="pending">{dict.admin.orders.pending}</option>
+                                    <option value="paid">{dict.admin.orders.paid}</option>
+                                    <option value="completed">{dict.admin.orders.completed}</option>
                                 </select>
 
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => handlePrintTicket(order)}
                                         className="p-2 text-slate-400 hover:text-primary rounded-full hover:bg-primary/10 transition-all cursor-pointer"
-                                        aria-label="Imprimir ticket"
+                                        aria-label={dict.admin.orders.aria_print_ticket}
                                     >
                                         <Printer className="w-5 h-5" />
                                     </button>
-                                    
+
                                     <button
                                         onClick={() => onDeleteOrder(order.id)}
                                         className="p-2 text-slate-400 hover:text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer"
-                                        aria-label="Eliminar orden"
+                                        aria-label={dict.admin.orders.aria_delete_order}
                                     >
                                         <Trash2 className="w-5 h-5" />
                                     </button>

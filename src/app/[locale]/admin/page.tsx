@@ -1,13 +1,13 @@
-"use client";
-
-import { useParams } from "next/navigation";
+import { getDictionary } from "@/dictionaries";
 import AdminClient from "./AdminClient";
 
-export default function AdminPage() {
-    const params = useParams();
-    const localeStr = Array.isArray(params?.locale)
-        ? params.locale[0]
-        : params?.locale || "es";
+interface AdminPageProps {
+    params: Promise<{ locale: string }>;
+}
 
-    return <AdminClient localeStr={localeStr} />;
+export default async function AdminPage({ params }: AdminPageProps) {
+    const { locale } = await params;
+    const dict = await getDictionary(locale);
+
+    return <AdminClient localeStr={locale} dict={dict} />;
 }

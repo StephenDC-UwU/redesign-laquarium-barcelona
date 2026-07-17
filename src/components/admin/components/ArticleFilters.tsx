@@ -1,7 +1,9 @@
 import React from "react";
 import { Calendar } from "lucide-react";
+import { Dictionary } from "@/dictionaries";
 
 interface ArticleFiltersProps {
+    dict: Dictionary;
     articleFilterLocale: "es" | "ca" | "en";
     setArticleFilterLocale: (locale: "es" | "ca" | "en") => void;
     articleFilterCategory: "all" | "news" | "blog";
@@ -15,13 +17,12 @@ interface ArticleFiltersProps {
     filterCalMonth: number;
     setFilterCalMonth: React.Dispatch<React.SetStateAction<number>>;
     setCurrentPage: (page: number) => void;
-    monthNames: string[];
-    dayNames: string[];
     getFirstDayOfMonth: (year: number, month: number) => number;
     getDaysInMonth: (year: number, month: number) => number;
 }
 
 export default function ArticleFilters({
+    dict,
     articleFilterLocale,
     setArticleFilterLocale,
     articleFilterCategory,
@@ -35,8 +36,6 @@ export default function ArticleFilters({
     filterCalMonth,
     setFilterCalMonth,
     setCurrentPage,
-    monthNames,
-    dayNames,
     getFirstDayOfMonth,
     getDaysInMonth,
 }: ArticleFiltersProps) {
@@ -44,7 +43,7 @@ export default function ArticleFilters({
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <h4 className="text-sm font-bold font-outfit text-slate-500 uppercase tracking-wider">
-                    Filtros de Búsqueda
+                    {dict.admin.articles.search_filters}
                 </h4>
                 {(articleFilterCategory !== "all" || articleFilterDate) && (
                     <button
@@ -55,7 +54,7 @@ export default function ArticleFilters({
                         }}
                         className="text-xs text-primary font-bold hover:underline cursor-pointer flex items-center gap-1 self-start sm:self-auto"
                     >
-                        Limpiar filtros
+                        {dict.admin.articles.clear_filters}
                     </button>
                 )}
             </div>
@@ -64,7 +63,7 @@ export default function ArticleFilters({
                 {/* Language Filter */}
                 <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-500 block">
-                        Idioma
+                        {dict.admin.articles.display_language}
                     </label>
                     <div className="flex bg-slate-100 dark:bg-slate-950 p-0.5 rounded-xl border border-slate-200/50 dark:border-slate-800/50">
                         {(["es", "ca", "en"] as const).map((lang) => {
@@ -93,7 +92,7 @@ export default function ArticleFilters({
                 {/* Category Filter */}
                 <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-500 block">
-                        Categoría
+                        {dict.admin.articles.category}
                     </label>
                     <select
                         value={articleFilterCategory}
@@ -103,16 +102,16 @@ export default function ArticleFilters({
                         }}
                         className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-xs text-foreground focus:outline-none focus:border-primary h-[38px] cursor-pointer"
                     >
-                        <option value="all">Todos</option>
-                        <option value="news">Noticia (News)</option>
-                        <option value="blog">Blog</option>
+                        <option value="all">{dict.admin.articles.all_categories}</option>
+                        <option value="news">{dict.admin.articles.news}</option>
+                        <option value="blog">{dict.admin.articles.blog}</option>
                     </select>
                 </div>
 
                 {/* Date Filter */}
                 <div className="space-y-1 relative">
                     <label className="text-xs font-semibold text-slate-500 block">
-                        Fecha
+                        {dict.admin.articles.publish_date}
                     </label>
                     <div className="relative">
                         <button
@@ -120,7 +119,7 @@ export default function ArticleFilters({
                             onClick={() => setShowFilterCalendar(!showFilterCalendar)}
                             className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-xs text-left flex items-center justify-between text-foreground hover:border-primary transition-all cursor-pointer h-[38px]"
                         >
-                            <span className="truncate">{articleFilterDate || "Cualquier fecha"}</span>
+                            <span className="truncate">{articleFilterDate || dict.admin.articles.any_date}</span>
                             <Calendar className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                         </button>
 
@@ -142,7 +141,7 @@ export default function ArticleFilters({
                                         ←
                                     </button>
                                     <span className="font-bold text-xs text-secondary dark:text-white capitalize">
-                                        {monthNames[filterCalMonth]} {filterCalYear}
+                                        {dict.admin.orders.months[filterCalMonth]} {filterCalYear}
                                     </span>
                                     <button
                                         type="button"
@@ -161,7 +160,7 @@ export default function ArticleFilters({
                                 </div>
 
                                 <div className="grid grid-cols-7 gap-0.5 text-center text-[10px] font-bold text-slate-400 mb-2">
-                                    {dayNames.map((d) => (
+                                    {dict.admin.orders.days.map((d) => (
                                         <div key={d}>{d}</div>
                                     ))}
                                 </div>
@@ -215,7 +214,7 @@ export default function ArticleFilters({
                                         }}
                                         className="px-2.5 py-1 bg-primary/10 hover:bg-primary/20 text-primary font-bold font-switzer text-[10px] rounded-lg transition-all cursor-pointer"
                                     >
-                                        Hoy
+                                        {dict.admin.articles.today}
                                     </button>
                                 </div>
                             </div>
