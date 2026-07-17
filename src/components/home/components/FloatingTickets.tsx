@@ -11,7 +11,7 @@ export default function FloatingTickets({ dict, locale }: FloatingTicketsProps) 
     return (
         <Link
             href={`/${locale}/tickets`}
-            className="flex-none md:fixed bottom-2 md:bottom-6 right-6 z-50 group flex  justify-center transition-transform hover:scale-105 duration-300 active:scale-95"
+            className="hidden md:fixed md:flex bottom-2 md:bottom-6 right-6 z-50 group justify-center transition-transform hover:scale-105 duration-300 active:scale-95"
         >
             <div className="relative w-64 h-64 flex items-center justify-center">
                 <Image

@@ -29,7 +29,7 @@ export default function Hero({ dict }: HeroProps) {
         {
             title: dict.hero.hero_title,
             buttonText: dict.hero.hero_button,
-            buttonLink: "#tickets",
+            buttonLink: "/tickets",
             bgImage: bg_hero,
             isSlide0: true,
         },

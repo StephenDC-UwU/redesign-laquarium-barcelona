@@ -85,10 +85,10 @@ export default function Experience({ dict }: ExperienceProps) {
                     ref={textRef}
                     className="absolute inset-0 flex flex-col items-center justify-center text-white p-8 opacity-0 z-10"
                 >
-                    <h2 className="text-5xl md:text-7xl lg:text-8xl font-shadows text-center mb-8 drop-shadow-lg max-w-4xl leading-tight">
+                    <h2 className="text-5xl md:text-7xl lg:text-8xl font-shadows text-center mb-8 drop-shadow-lg max-w-4xl leading-tight -rotate-3">
                         {experience.title}
                     </h2>
-                    <Link href={`/${locale}/tickets`} className="px-10 py-4 bg-tertiary hover:bg-tertiary/90 text-white font-bold font-switzer rounded-md text-lg md:text-xl transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer">
+                    <Link href={`/${locale}/tickets`} className="px-10 py-4 bg-tertiary hover:bg-tertiary/90 text-white font-bold font-switzer text-lg md:text-xl transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer">
                         {experience.button}
                     </Link>
                 </div>

@@ -188,7 +188,7 @@ export default function News({ dict, locale }: NewsProps) {
                             <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold font-outfit leading-tight mb-8">
                                 {featured.title}
                             </h3>
-                            <button className="px-8 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-md transition-colors shadow-lg shadow-primary/30">
+                            <button className="px-8 py-3 bg-primary hover:bg-primary-dark text-white font-bold  transition-colors shadow-lg shadow-primary/30">
                                 Consultar
                             </button>
                         </div>
@@ -210,9 +210,13 @@ export default function News({ dict, locale }: NewsProps) {
                             onTouchEnd={handleListMouseUp}
                             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                         >
-                            {/* Duplicate data a bit to make scrolling more obvious for the demo */}
-                            {[...newsList, ...newsList].map((news, index) => (
-                                <div key={`${news.id}-${index}`} className="news-list-item flex flex-col">
+                            {newsList.map((news, index) => (
+                                <div 
+                                    key={news.id} 
+                                    className={`news-list-item flex flex-col ${
+                                        index >= 5 ? "hidden md:flex" : ""
+                                    }`}
+                                >
                                     <a
                                         href={news.link}
                                         onClick={(e) => {
@@ -221,7 +225,7 @@ export default function News({ dict, locale }: NewsProps) {
                                             }
                                         }}
                                         className="flex items-center gap-6 py-6 group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors rounded-xl px-2 -mx-2"
-                                        onMouseEnter={() => setActiveIndex(index % newsList.length)}
+                                        onMouseEnter={() => setActiveIndex(index)}
                                     >
                                         {/* Thumbnail */}
                                         <div className="relative w-24 h-24 md:w-28 md:h-24 flex-shrink-0 rounded-3xl overflow-hidden border-2 border-transparent group-hover:border-primary transition-colors pointer-events-none">
