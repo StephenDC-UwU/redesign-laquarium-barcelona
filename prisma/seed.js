@@ -31,6 +31,12 @@ async function main() {
   await prisma.productTranslation.deleteMany({});
   await prisma.product.deleteMany({});
 
+  console.log("Cleaning up orders...");
+  await prisma.order.deleteMany({});
+
+  console.log("Cleaning up subscribers...");
+  await prisma.newsletterSubscriber.deleteMany({});
+
   const topics = ["Actualidad", "Acuario", "Promociones"];
   const years = [2024, 2025, 2026];
   const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];

@@ -18,6 +18,9 @@ export async function generateMetadata({ params }: CartPageProps): Promise<Metad
     };
 }
 
-export default async function CartPage() {
-    return <CartClient />;
+export default async function CartPage({ params }: CartPageProps) {
+    const { locale } = await params;
+    const currentLocale = locale as Locale;
+    const dict = await getDictionary(currentLocale);
+    return <CartClient dict={dict} />;
 }

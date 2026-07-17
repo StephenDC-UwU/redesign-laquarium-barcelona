@@ -55,7 +55,7 @@ export default async function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>
-              <PageTransitionLoader />
+              <PageTransitionLoader dict={dict} />
               <SectionObserver />
               <Header dict={dict} currentLocale={currentLocale} />
               {children}

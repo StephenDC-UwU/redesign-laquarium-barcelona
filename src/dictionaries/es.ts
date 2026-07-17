@@ -56,6 +56,27 @@ export const es = {
         
     },
    
+    transition_loader: {
+        feeding: "Alimentando...",
+        swimming: "Nadando...",
+        learning: "Aprendiendo..."
+    },
+
+    articles_page: {
+        search_placeholder: "Buscar artículo...",
+        search_button: "Buscar",
+        filters_button: "Filtros",
+        topics_title: "Temas",
+        year_title: "Año",
+        months_title: "Meses",
+        active_filters: "Filtros Activos:",
+        clear_all: "Limpiar todos",
+        read_more: "Ver más",
+        loading_more: "Cargando más artículos...",
+        no_articles: "No se encontraron artículos",
+        no_articles_desc: "Intenta ajustar tu búsqueda o los filtros acumulados para ver más publicaciones."
+    },
+   
     discover: {
         discover_title: "Descubre",
         discover_button_check: "Consultar",
@@ -255,5 +276,43 @@ export const es = {
             no_preview: "No hay contenido escrito para previsualizar.",
             today: "Hoy"
         }
+    },
+    cart: {
+        purchase_completed: "¡Compra Realizada!",
+        order_registered_details: "Tu orden ha sido registrada exitosamente. A continuación tienes los detalles de tu compra:",
+        order_id: "ID Pedido",
+        client: "Cliente",
+        email: "Email",
+        visit_date: "Fecha de Visita",
+        visit_time: "Hora de Visita",
+        total: "Total",
+        view_orders: "Ver Órdenes en tu panel",
+        back_to_home: "Volver a Inicio",
+        your_cart: "Tu Carrito de Entradas",
+        cart_empty: "El carrito está vacío",
+        cart_empty_desc: "Aún no has añadido entradas para tu visita a L'Aquàrium Barcelona.",
+        explore_tickets: "Explorar Entradas",
+        default_product_desc: "Entrada oficial para acceso a las exhibiciones.",
+        clear_cart: "Vaciar carrito",
+        purchase_summary: "Resumen de Compra",
+        total_tickets: "Total entradas:",
+        subtotal: "Subtotal:",
+        total_to_pay: "Total a pagar:",
+        contact_details: "Datos de Contacto",
+        full_name: "Nombre Completo",
+        date_time_visit: "Fecha y Hora de Visita",
+        select_date: "Selecciona una Fecha",
+        selected_date: "Fecha seleccionada:",
+        select_time: "Selecciona una Hora",
+        select_date_first: "Selecciona primero una fecha en el calendario",
+        checking_capacity: "Consultando aforo...",
+        passed: "Pasado",
+        sold_out: "Agotado",
+        spots: "plazas",
+        processing_purchase: "Procesando Compra...",
+        checkout_and_pay: "Finalizar y Pagar",
+        error_fill_fields: "Por favor, rellena todos los campos.",
+        error_select_date_time: "Por favor, selecciona la fecha y hora de tu visita.",
+        error_payment_init: "Algo salió mal al iniciar tu pago."
     }
 };

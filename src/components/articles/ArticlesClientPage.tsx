@@ -32,7 +32,7 @@ export default function ArticlesClientPage({
         window.dispatchEvent(new CustomEvent("page-navigation-started"));
         router.push(path);
     };
-    
+
     // Page Title based on category and dictionary
     const title = isBlog ? (dict.nav.nav_blog || "Blog") : (dict.news.news_title || "Noticias");
 
@@ -66,23 +66,12 @@ export default function ArticlesClientPage({
         value: year
     }));
 
-    // Map month display text based on locale
-    const monthList = locale === "es" ? [
-        { label: "Enero", value: "01" },
-        { label: "Febrero", value: "02" },
-        { label: "Marzo", value: "03" },
-        { label: "Junio", value: "06" }
-    ] : locale === "ca" ? [
-        { label: "Gener", value: "01" },
-        { label: "Febrer", value: "02" },
-        { label: "Març", value: "03" },
-        { label: "Juny", value: "06" }
-    ] : [
-        { label: "January", value: "01" },
-        { label: "February", value: "02" },
-        { label: "March", value: "03" },
-        { label: "June", value: "06" }
-    ];
+    // Map month display text dynamically using translation months
+    const monthList = dict.admin.orders.months.map((m, index) => {
+        const value = String(index + 1).padStart(2, "0");
+        const label = m.charAt(0).toUpperCase() + m.slice(1);
+        return { label, value };
+    });
 
     // Filter states
     const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
@@ -127,12 +116,12 @@ export default function ArticlesClientPage({
         };
 
         // Skip initial call because initialArticles is already loaded
-        const isInitial = 
-            selectedTopics.length === 0 && 
-            selectedYears.length === 0 && 
-            selectedMonths.length === 0 && 
+        const isInitial =
+            selectedTopics.length === 0 &&
+            selectedYears.length === 0 &&
+            selectedMonths.length === 0 &&
             activeSearch === "";
-            
+
         if (!isInitial) {
             fetchFiltered();
         } else {
@@ -190,7 +179,7 @@ export default function ArticlesClientPage({
                 skip: articles.length,
                 take: 9, // Load in 3x3 (9 items) blocks
             });
-            
+
             setArticles(prev => {
                 const existingIds = new Set(prev.map(art => art.id));
                 const uniqueNewArticles = nextBatch.articles.filter(art => !existingIds.has(art.id));
@@ -209,9 +198,9 @@ export default function ArticlesClientPage({
     // The featured article is either marked `featured: true` or is the first one in the list.
     const featuredIndex = articles.findIndex(art => art.featured === true);
     const featuredArticle = featuredIndex !== -1 ? articles[featuredIndex] : articles[0];
-    
+
     // Grid articles: everything except the featured article
-    const gridArticles = featuredArticle 
+    const gridArticles = featuredArticle
         ? articles.filter(art => art.id !== featuredArticle.id)
         : [];
 
@@ -233,7 +222,7 @@ export default function ArticlesClientPage({
                     <form onSubmit={handleSearchSubmit} className="flex items-center w-full sm:w-auto relative">
                         <input
                             type="text"
-                            placeholder="Buscar artículo..."
+                            placeholder={dict.articles_page.search_placeholder}
                             value={searchVal}
                             onChange={(e) => setSearchVal(e.target.value)}
                             className="w-full sm:w-64 pl-10 pr-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary text-black dark:text-white text-sm transition-all"
@@ -243,21 +232,20 @@ export default function ArticlesClientPage({
                             type="submit"
                             className="ml-2 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/20 transition-all cursor-pointer"
                         >
-                            Buscar
+                            {dict.articles_page.search_button}
                         </button>
                     </form>
 
                     {/* Filter Toggle Button */}
                     <button
                         onClick={() => setShowMobileFilters(!showMobileFilters)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
-                            showMobileFilters || selectedTopics.length > 0 || selectedYears.length > 0 || selectedMonths.length > 0
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-bold transition-all cursor-pointer ${showMobileFilters || selectedTopics.length > 0 || selectedYears.length > 0 || selectedMonths.length > 0
                                 ? "bg-secondary border-secondary text-white"
                                 : "border-slate-200 dark:border-slate-800 text-black dark:text-white hover:bg-slate-50 dark:hover:bg-slate-900"
-                        }`}
+                            }`}
                     >
                         <SlidersHorizontal className="w-4 h-4" />
-                        <span>Filtros</span>
+                        <span>{dict.articles_page.filters_button}</span>
                         {(selectedTopics.length + selectedYears.length + selectedMonths.length) > 0 && (
                             <span className="bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
                                 {selectedTopics.length + selectedYears.length + selectedMonths.length}
@@ -272,7 +260,7 @@ export default function ArticlesClientPage({
                             {topicList.length > 0 && (
                                 <div>
                                     <h3 className="text-sm font-bold text-black dark:text-white uppercase tracking-wider mb-3 border-b border-slate-200 dark:border-slate-800 pb-1">
-                                        Topics
+                                        {dict.articles_page.topics_title}
                                     </h3>
                                     <div className="flex flex-col gap-2">
                                         {topicList.map(topic => {
@@ -297,7 +285,7 @@ export default function ArticlesClientPage({
                             {yearList.length > 0 && (
                                 <div>
                                     <h3 className="text-sm font-bold text-black dark:text-white uppercase tracking-wider mb-3 border-b border-slate-200 dark:border-slate-800 pb-1">
-                                        Year
+                                        {dict.articles_page.year_title}
                                     </h3>
                                     <div className="flex flex-col gap-2">
                                         {yearList.map(year => {
@@ -321,7 +309,7 @@ export default function ArticlesClientPage({
                             {/* Months Block */}
                             <div>
                                 <h3 className="text-sm font-bold text-black dark:text-white uppercase tracking-wider mb-3 border-b border-slate-200 dark:border-slate-800 pb-1">
-                                    Months
+                                    {dict.articles_page.months_title}
                                 </h3>
                                 <div className="flex flex-col gap-2 max-h-40 overflow-y-auto scrollbar-none">
                                     {monthList.map(month => {
@@ -348,7 +336,7 @@ export default function ArticlesClientPage({
             {/* Active Filters Display & Clear */}
             {(selectedTopics.length > 0 || selectedYears.length > 0 || selectedMonths.length > 0 || activeSearch) && (
                 <div className="flex flex-wrap items-center gap-2 mb-8 bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">Filtros Activos:</span>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">{dict.articles_page.active_filters}</span>
                     {activeSearch && (
                         <span className="flex items-center gap-1 bg-primary/10 text-primary dark:text-primary-light text-xs font-bold px-3 py-1 rounded-full border border-primary/20">
                             Search: &quot;{activeSearch}&quot;
@@ -388,162 +376,75 @@ export default function ArticlesClientPage({
                         onClick={handleClearFilters}
                         className="text-xs font-bold text-red-500 hover:text-red-650 underline ml-auto cursor-pointer"
                     >
-                        Limpiar todos
+                        {dict.articles_page.clear_all}
                     </button>
                 </div>
             )}
 
             {/* Layout content and Articles */}
             <div className="w-full space-y-16">
-                    
-                    {/* Zero State */}
-                    {articles.length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-20 text-center bg-slate-50 dark:bg-slate-900/30 rounded-3xl border border-slate-105 border-dashed">
-                            <BookOpen className="w-16 h-16 text-slate-300 dark:text-slate-700 mb-4 animate-bounce" />
-                            <h3 className="text-xl font-bold text-slate-750 dark:text-slate-200 mb-1">No se encontraron artículos</h3>
-                            <p className="text-slate-500 text-sm max-w-sm">Intenta ajustar tu búsqueda o los filtros acumulados para ver más publicaciones.</p>
+
+                {/* Zero State */}
+                {articles.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-20 text-center bg-slate-50 dark:bg-slate-900/30 rounded-3xl border border-slate-105 border-dashed">
+                        <BookOpen className="w-16 h-16 text-slate-300 dark:text-slate-700 mb-4 animate-bounce" />
+                        <h3 className="text-xl font-bold text-slate-750 dark:text-slate-200 mb-1">{dict.articles_page.no_articles}</h3>
+                        <p className="text-slate-500 text-sm max-w-sm">{dict.articles_page.no_articles_desc}</p>
+                    </div>
+                )}
+
+                {/* 1. Featured Article (El artículo más grande / destacado) */}
+                {featuredArticle && (
+                    <div
+                        className="relative w-full h-[400px] md:h-[550px] rounded-[32px] overflow-hidden group shadow-2xl transition-all duration-500 cursor-pointer border border-white/10"
+                        onClick={() => handleNavigate(`/${locale}/articles/${category}/${featuredArticle.slug}`)}
+                    >
+                        <SafeImage
+                            src={featuredArticle.image}
+                            alt={featuredArticle.title}
+                            fill
+                            priority
+                            className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.02]"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
+
+                        <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12 text-white z-10">
+                            <span className="text-sm md:text-base font-light mb-2 opacity-90 font-switzer">
+                                {featuredArticle.date}
+                            </span>
+                            <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold font-outfit leading-tight mb-8 max-w-4xl group-hover:text-primary transition-colors duration-300">
+                                {featuredArticle.title}
+                            </h2>
+                            <button className="px-8 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-primary/30 w-fit cursor-pointer">
+                                {dict.articles_page.read_more}
+                            </button>
                         </div>
-                    )}
+                    </div>
+                )}
 
-                    {/* 1. Featured Article (El artículo más grande / destacado) */}
-                    {featuredArticle && (
-                        <div 
-                            className="relative w-full h-[400px] md:h-[550px] rounded-[32px] overflow-hidden group shadow-2xl transition-all duration-500 cursor-pointer border border-white/10"
-                            onClick={() => handleNavigate(`/${locale}/articles/${category}/${featuredArticle.slug}`)}
-                        >
-                            <SafeImage
-                                src={featuredArticle.image}
-                                alt={featuredArticle.title}
-                                fill
-                                priority
-                                className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.02]"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
-                            
-                            <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12 text-white z-10">
-                                <span className="text-sm md:text-base font-light mb-2 opacity-90 font-switzer">
-                                    {featuredArticle.date}
-                                </span>
-                                <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold font-outfit leading-tight mb-8 max-w-4xl group-hover:text-primary transition-colors duration-300">
-                                    {featuredArticle.title}
-                                </h2>
-                                <button className="px-8 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-primary/30 w-fit cursor-pointer">
-                                    Ver mas
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* 2. Sub-Grid (2 pequeños a la izquierda, 1 grande a la derecha) */}
-                    {articles.length >= 4 && (
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-                            {/* Left Side: 2 stacked smaller cards */}
-                            <div className="lg:col-span-5 flex flex-col gap-8">
-                                {[articles[1], articles[2]].map((art) => (
-                                    <div 
-                                        key={art.id}
-                                        className="relative aspect-[16/10] rounded-[24px] overflow-hidden group shadow-xl cursor-pointer border border-white/10 flex flex-col justify-end p-6 text-white"
-                                        onClick={() => handleNavigate(`/${locale}/articles/${category}/${art.slug}`)}
-                                    >
-                                        <SafeImage
-                                            src={art.image}
-                                            alt={art.title}
-                                            fill
-                                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-103"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                                        <div className="relative z-10">
-                                            <span className="text-xs opacity-90 font-switzer block mb-1">
-                                                {art.date}
-                                            </span>
-                                            <h3 className="text-lg md:text-xl font-bold font-outfit leading-tight mb-4 group-hover:text-primary transition-colors duration-300 line-clamp-2">
-                                                {art.title}
-                                            </h3>
-                                            <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-lg transition-all duration-300 shadow-md">
-                                                Ver mas
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Right Side: 1 tall larger card */}
-                            <div 
-                                className="lg:col-span-7 relative min-h-[400px] rounded-[24px] overflow-hidden group shadow-xl cursor-pointer border border-white/10 flex flex-col justify-end p-8 text-white"
-                                onClick={() => handleNavigate(`/${locale}/articles/${category}/${articles[3].slug}`)}
-                            >
-                                <SafeImage
-                                    src={articles[3].image}
-                                    alt={articles[3].title}
-                                    fill
-                                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-103"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
-                                <div className="relative z-10">
-                                    <span className="text-sm opacity-90 font-switzer block mb-1">
-                                        {articles[3].date}
-                                    </span>
-                                    <h3 className="text-2xl md:text-3xl font-bold font-outfit leading-tight mb-6 group-hover:text-primary transition-colors duration-300">
-                                        {articles[3].title}
-                                    </h3>
-                                    <button className="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-lg transition-all duration-300 shadow-md">
-                                        Ver mas
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* 3. Banner Article (Uno tipo banner full-width) */}
-                    {articles.length >= 5 && (
-                        <div 
-                            className="relative w-full aspect-[21/9] min-h-[220px] rounded-[24px] overflow-hidden group shadow-2xl transition-all duration-500 cursor-pointer border border-white/10 flex flex-col justify-center items-center text-center p-6 text-white"
-                            onClick={() => handleNavigate(`/${locale}/articles/${category}/${articles[4].slug}`)}
-                        >
-                            <SafeImage
-                                src={articles[4].image}
-                                alt={articles[4].title}
-                                fill
-                                className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.02]"
-                            />
-                            <div className="absolute inset-0 bg-black/55 group-hover:bg-black/65 transition-colors duration-350" />
-                            
-                            <div className="relative z-10 flex flex-col items-center gap-4 max-w-3xl">
-                                <span className="text-xs md:text-sm tracking-wider uppercase opacity-85 font-switzer">
-                                    {articles[4].date}
-                                </span>
-                                <h2 className="text-xl md:text-3xl lg:text-4xl font-bold font-outfit leading-tight group-hover:text-primary transition-colors duration-300">
-                                    {articles[4].title}
-                                </h2>
-                                <button className="px-6 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-lg transition-all duration-300 shadow-lg shadow-primary/20">
-                                    Ver mas
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* 4. Subsequent 3x3 Grid (Paginación de 9 en 9) */}
-                    {articles.length >= 6 && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {articles.slice(5).map((art) => (
+                {/* 2. Sub-Grid (2 pequeños a la izquierda, 1 grande a la derecha) */}
+                {articles.length >= 4 && (
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                        {/* Left Side: 2 stacked smaller cards */}
+                        <div className="lg:col-span-5 flex flex-col gap-8">
+                            {[articles[1], articles[2]].map((art) => (
                                 <div
                                     key={art.id}
-                                    className="relative aspect-square rounded-[24px] overflow-hidden border border-slate-105 dark:border-slate-850/50 hover:shadow-2xl transition-all duration-500 flex flex-col justify-end p-6 text-white group cursor-pointer"
+                                    className="relative aspect-[16/10] rounded-[24px] overflow-hidden group shadow-xl cursor-pointer border border-white/10 flex flex-col justify-end p-6 text-white"
                                     onClick={() => handleNavigate(`/${locale}/articles/${category}/${art.slug}`)}
                                 >
                                     <SafeImage
-                                        src={art.thumbnail || art.image}
+                                        src={art.image}
                                         alt={art.title}
                                         fill
-                                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-103"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                                    
                                     <div className="relative z-10">
                                         <span className="text-xs opacity-90 font-switzer block mb-1">
                                             {art.date}
                                         </span>
-                                        <h3 className="text-lg font-bold font-outfit leading-tight mb-4 group-hover:text-primary transition-colors duration-300 line-clamp-2">
+                                        <h3 className="text-lg md:text-xl font-bold font-outfit leading-tight mb-4 group-hover:text-primary transition-colors duration-300 line-clamp-2">
                                             {art.title}
                                         </h3>
                                         <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-lg transition-all duration-300 shadow-md">
@@ -553,39 +454,126 @@ export default function ArticlesClientPage({
                                 </div>
                             ))}
                         </div>
-                    )}
 
-                    {/* Skeleton loader for loading state (Instead of spinner) */}
-                    {loadingMore && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-8">
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
-                                <div key={i} className="relative aspect-square rounded-[24px] bg-slate-200 dark:bg-slate-800 animate-pulse overflow-hidden">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer" style={{ animationDuration: '1.5s' }} />
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Infinite Scroll detector element */}
-                    {articles.length < totalCount && (
-                        <div 
-                            ref={(el) => {
-                                if (el) {
-                                    // Trigger loader when this detector gets in viewport
-                                    const observer = new IntersectionObserver((entries) => {
-                                        if (entries[0].isIntersecting && !loadingMore) {
-                                            handleLoadMore();
-                                        }
-                                    }, { rootMargin: "200px" });
-                                    observer.observe(el);
-                                }
-                            }}
-                            className="h-10 flex items-center justify-center text-sm font-medium text-slate-400"
+                        {/* Right Side: 1 tall larger card */}
+                        <div
+                            className="lg:col-span-7 relative min-h-[400px] rounded-[24px] overflow-hidden group shadow-xl cursor-pointer border border-white/10 flex flex-col justify-end p-8 text-white"
+                            onClick={() => handleNavigate(`/${locale}/articles/${category}/${articles[3].slug}`)}
                         >
-                            Cargando más artículos...
+                            <SafeImage
+                                src={articles[3].image}
+                                alt={articles[3].title}
+                                fill
+                                className="object-cover transition-transform duration-700 ease-out group-hover:scale-103"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
+                            <div className="relative z-10">
+                                <span className="text-sm opacity-90 font-switzer block mb-1">
+                                    {articles[3].date}
+                                </span>
+                                <h3 className="text-2xl md:text-3xl font-bold font-outfit leading-tight mb-6 group-hover:text-primary transition-colors duration-300">
+                                    {articles[3].title}
+                                </h3>
+                                <button className="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-lg transition-all duration-300 shadow-md">
+                                    Ver mas
+                                </button>
+                            </div>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
+
+                {/* 3. Banner Article (Uno tipo banner full-width) */}
+                {articles.length >= 5 && (
+                    <div
+                        className="relative w-full aspect-[21/9] min-h-[220px] rounded-[24px] overflow-hidden group shadow-2xl transition-all duration-500 cursor-pointer border border-white/10 flex flex-col justify-center items-center text-center p-6 text-white"
+                        onClick={() => handleNavigate(`/${locale}/articles/${category}/${articles[4].slug}`)}
+                    >
+                        <SafeImage
+                            src={articles[4].image}
+                            alt={articles[4].title}
+                            fill
+                            className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.02]"
+                        />
+                        <div className="absolute inset-0 bg-black/55 group-hover:bg-black/65 transition-colors duration-350" />
+
+                        <div className="relative z-10 flex flex-col items-center gap-4 max-w-3xl">
+                            <span className="text-xs md:text-sm tracking-wider uppercase opacity-85 font-switzer">
+                                {articles[4].date}
+                            </span>
+                            <h2 className="text-xl md:text-3xl lg:text-4xl font-bold font-outfit leading-tight group-hover:text-primary transition-colors duration-300">
+                                {articles[4].title}
+                            </h2>
+                            <button className="px-6 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-lg transition-all duration-300 shadow-lg shadow-primary/20">
+                                Ver mas
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* 4. Subsequent 3x3 Grid (Paginación de 9 en 9) */}
+                {articles.length >= 6 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {articles.slice(5).map((art) => (
+                            <div
+                                key={art.id}
+                                className="relative aspect-square rounded-[24px] overflow-hidden border border-slate-105 dark:border-slate-850/50 hover:shadow-2xl transition-all duration-500 flex flex-col justify-end p-6 text-white group cursor-pointer"
+                                onClick={() => handleNavigate(`/${locale}/articles/${category}/${art.slug}`)}
+                            >
+                                <SafeImage
+                                    src={art.thumbnail || art.image}
+                                    alt={art.title}
+                                    fill
+                                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+
+                                <div className="relative z-10">
+                                    <span className="text-xs opacity-90 font-switzer block mb-1">
+                                        {art.date}
+                                    </span>
+                                    <h3 className="text-lg font-bold font-outfit leading-tight mb-4 group-hover:text-primary transition-colors duration-300 line-clamp-2">
+                                        {art.title}
+                                    </h3>
+                                    <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-lg transition-all duration-300 shadow-md">
+                                        {dict.articles_page.read_more}
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Skeleton loader for loading state (Instead of spinner) */}
+                {loadingMore && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-8">
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+                            <div key={i} className="relative aspect-square rounded-[24px] bg-slate-200 dark:bg-slate-800 animate-pulse overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer" style={{ animationDuration: '1.5s' }} />
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Infinite Scroll detector element */}
+                {articles.length < totalCount && (
+                    <div
+                        ref={(el) => {
+                            if (el) {
+                                // Trigger loader when this detector gets in viewport
+                                const observer = new IntersectionObserver((entries) => {
+                                    if (entries[0].isIntersecting && !loadingMore) {
+                                        handleLoadMore();
+                                    }
+                                }, { rootMargin: "200px" });
+                                observer.observe(el);
+                            }
+                        }}
+                        className="h-10 flex items-center justify-center text-sm font-medium text-slate-400"
+                    >
+                        {dict.articles_page.loading_more}
+                    </div>
+                )}
             </div>
+        </div>
     );
 }

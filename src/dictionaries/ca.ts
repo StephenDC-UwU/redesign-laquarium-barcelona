@@ -56,6 +56,27 @@ export const ca = {
         news_button_read_more: "Saber Mas",
     },
    
+    transition_loader: {
+        feeding: "Alimentant...",
+        swimming: "Nedant...",
+        learning: "Aprenent..."
+    },
+
+    articles_page: {
+        search_placeholder: "Cercar article...",
+        search_button: "Cercar",
+        filters_button: "Filtres",
+        topics_title: "Temes",
+        year_title: "Any",
+        months_title: "Mesos",
+        active_filters: "Filtres Actius:",
+        clear_all: "Netejar tots",
+        read_more: "Veure més",
+        loading_more: "Carregant més articles...",
+        no_articles: "No s'han trobat articles",
+        no_articles_desc: "Intenta ajustar la teva cerca o els filtres acumulats per veure més publicacions."
+    },
+   
     discover: {
         discover_title: "Descobreix",
         discover_button_check: "Consultar",
@@ -255,5 +276,43 @@ export const ca = {
             no_preview: "No hi ha contingut escrit per previsualitzar.",
             today: "Avui"
         }
+    },
+    cart: {
+        purchase_completed: "Compra Realitzada!",
+        order_registered_details: "La teva comanda s'ha registrat amb èxit. A continuació tens els detalls de la teva compra:",
+        order_id: "ID Comanda",
+        client: "Client",
+        email: "Email",
+        visit_date: "Data de Visita",
+        visit_time: "Hora de Visita",
+        total: "Total",
+        view_orders: "Veure Comandes al teu panell",
+        back_to_home: "Tornar a l'Inici",
+        your_cart: "El teu Carret d'Entrades",
+        cart_empty: "El carret està buit",
+        cart_empty_desc: "Encara no has afegit entrades per a la teva visita a L'Aquàrium Barcelona.",
+        explore_tickets: "Explorar Entrades",
+        default_product_desc: "Entrada oficial per a l'accés a les exhibicions.",
+        clear_cart: "Buidar carret",
+        purchase_summary: "Resum de Compra",
+        total_tickets: "Total entrades:",
+        subtotal: "Subtotal:",
+        total_to_pay: "Total a pagar:",
+        contact_details: "Dades de Contacte",
+        full_name: "Nom Complet",
+        date_time_visit: "Data i Hora de Visita",
+        select_date: "Selecciona una Data",
+        selected_date: "Data seleccionada:",
+        select_time: "Selecciona una Hora",
+        select_date_first: "Selecciona primer una data al calendari",
+        checking_capacity: "Consultant aforament...",
+        passed: "Passat",
+        sold_out: "Exhaurit",
+        spots: "places",
+        processing_purchase: "Processant Compra...",
+        checkout_and_pay: "Finalitzar i Pagar",
+        error_fill_fields: "Per favor, emplena tots els camps.",
+        error_select_date_time: "Per favor, selecciona la data i hora de la teva visita.",
+        error_payment_init: "Alguna cosa ha anat malament en iniciar el teu pagament."
     }
 };

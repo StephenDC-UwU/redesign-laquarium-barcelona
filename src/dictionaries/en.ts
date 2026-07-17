@@ -55,6 +55,27 @@ export const en = {
         news_button_read_more: "Read More",
     },
    
+    transition_loader: {
+        feeding: "Feeding...",
+        swimming: "Swimming...",
+        learning: "Learning..."
+    },
+
+    articles_page: {
+        search_placeholder: "Search article...",
+        search_button: "Search",
+        filters_button: "Filters",
+        topics_title: "Topics",
+        year_title: "Year",
+        months_title: "Months",
+        active_filters: "Active Filters:",
+        clear_all: "Clear all",
+        read_more: "Read more",
+        loading_more: "Loading more articles...",
+        no_articles: "No articles found",
+        no_articles_desc: "Try adjusting your search or accumulated filters to see more posts."
+    },
+   
     discover: {
         discover_title: "Discover",
         discover_button_check: "Check",
@@ -254,5 +275,43 @@ export const en = {
             no_preview: "No content written to preview.",
             today: "Today"
         }
+    },
+    cart: {
+        purchase_completed: "Purchase Completed!",
+        order_registered_details: "Your order has been registered successfully. Below are the details of your purchase:",
+        order_id: "Order ID",
+        client: "Client",
+        email: "Email",
+        visit_date: "Visit Date",
+        visit_time: "Visit Time",
+        total: "Total",
+        view_orders: "View Orders in your panel",
+        back_to_home: "Back to Home",
+        your_cart: "Your Ticket Cart",
+        cart_empty: "The cart is empty",
+        cart_empty_desc: "You haven't added any tickets for your visit to L'Aquàrium Barcelona yet.",
+        explore_tickets: "Explore Tickets",
+        default_product_desc: "Official ticket for access to the exhibitions.",
+        clear_cart: "Empty cart",
+        purchase_summary: "Purchase Summary",
+        total_tickets: "Total tickets:",
+        subtotal: "Subtotal:",
+        total_to_pay: "Total to pay:",
+        contact_details: "Contact Details",
+        full_name: "Full Name",
+        date_time_visit: "Date and Time of Visit",
+        select_date: "Select a Date",
+        selected_date: "Selected date:",
+        select_time: "Select a Time",
+        select_date_first: "Select a date in the calendar first",
+        checking_capacity: "Checking capacity...",
+        passed: "Passed",
+        sold_out: "Sold out",
+        spots: "spots",
+        processing_purchase: "Processing Purchase...",
+        checkout_and_pay: "Checkout and Pay",
+        error_fill_fields: "Please fill in all fields.",
+        error_select_date_time: "Please select the date and time of your visit.",
+        error_payment_init: "Something went wrong when initializing your payment."
     }
 };

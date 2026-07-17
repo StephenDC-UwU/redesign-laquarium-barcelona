@@ -6,8 +6,13 @@ import { useState, useTransition, useEffect, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Trash2, Plus, Minus, CreditCard, ShoppingBag, CheckCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { Dictionary } from "@/dictionaries";
 
-export default function CartClient() {
+interface CartClientProps {
+    dict: Dictionary;
+}
+
+export default function CartClient({ dict }: CartClientProps) {
     const { cart, updateQuantity, removeFromCart, clearCart, totalAmount, itemCount } = useCart();
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
@@ -27,8 +32,8 @@ export default function CartClient() {
     const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear());
     const [currentMonth, setCurrentMonth] = useState(() => new Date().getMonth());
 
-    const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-    const dayNames = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"];
+    const monthNames = dict.admin.orders.months.map(m => m.charAt(0).toUpperCase() + m.slice(1));
+    const dayNames = dict.admin.orders.days;
 
     const getDaysInMonth = (year: number, month: number) => {
         return new Date(year, month + 1, 0).getDate();
@@ -124,12 +129,12 @@ export default function CartClient() {
         setErrorMsg("");
 
         if (!fullName.trim() || !email.trim()) {
-            setErrorMsg("Por favor, rellena todos los campos.");
+            setErrorMsg(dict.cart.error_fill_fields);
             return;
         }
 
         if (!visitDate || !visitTime) {
-            setErrorMsg("Por favor, selecciona la fecha y hora de tu visita.");
+            setErrorMsg(dict.cart.error_select_date_time);
             return;
         }
 
@@ -154,7 +159,7 @@ export default function CartClient() {
                 // Redirect to Stripe checkout page
                 window.location.href = res.url;
             } else {
-                setErrorMsg(res.error || "Algo salió mal al iniciar tu pago.");
+                setErrorMsg(res.error || dict.cart.error_payment_init);
             }
         });
     };
@@ -168,38 +173,38 @@ export default function CartClient() {
                         <CheckCircle className="w-12 h-12 stroke-[2]" />
                     </div>
                     <h1 className="text-3xl font-bold font-outfit text-secondary dark:text-white mb-2">
-                        ¡Compra Realizada!
+                        {dict.cart.purchase_completed}
                     </h1>
                     <p className="text-slate-600 dark:text-slate-400 mb-6 font-switzer text-sm">
-                        Tu orden ha sido registrada exitosamente. A continuación tienes los detalles de tu compra:
+                        {dict.cart.order_registered_details}
                     </p>
                     <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl mb-6 text-left font-switzer text-sm border border-slate-100 dark:border-slate-900">
                         <div className="flex justify-between mb-2">
-                            <span className="text-slate-500 font-medium">ID Pedido:</span>
+                            <span className="text-slate-500 font-medium">{dict.cart.order_id}:</span>
                             <span className="font-bold text-secondary dark:text-white font-mono">{successOrder.id}</span>
                         </div>
                         <div className="flex justify-between mb-2">
-                            <span className="text-slate-500 font-medium">Cliente:</span>
+                            <span className="text-slate-500 font-medium">{dict.cart.client}:</span>
                             <span className="font-bold text-secondary dark:text-white">{successOrder.fullName}</span>
                         </div>
                         <div className="flex justify-between mb-2">
-                            <span className="text-slate-500 font-medium">Email:</span>
+                            <span className="text-slate-500 font-medium">{dict.cart.email}:</span>
                             <span className="text-secondary dark:text-white">{successOrder.email}</span>
                         </div>
                         {successOrder.visitDate && (
                             <div className="flex justify-between mb-2">
-                                <span className="text-slate-500 font-medium">Fecha de Visita:</span>
+                                <span className="text-slate-500 font-medium">{dict.cart.visit_date}:</span>
                                 <span className="font-bold text-secondary dark:text-white">{successOrder.visitDate}</span>
                             </div>
                         )}
                         {successOrder.visitTime && (
                             <div className="flex justify-between mb-2">
-                                <span className="text-slate-500 font-medium">Hora de Visita:</span>
+                                <span className="text-slate-500 font-medium">{dict.cart.visit_time}:</span>
                                 <span className="font-bold text-secondary dark:text-white">{successOrder.visitTime}</span>
                             </div>
                         )}
                         <div className="border-t border-slate-200 dark:border-slate-800 my-2 pt-2 flex justify-between font-bold text-base">
-                            <span className="text-slate-500">Total:</span>
+                            <span className="text-slate-500">{dict.cart.total}:</span>
                             <span className="text-primary">{successOrder.total.toFixed(2)}€</span>
                         </div>
                     </div>
@@ -208,13 +213,13 @@ export default function CartClient() {
                             href={`/${locale}/profile`}
                             className="w-full bg-secondary dark:bg-white text-white dark:text-black py-4 rounded-full font-bold font-outfit hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer shadow-lg"
                         >
-                            Ver Órdenes en tu panel
+                            {dict.cart.view_orders}
                         </Link>
                         <Link
                             href={`/${locale}`}
                             className="w-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 py-4 rounded-full font-bold font-outfit hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                         >
-                            <ArrowLeft size={16} /> Volver a Inicio
+                            <ArrowLeft size={16} /> {dict.cart.back_to_home}
                         </Link>
                     </div>
                 </div>
@@ -229,12 +234,12 @@ export default function CartClient() {
                     <Link
                         href={`/${locale}`}
                         className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full hover:bg-primary hover:text-white transition-all cursor-pointer"
-                        aria-label="Volver a Inicio"
+                        aria-label={dict.cart.back_to_home}
                     >
                         <ArrowLeft className="w-6 h-6" />
                     </Link>
                     <h1 className="text-4xl md:text-5xl font-bold font-outfit text-secondary dark:text-white">
-                        Tu Carrito de Entradas
+                        {dict.cart.your_cart}
                     </h1>
                 </div>
 
@@ -244,16 +249,16 @@ export default function CartClient() {
                             <ShoppingBag className="w-8 h-8" />
                         </div>
                         <h2 className="text-2xl font-bold font-outfit mb-2 text-slate-800 dark:text-slate-200">
-                            El carrito está vacío
+                            {dict.cart.cart_empty}
                         </h2>
                         <p className="text-slate-500 dark:text-slate-400 mb-8 font-switzer max-w-sm mx-auto">
-                            Aún no has añadido entradas para tu visita a L'Aquàrium Barcelona.
+                            {dict.cart.cart_empty_desc}
                         </p>
                         <Link
-                            href={`/${locale}`}
+                            href={`/${locale}/tickets`}
                             className="inline-flex items-center gap-2 bg-primary hover:bg-primary-light text-white font-bold font-outfit px-8 py-4 rounded-full transition-all shadow-lg shadow-primary/20 cursor-pointer"
                         >
-                            Explorar Entradas
+                            {dict.cart.explore_tickets}
                         </Link>
                     </div>
                 ) : (
@@ -270,7 +275,7 @@ export default function CartClient() {
                                             {item.name}
                                         </h3>
                                         <p className="text-slate-500 dark:text-slate-400 font-switzer text-sm mt-1 max-w-md">
-                                            {item.description || "Entrada oficial para acceso a las exhibiciones."}
+                                            {item.description || dict.cart.default_product_desc}
                                         </p>
                                         <div className="text-primary font-bold font-outfit text-lg mt-3">
                                             {item.price.toFixed(2)}€ / c.u.
@@ -320,7 +325,7 @@ export default function CartClient() {
                                     onClick={clearCart}
                                     className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-medium font-switzer text-sm underline cursor-pointer"
                                 >
-                                    Vaciar carrito
+                                    {dict.cart.clear_cart}
                                 </button>
                             </div>
                         </div>
@@ -328,20 +333,20 @@ export default function CartClient() {
                         {/* Summary / Form Column */}
                         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
                             <h2 className="text-2xl font-bold font-outfit text-secondary dark:text-white">
-                                Resumen de Compra
+                                {dict.cart.purchase_summary}
                             </h2>
 
                             <div className="space-y-3 font-switzer text-sm border-b border-slate-100 dark:border-slate-800 pb-4">
                                 <div className="flex justify-between text-slate-500">
-                                    <span>Total entradas:</span>
+                                    <span>{dict.cart.total_tickets}</span>
                                     <span>{itemCount}</span>
                                 </div>
                                 <div className="flex justify-between text-slate-500">
-                                    <span>Subtotal:</span>
+                                    <span>{dict.cart.subtotal}</span>
                                     <span>{totalAmount.toFixed(2)}€</span>
                                 </div>
                                 <div className="flex justify-between font-bold text-lg text-secondary dark:text-white pt-2">
-                                    <span>Total a pagar:</span>
+                                    <span>{dict.cart.total_to_pay}</span>
                                     <span className="text-primary">{totalAmount.toFixed(2)}€</span>
                                 </div>
                             </div>
@@ -349,12 +354,12 @@ export default function CartClient() {
                             {/* Checkout Form */}
                             <form onSubmit={handleCheckout} className="space-y-4">
                                 <h3 className="text-base font-bold font-outfit text-secondary dark:text-white">
-                                    Datos de Contacto
+                                    {dict.cart.contact_details}
                                 </h3>
 
                                 <div className="space-y-1">
                                     <label htmlFor="fullName" className="text-xs font-semibold text-slate-500 block">
-                                        Nombre Completo
+                                        {dict.cart.full_name}
                                     </label>
                                     <input
                                         type="text"
@@ -370,7 +375,7 @@ export default function CartClient() {
 
                                 <div className="space-y-1">
                                     <label htmlFor="email" className="text-xs font-semibold text-slate-500 block">
-                                        Email
+                                        {dict.cart.email}
                                     </label>
                                     <input
                                         type="email"
@@ -386,12 +391,12 @@ export default function CartClient() {
 
                                 <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-slate-800">
                                     <h3 className="text-base font-bold font-outfit text-secondary dark:text-white">
-                                        Fecha y Hora de Visita
+                                        {dict.cart.date_time_visit}
                                     </h3>
 
                                     <div className="space-y-3">
                                         <label className="text-xs font-semibold text-slate-500 block">
-                                            Selecciona una Fecha
+                                            {dict.cart.select_date}
                                         </label>
 
                                         {/* Custom Calendar Card */}
@@ -462,23 +467,23 @@ export default function CartClient() {
                                         </div>
                                         {visitDate && (
                                             <p className="text-xs text-primary font-bold">
-                                                Fecha seleccionada: {visitDate}
+                                                {dict.cart.selected_date} {visitDate}
                                             </p>
                                         )}
                                     </div>
 
                                     <div className="space-y-2">
                                         <label className="text-xs font-semibold text-slate-500 block">
-                                            Selecciona una Hora
+                                            {dict.cart.select_time}
                                         </label>
 
                                         {!visitDate ? (
                                             <div className="text-xs text-slate-400 p-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-center font-switzer">
-                                                Selecciona primero una fecha en el calendario
+                                                {dict.cart.select_date_first}
                                             </div>
                                         ) : loadingCapacity ? (
                                             <div className="text-xs text-slate-400 p-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-center font-switzer">
-                                                Consultando aforo...
+                                                {dict.cart.checking_capacity}
                                             </div>
                                         ) : (
                                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -515,10 +520,10 @@ export default function CartClient() {
                                                             <span className="text-sm font-bold font-outfit">{slot}</span>
                                                             <span className="text-[9px] opacity-80 mt-0.5">
                                                                 {isPassed
-                                                                    ? "Pasado"
+                                                                    ? dict.cart.passed
                                                                     : isFull
-                                                                        ? "Agotado"
-                                                                        : `${available} plazas`
+                                                                        ? dict.cart.sold_out
+                                                                        : `${available} ${dict.cart.spots}`
                                                                 }
                                                             </span>
                                                         </button>
@@ -541,7 +546,7 @@ export default function CartClient() {
                                     className="w-full bg-primary hover:bg-primary-light disabled:bg-slate-300 dark:disabled:bg-slate-800 text-white font-bold font-outfit py-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-primary/10 disabled:shadow-none"
                                 >
                                     <CreditCard size={18} />
-                                    {isPending ? "Procesando Compra..." : "Finalizar y Pagar"}
+                                    {isPending ? dict.cart.processing_purchase : dict.cart.checkout_and_pay}
                                 </button>
                             </form>
                         </div>

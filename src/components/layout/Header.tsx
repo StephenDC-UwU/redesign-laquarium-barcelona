@@ -75,7 +75,7 @@ function Header({ dict, currentLocale }: HeaderProps) {
                 {/* 2. CENTER: Logo */}
                 <div className="flex justify-start xl:justify-center items-start  z-10">
                     <div className="z-20 cursor-pointer transition-transform duration-500 hover:scale-110">
-                        <Link href={"/"} className="block">
+                        <Link href={`/${currentLocale}`} className="block">
                             <Image
                                 src={logo}
                                 className="w-16 xl:w-24 "

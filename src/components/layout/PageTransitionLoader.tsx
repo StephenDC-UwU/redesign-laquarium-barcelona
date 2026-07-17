@@ -3,8 +3,13 @@
 import { useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { Dictionary } from "@/dictionaries";
 
-export default function PageTransitionLoader() {
+interface PageTransitionLoaderProps {
+    dict: Dictionary;
+}
+
+export default function PageTransitionLoader({ dict }: PageTransitionLoaderProps) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
@@ -12,7 +17,8 @@ export default function PageTransitionLoader() {
     const [isFadingOut, setIsFadingOut] = useState(false);
     const [textIndex, setTextIndex] = useState(0);
 
-    const texts = ["Alimentando...", "Nadando...", "Aprendiendo..."];
+    const loaderDict = dict.transition_loader;
+    const texts = [loaderDict.feeding, loaderDict.swimming, loaderDict.learning];
 
     // Cycle text index every 1.5 seconds while active
     useEffect(() => {
@@ -21,7 +27,7 @@ export default function PageTransitionLoader() {
             setTextIndex((prev) => (prev + 1) % texts.length);
         }, 400);
         return () => clearInterval(interval);
-    }, [isVisible]);
+    }, [isVisible, texts.length]);
 
     // Handle smooth page exit transitions when rendering is complete or when the URL changes
     useEffect(() => {
