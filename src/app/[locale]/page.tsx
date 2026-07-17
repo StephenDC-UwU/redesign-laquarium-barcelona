@@ -5,6 +5,7 @@ import Promotion from "@/components/home/Promotion";
 import Experience from "@/components/home/Experience";
 import Discover from "@/components/home/Discover";
 import News from "@/components/home/News";
+import FloatingTickets from "@/components/home/components/FloatingTickets";
 import { Metadata } from "next";
 
 interface HomeProps {
@@ -32,6 +33,7 @@ export default async function Home({ params }: HomeProps) {
       <Experience dict={dict} />
       <News dict={dict} locale={locale} />
       <Discover dict={dict} />
+      <FloatingTickets dict={dict} locale={locale} />
     </main>
   );
 }

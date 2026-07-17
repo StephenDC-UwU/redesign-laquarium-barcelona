@@ -23,7 +23,7 @@ export const en = {
     hero: {
         hero_title: "Feeding Time!",
         hero_subtitle: "Sharks are not the only ones who enjoy a good meal: come and see how our marine inhabitants feed!",
-        hero_button: "Buy your tickets"
+        hero_button: "Feed them now"
     },
     intro: {
         card1_text: "Open 365 days a year from 10:00 AM.",

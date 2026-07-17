@@ -23,7 +23,7 @@ export const es = {
     hero: {
         hero_title: "¡Hora de Comer!",
         hero_subtitle: "Los tiburones no son los únicos que disfrutan de una buena comida: ¡ven a ver cómo se alimentan nuestros habitantes marinos!",
-        hero_button: "Compra tus entradas"
+        hero_button: "Aliméntalos ahora"
     },
     intro: {
         card1_text: "Abierto los 365 días del año a partir de las 10.00h.",

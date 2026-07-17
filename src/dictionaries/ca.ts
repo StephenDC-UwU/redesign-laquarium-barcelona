@@ -24,7 +24,7 @@ export const ca = {
     hero: {
         hero_title: "Hora de Menjar!",
         hero_subtitle: "Els taurons no són els únics que gaudeixen d'un bon menjar: vine a veure com s'alimenten els nostres habitants marins!",
-        hero_button: "Compra les teves entrades"
+        hero_button: "Alimenta'ls ara"
     },
     intro: {
         card1_text: "Obert els 365 dies de l'any a partir de les 10.00h.",
