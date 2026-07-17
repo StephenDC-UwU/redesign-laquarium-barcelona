@@ -99,3 +99,41 @@ li{
 .hover-jellyfish:hover {
   animation: jellyfish-swim 4s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
 }
+
+/* Custom Splide active slide styling */
+.splide__slide {
+  transition: all 0.5s ease-in-out;
+  opacity: 0.6;
+  transform: scale(0.95);
+  display: flex;
+  justify-content: center;
+}
+
+.splide__slide.is-active {
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+
+
+/* Custom Splide dots pagination styling */
+/* .splide__pagination {
+  bottom: -1rem !important;
+  gap: 0.5rem !important;
+  position: relative !important;
+  margin-top: 2rem !important;
+}
+
+.splide__pagination__page {
+  width: 10px !important;
+  height: 10px !important;
+  background: #cbd5e1 !important;
+  opacity: 1 !important;
+  transition: all 0.3s ease !important;
+}
+
+.splide__pagination__page.is-active {
+  background: var(--color-primary) !important;
+  width: 24px !important;
+  border-radius: 5px !important;
+} */
