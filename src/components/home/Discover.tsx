@@ -148,7 +148,7 @@ export default function Discover({ dict }: DiscoverProps) {
                                 {activeItem.description}
                             </p>
                             <div>
-                                <button className="px-10 py-4 bg-primary hover:bg-primary-dark text-white font-bold rounded-md transition-colors shadow-lg shadow-primary/30 text-lg cursor-pointer">
+                                <button className="px-10 py-4 bg-primary hover:bg-primary-dark text-white font-bold  transition-colors shadow-lg  text-lg cursor-pointer">
                                     {discoverDict.discover_button_check}
                                 </button>
                             </div>

@@ -58,7 +58,7 @@ export const es = {
    
     discover: {
         discover_title: "Descubre",
-        button_check: "Consultar",
+        discover_button_check: "Consultar",
         item1_title: "VEN A CELEBRAR TU CUMPLEAÑOS",
         item1_subtitle: "¡Sumérgete en una aventura bajo el mar!",
         item1_description: "¡Este año, mi cumpleaños se celebra entre tiburones y amigos! Prepárate para una fiesta inolvidable rodeado de las criaturas más asombrosas del océano.",
