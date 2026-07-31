@@ -186,7 +186,7 @@ export default function Hero({ dict }: HeroProps) {
 
             {/* Carousel Indicators */}
             {slides.length > 1 && (
-                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-50">
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-40">
                     {slides.map((_, index) => (
                         <button
                             key={index}

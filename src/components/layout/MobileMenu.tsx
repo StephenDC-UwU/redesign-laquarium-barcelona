@@ -41,7 +41,7 @@ export default function MobileMenu({ dict, currentLocale }: { dict: Dictionary; 
 
             {/* Fullscreen Overlay Menu */}
             {isOpen && (
-                <div className="fixed inset-0 bg-secondary/95 dark:bg-slate-900/95 backdrop-blur-md z-[100] flex flex-col animate-in fade-in zoom-in-95 duration-300 text-white font-shadows overflow-y-auto">
+                <div className="fixed inset-0 bg-secondary/95 dark:bg-slate-900/95 backdrop-blur-md z-50 flex flex-col animate-in fade-in zoom-in-95 duration-300 text-white font-shadows overflow-y-auto">
 
                     {/* Header of mobile menu */}
                     <div className="flex justify-between items-center p-6 border-b border-white/10">
