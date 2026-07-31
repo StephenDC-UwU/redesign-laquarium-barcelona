@@ -1,12 +1,14 @@
 import { getDictionary } from "@/dictionaries";
 import Hero from "@/components/home/Hero";
 import Intro from "@/components/home/Intro";
-import Promotion from "@/components/home/Promotion";
 import Experience from "@/components/home/Experience";
 import Discover from "@/components/home/Discover";
 import News from "@/components/home/News";
 import FloatingTickets from "@/components/home/components/FloatingTickets";
 import { Metadata } from "next";
+import Promotion from "@/components/home/Promotion";
+
+
 
 interface HomeProps {
   params: Promise<{ locale: string }>;
