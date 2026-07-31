@@ -46,12 +46,15 @@ model Order {
 }
 
 model PromoCode {
-  id        String   @id @default(uuid())
-  code      String   @unique
-  discount  Float    // percentage discount e.g. 10.0 for 10%
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String    @id @default(uuid())
+  code      String    @unique
+  discount  Float     // percentage discount e.g. 10.0 for 10%
+  maxUses   Int?      // max uses, null means unlimited
+  uses      Int       @default(0) // how many times it was used
+  expiresAt DateTime? // expiration date, null means no expiration
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model User {

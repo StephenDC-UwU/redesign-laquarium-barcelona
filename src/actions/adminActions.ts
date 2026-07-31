@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { Order } from "@prisma/client";
+import { Order, PromoCode } from "@prisma/client";
 
 export async function getOrdersAction(): Promise<Order[]> {
     try {
@@ -22,10 +22,43 @@ export async function updateOrderStatusAction(
     status: string
 ): Promise<{ success: boolean; order?: Order; error?: string }> {
     try {
+        const oldOrder = await db.order.findUnique({ where: { id } });
+        if (!oldOrder) {
+            return { success: false, error: "Pedido no encontrado." };
+        }
+
         const updated = await db.order.update({
             where: { id },
             data: { status },
         });
+
+        const isPaidStatus = status === "paid" || status === "completed";
+        const wasPaidStatus = oldOrder.status === "paid" || oldOrder.status === "completed";
+
+        if (isPaidStatus && !wasPaidStatus && oldOrder.promoCode) {
+            await db.promoCode.update({
+                where: { code: oldOrder.promoCode.toUpperCase().trim() },
+                data: {
+                    uses: {
+                        increment: 1
+                    }
+                }
+            }).catch((err) => {
+                console.error(`Failed to increment promo code uses for code ${oldOrder.promoCode}:`, err);
+            });
+        } else if (!isPaidStatus && wasPaidStatus && oldOrder.promoCode) {
+            await db.promoCode.update({
+                where: { code: oldOrder.promoCode.toUpperCase().trim() },
+                data: {
+                    uses: {
+                        decrement: 1
+                    }
+                }
+            }).catch((err) => {
+                console.error(`Failed to decrement promo code uses for code ${oldOrder.promoCode}:`, err);
+            });
+        }
+
         revalidatePath("/[locale]/admin", "layout");
         return { success: true, order: updated };
     } catch (e) {
@@ -314,6 +347,90 @@ export async function updateDailyCapacityAction(date: string, capacity: number):
     } catch (e) {
         console.error("Error in updateDailyCapacityAction:", e);
         return { success: false, error: "Hubo un error al actualizar la capacidad." };
+    }
+}
+
+export async function getPromoCodesAction(): Promise<PromoCode[]> {
+    try {
+        return await db.promoCode.findMany({
+            orderBy: {
+                createdAt: "desc",
+            },
+        });
+    } catch (e) {
+        console.error("Error in getPromoCodesAction:", e);
+        return [];
+    }
+}
+
+export async function createPromoCodeAction(data: {
+    code: string;
+    discount: number;
+    maxUses?: number | null;
+    expiresAt?: string | null;
+}): Promise<{ success: boolean; promoCode?: PromoCode; error?: string }> {
+    try {
+        if (!data.code || !data.code.trim()) {
+            return { success: false, error: "El código es requerido." };
+        }
+        if (data.discount <= 0 || data.discount > 100) {
+            return { success: false, error: "El descuento debe estar entre 1 y 100." };
+        }
+
+        const normalizedCode = data.code.toUpperCase().trim();
+        const existing = await db.promoCode.findUnique({
+            where: { code: normalizedCode }
+        });
+        if (existing) {
+            return { success: false, error: "El código promocional ya existe." };
+        }
+
+        const newPromo = await db.promoCode.create({
+            data: {
+                code: normalizedCode,
+                discount: data.discount,
+                maxUses: data.maxUses !== undefined ? data.maxUses : null,
+                expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+                isActive: true,
+            }
+        });
+
+        revalidatePath("/[locale]/admin", "layout");
+        return { success: true, promoCode: newPromo };
+    } catch (e) {
+        console.error("Error in createPromoCodeAction:", e);
+        return { success: false, error: "Hubo un error al crear el código promocional." };
+    }
+}
+
+export async function togglePromoCodeAction(id: string): Promise<{ success: boolean; promoCode?: PromoCode; error?: string }> {
+    try {
+        const promo = await db.promoCode.findUnique({ where: { id } });
+        if (!promo) return { success: false, error: "Código promocional no encontrado." };
+
+        const updated = await db.promoCode.update({
+            where: { id },
+            data: { isActive: !promo.isActive }
+        });
+
+        revalidatePath("/[locale]/admin", "layout");
+        return { success: true, promoCode: updated };
+    } catch (e) {
+        console.error("Error in togglePromoCodeAction:", e);
+        return { success: false, error: "Hubo un error al actualizar el código." };
+    }
+}
+
+export async function deletePromoCodeAction(id: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        await db.promoCode.delete({
+            where: { id }
+        });
+        revalidatePath("/[locale]/admin", "layout");
+        return { success: true };
+    } catch (e) {
+        console.error("Error in deletePromoCodeAction:", e);
+        return { success: false, error: "Hubo un error al eliminar el código." };
     }
 }
 

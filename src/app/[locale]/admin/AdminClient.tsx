@@ -10,7 +10,8 @@ import {
     ArrowLeft,
     RefreshCw,
     Lock,
-    LogIn
+    LogIn,
+    Tag
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -19,12 +20,14 @@ import Orders from "@/components/admin/Orders";
 import Products from "@/components/admin/Products";
 import Articles from "@/components/admin/Articles";
 import Reservations from "@/components/admin/Reservations";
+import PromoCodes from "@/components/admin/PromoCodes";
 
 // Server Actions
 import {
     getOrdersAction,
     updateOrderStatusAction,
-    deleteOrderAction
+    deleteOrderAction,
+    getPromoCodesAction
 } from "@/actions/adminActions";
 import { getAvailableProductsAction, LocalizedProduct } from "@/actions/cartActions";
 import { getArticlesAction } from "@/actions/articleActions";
@@ -40,7 +43,8 @@ export default function AdminClient({ localeStr, dict }: AdminClientProps) {
     const [orders, setOrders] = useState<Order[]>([]);
     const [products, setProducts] = useState<LocalizedProduct[]>([]);
     const [articles, setArticles] = useState<any[]>([]);
-    const [activeTab, setActiveTab] = useState<"orders" | "products" | "articles" | "capacity">("orders");
+    const [promoCodes, setPromoCodes] = useState<any[]>([]);
+    const [activeTab, setActiveTab] = useState<"orders" | "products" | "articles" | "capacity" | "promos">("orders");
     const [loading, setLoading] = useState(true);
 
     const [productFilterLocale, setProductFilterLocale] = useState<"es" | "ca" | "en">("es");
@@ -75,9 +79,11 @@ export default function AdminClient({ localeStr, dict }: AdminClientProps) {
             const fetchedOrders = await getOrdersAction();
             const fetchedProducts = await getAvailableProductsAction(productFilterLocale);
             const fetchedArticles = await getArticlesAction(articleFilterLocale);
+            const fetchedPromoCodes = await getPromoCodesAction();
             setOrders(fetchedOrders);
             setProducts(fetchedProducts);
             setArticles(fetchedArticles);
+            setPromoCodes(fetchedPromoCodes);
         } catch (e) {
             console.error("Error loading admin data:", e);
         } finally {
@@ -355,6 +361,15 @@ export default function AdminClient({ localeStr, dict }: AdminClientProps) {
                     >
                         {dict.admin.capacity_and_reservations}
                     </button>
+                    <button
+                        onClick={() => setActiveTab("promos")}
+                        className={`pb-4 px-2 font-bold font-outfit text-lg transition-all border-b-2 cursor-pointer ${activeTab === "promos"
+                            ? "border-primary text-primary"
+                            : "border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                            }`}
+                    >
+                        {dict.tickets.promo_placeholder || "Códigos Promocionales"}
+                    </button>
                 </div>
 
                 {/* Loading state */}
@@ -406,6 +421,9 @@ export default function AdminClient({ localeStr, dict }: AdminClientProps) {
                         )}
                         {activeTab === "capacity" && (
                             <Reservations isAdmin={isAdmin} dict={dict} />
+                        )}
+                        {activeTab === "promos" && (
+                            <PromoCodes isAdmin={isAdmin} localeStr={localeStr} dict={dict} />
                         )}
                     </div>
                 )}

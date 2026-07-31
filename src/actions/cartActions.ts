@@ -109,6 +109,13 @@ export async function createOrderAction(formData: {
             };
         }
 
+        if (formData.promoCode) {
+            const promoRes = await validatePromoCodeAction(formData.promoCode);
+            if (!promoRes.success) {
+                return { success: false, error: promoRes.error || "El código promocional ya no es válido." };
+            }
+        }
+
         const newOrder = await db.order.create({
             data: {
                 email: formData.email,
@@ -226,6 +233,12 @@ export async function validatePromoCodeAction(code: string): Promise<{ success: 
         }
         if (!promo.isActive) {
             return { success: false, error: "El código promocional está inactivo." };
+        }
+        if (promo.maxUses !== null && promo.uses >= promo.maxUses) {
+            return { success: false, error: "El código promocional ha agotado su límite de usos." };
+        }
+        if (promo.expiresAt !== null && new Date() > new Date(promo.expiresAt)) {
+            return { success: false, error: "El código promocional ha expirado." };
         }
         return { success: true, discount: promo.discount };
     } catch (e) {

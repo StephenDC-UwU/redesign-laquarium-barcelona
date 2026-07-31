@@ -39,11 +39,25 @@ export async function POST(req: Request) {
         if (orderId) {
             try {
                 // Update order in database to "paid"
-                await db.order.update({
+                const updatedOrder = await db.order.update({
                     where: { id: orderId },
                     data: { status: "paid" },
                 });
                 console.log(`Order ${orderId} successfully marked as paid.`);
+
+                // Increment uses count for the promo code if applied
+                if (updatedOrder.promoCode) {
+                    await db.promoCode.update({
+                        where: { code: updatedOrder.promoCode.toUpperCase().trim() },
+                        data: {
+                            uses: {
+                                increment: 1
+                            }
+                        }
+                    }).catch((promoError) => {
+                        console.error(`Failed to increment uses for promo code ${updatedOrder.promoCode}:`, promoError);
+                    });
+                }
             } catch (dbError) {
                 console.error(`Failed to update order ${orderId} in database:`, dbError);
                 return NextResponse.json({ error: "Database update failed" }, { status: 500 });
