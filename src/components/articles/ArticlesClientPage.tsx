@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import SafeImage from "@/components/ui/SafeImage";
 import { useRouter } from "next/navigation";
-import { Search, SlidersHorizontal, X, Calendar, BookOpen, Clock } from "lucide-react";
+import { Search, SlidersHorizontal, X, Calendar, BookOpen, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Dictionary } from "@/dictionaries";
 import { getFilteredArticlesAction } from "@/actions/articleActions";
 
@@ -90,6 +90,21 @@ export default function ArticlesClientPage({
     const loadingMoreRef = useRef(false);
     const [loadingFilters, setLoadingFilters] = useState(false);
 
+    // UX Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [loadedPage2, setLoadedPage2] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Viewport detection
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
+
     // Trigger filter update on states changes
     useEffect(() => {
         const fetchFiltered = async () => {
@@ -108,6 +123,8 @@ export default function ArticlesClientPage({
                 });
                 setArticles(res.articles);
                 setTotalCount(res.totalCount);
+                setCurrentPage(1);
+                setLoadedPage2(false);
             } catch (e) {
                 console.error("Error filtering articles:", e);
             } finally {
@@ -127,6 +144,8 @@ export default function ArticlesClientPage({
         } else {
             setArticles(initialArticles);
             setTotalCount(initialTotalCount);
+            setCurrentPage(1);
+            setLoadedPage2(false);
         }
     }, [selectedTopics, selectedYears, selectedMonths, activeSearch, category, locale, initialArticles, initialTotalCount]);
 
@@ -163,7 +182,7 @@ export default function ArticlesClientPage({
         setSelectedMonths(prev => prev.includes(val) ? prev.filter(x => x !== val) : [...prev, val]);
     };
 
-    // Load More items
+    // Load More items (Desktop infinite scroll trigger for Page 2)
     const handleLoadMore = async () => {
         if (loadingMoreRef.current || articles.length >= totalCount) return;
         loadingMoreRef.current = true;
@@ -186,12 +205,78 @@ export default function ArticlesClientPage({
                 return [...prev, ...uniqueNewArticles];
             });
             setTotalCount(nextBatch.totalCount);
+            setLoadedPage2(true);
         } catch (e) {
             console.error("Error loading more articles:", e);
         } finally {
             setLoadingMore(false);
             loadingMoreRef.current = false;
         }
+    };
+
+    // Page count math
+    const totalPages = totalCount <= 10 ? 1 : 1 + Math.ceil((totalCount - 10) / 9);
+
+    // Page change handler
+    const handlePageChange = async (pageNumber: number) => {
+        if (pageNumber === currentPage && !(pageNumber === 1 && loadedPage2)) return;
+
+        setLoadingFilters(true);
+        try {
+            const container = document.getElementById("articles-list-start");
+            if (container) {
+                container.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+
+            const take = pageNumber === 1 ? 10 : 9;
+            const skip = pageNumber === 1 ? 0 : 10 + (pageNumber - 2) * 9;
+
+            const res = await getFilteredArticlesAction({
+                locale,
+                category,
+                topics: selectedTopics,
+                years: selectedYears,
+                months: selectedMonths,
+                searchQuery: activeSearch,
+                skip,
+                take,
+            });
+
+            setArticles(res.articles);
+            setTotalCount(res.totalCount);
+            setCurrentPage(pageNumber);
+            setLoadedPage2(false);
+        } catch (e) {
+            console.error("Error changing page:", e);
+        } finally {
+            setLoadingFilters(false);
+        }
+    };
+
+    // Generate page numbers range for premium pagination layout
+    const getPageNumbers = () => {
+        const delta = 1;
+        const range = [];
+        for (
+            let i = Math.max(2, currentPage - delta);
+            i <= Math.min(totalPages - 1, currentPage + delta);
+            i++
+        ) {
+            range.push(i);
+        }
+
+        if (currentPage - delta > 2) {
+            range.unshift("...");
+        }
+        if (currentPage + delta < totalPages - 1) {
+            range.push("...");
+        }
+
+        range.unshift(1);
+        if (totalPages > 1) {
+            range.push(totalPages);
+        }
+        return range;
     };
 
     // Separate featured article from the grid list
@@ -382,7 +467,7 @@ export default function ArticlesClientPage({
             )}
 
             {/* Layout content and Articles */}
-            <div className="w-full space-y-16">
+            <div className="w-full space-y-16" id="articles-list-start">
 
                 {/* Zero State */}
                 {articles.length === 0 && (
@@ -393,127 +478,165 @@ export default function ArticlesClientPage({
                     </div>
                 )}
 
-                {/* 1. Featured Article (El artículo más grande / destacado) */}
-                {featuredArticle && (
-                    <div
-                        className="relative w-full h-[400px] md:h-[550px] rounded-[32px] overflow-hidden group shadow-2xl transition-all duration-500 cursor-pointer border border-white/10"
-                        onClick={() => handleNavigate(`/${locale}/articles/${category}/${featuredArticle.slug}`)}
-                    >
-                        <SafeImage
-                            src={featuredArticle.image}
-                            alt={featuredArticle.title}
-                            fill
-                            priority
-                            className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.02]"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
+                {/* Custom Page 1 Premium layout (used when currentPage === 1 or when Page 2 is loaded on top of Page 1 on desktop) */}
+                {(currentPage === 1 || loadedPage2) && (
+                    <>
+                        {/* 1. Featured Article (El artículo más grande / destacado) */}
+                        {featuredArticle && (
+                            <div
+                                className="relative w-full h-[400px] md:h-[550px] rounded-[32px] overflow-hidden group shadow-2xl transition-all duration-500 cursor-pointer border border-white/10"
+                                onClick={() => handleNavigate(`/${locale}/articles/${category}/${featuredArticle.slug}`)}
+                            >
+                                <SafeImage
+                                    src={featuredArticle.image}
+                                    alt={featuredArticle.title}
+                                    fill
+                                    priority
+                                    className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.02]"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
 
-                        <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12 text-white z-10">
-                            <span className="text-sm md:text-base font-light mb-2 opacity-90 font-switzer">
-                                {featuredArticle.date}
-                            </span>
-                            <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold font-outfit leading-tight mb-8 max-w-4xl group-hover:text-primary transition-colors duration-300">
-                                {featuredArticle.title}
-                            </h2>
-                            <button className="px-8 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-primary/30 w-fit cursor-pointer">
-                                {dict.articles_page.read_more}
-                            </button>
-                        </div>
-                    </div>
-                )}
+                                <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12 text-white z-10">
+                                    <span className="text-sm md:text-base font-light mb-2 opacity-90 font-switzer">
+                                        {featuredArticle.date}
+                                    </span>
+                                    <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold font-outfit leading-tight mb-8 max-w-4xl group-hover:text-primary transition-colors duration-300">
+                                        {featuredArticle.title}
+                                    </h2>
+                                    <button className="px-8 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-primary/30 w-fit cursor-pointer">
+                                        {dict.articles_page.read_more}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
-                {/* 2. Sub-Grid (2 pequeños a la izquierda, 1 grande a la derecha) */}
-                {articles.length >= 4 && (
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-                        {/* Left Side: 2 stacked smaller cards */}
-                        <div className="lg:col-span-5 flex flex-col gap-8">
-                            {[articles[1], articles[2]].map((art) => (
+                        {/* 2. Sub-Grid (2 pequeños a la izquierda, 1 grande a la derecha) */}
+                        {articles.length >= 4 && (
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                                {/* Left Side: 2 stacked smaller cards */}
+                                <div className="lg:col-span-5 flex flex-col gap-8">
+                                    {[articles[1], articles[2]].map((art) => (
+                                        <div
+                                            key={art.id}
+                                            className="relative aspect-[16/10] rounded-[24px] overflow-hidden group shadow-xl cursor-pointer border border-white/10 flex flex-col justify-end p-6 text-white"
+                                            onClick={() => handleNavigate(`/${locale}/articles/${category}/${art.slug}`)}
+                                        >
+                                            <SafeImage
+                                                src={art.image}
+                                                alt={art.title}
+                                                fill
+                                                className="object-cover transition-transform duration-700 ease-out group-hover:scale-103"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                                            <div className="relative z-10">
+                                                <span className="text-xs opacity-90 font-switzer block mb-1">
+                                                    {art.date}
+                                                </span>
+                                                <h3 className="text-lg md:text-xl font-bold font-outfit leading-tight mb-4 group-hover:text-primary transition-colors duration-300 line-clamp-2">
+                                                    {art.title}
+                                                </h3>
+                                                <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-lg transition-all duration-300 shadow-md">
+                                                    Ver mas
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Right Side: 1 tall larger card */}
                                 <div
-                                    key={art.id}
-                                    className="relative aspect-[16/10] rounded-[24px] overflow-hidden group shadow-xl cursor-pointer border border-white/10 flex flex-col justify-end p-6 text-white"
-                                    onClick={() => handleNavigate(`/${locale}/articles/${category}/${art.slug}`)}
+                                    className="lg:col-span-7 relative min-h-[400px] rounded-[24px] overflow-hidden group shadow-xl cursor-pointer border border-white/10 flex flex-col justify-end p-8 text-white"
+                                    onClick={() => handleNavigate(`/${locale}/articles/${category}/${articles[3].slug}`)}
                                 >
                                     <SafeImage
-                                        src={art.image}
-                                        alt={art.title}
+                                        src={articles[3].image}
+                                        alt={articles[3].title}
                                         fill
                                         className="object-cover transition-transform duration-700 ease-out group-hover:scale-103"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
                                     <div className="relative z-10">
-                                        <span className="text-xs opacity-90 font-switzer block mb-1">
-                                            {art.date}
+                                        <span className="text-sm opacity-90 font-switzer block mb-1">
+                                            {articles[3].date}
                                         </span>
-                                        <h3 className="text-lg md:text-xl font-bold font-outfit leading-tight mb-4 group-hover:text-primary transition-colors duration-300 line-clamp-2">
-                                            {art.title}
+                                        <h3 className="text-2xl md:text-3xl font-bold font-outfit leading-tight mb-6 group-hover:text-primary transition-colors duration-300">
+                                            {articles[3].title}
                                         </h3>
-                                        <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-lg transition-all duration-300 shadow-md">
+                                        <button className="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-lg transition-all duration-300 shadow-md">
                                             Ver mas
                                         </button>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-
-                        {/* Right Side: 1 tall larger card */}
-                        <div
-                            className="lg:col-span-7 relative min-h-[400px] rounded-[24px] overflow-hidden group shadow-xl cursor-pointer border border-white/10 flex flex-col justify-end p-8 text-white"
-                            onClick={() => handleNavigate(`/${locale}/articles/${category}/${articles[3].slug}`)}
-                        >
-                            <SafeImage
-                                src={articles[3].image}
-                                alt={articles[3].title}
-                                fill
-                                className="object-cover transition-transform duration-700 ease-out group-hover:scale-103"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
-                            <div className="relative z-10">
-                                <span className="text-sm opacity-90 font-switzer block mb-1">
-                                    {articles[3].date}
-                                </span>
-                                <h3 className="text-2xl md:text-3xl font-bold font-outfit leading-tight mb-6 group-hover:text-primary transition-colors duration-300">
-                                    {articles[3].title}
-                                </h3>
-                                <button className="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-lg transition-all duration-300 shadow-md">
-                                    Ver mas
-                                </button>
                             </div>
-                        </div>
-                    </div>
+                        )}
+
+                        {/* 3. Banner Article (Uno tipo banner full-width) */}
+                        {articles.length >= 5 && (
+                            <div
+                                className="relative w-full aspect-[21/9] min-h-[220px] rounded-[24px] overflow-hidden group shadow-2xl transition-all duration-500 cursor-pointer border border-white/10 flex flex-col justify-center items-center text-center p-6 text-white"
+                                onClick={() => handleNavigate(`/${locale}/articles/${category}/${articles[4].slug}`)}
+                            >
+                                <SafeImage
+                                    src={articles[4].image}
+                                    alt={articles[4].title}
+                                    fill
+                                    className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.02]"
+                                />
+                                <div className="absolute inset-0 bg-black/55 group-hover:bg-black/65 transition-colors duration-350" />
+
+                                <div className="relative z-10 flex flex-col items-center gap-4 max-w-3xl">
+                                    <span className="text-xs md:text-sm tracking-wider uppercase opacity-85 font-switzer">
+                                        {articles[4].date}
+                                    </span>
+                                    <h2 className="text-xl md:text-3xl lg:text-4xl font-bold font-outfit leading-tight group-hover:text-primary transition-colors duration-300">
+                                        {articles[4].title}
+                                    </h2>
+                                    <button className="px-6 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-lg transition-all duration-300 shadow-lg shadow-primary/20">
+                                        Ver mas
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 4. Subsequent 3x3 Grid (Paginación de 9 en 9) */}
+                        {articles.length >= 6 && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {articles.slice(5).map((art) => (
+                                    <div
+                                        key={art.id}
+                                        className="relative aspect-square rounded-[24px] overflow-hidden border border-slate-105 dark:border-slate-850/50 hover:shadow-2xl transition-all duration-500 flex flex-col justify-end p-6 text-white group cursor-pointer"
+                                        onClick={() => handleNavigate(`/${locale}/articles/${category}/${art.slug}`)}
+                                    >
+                                        <SafeImage
+                                            src={art.thumbnail || art.image}
+                                            alt={art.title}
+                                            fill
+                                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+
+                                        <div className="relative z-10">
+                                            <span className="text-xs opacity-90 font-switzer block mb-1">
+                                                {art.date}
+                                            </span>
+                                            <h3 className="text-lg font-bold font-outfit leading-tight mb-4 group-hover:text-primary transition-colors duration-300 line-clamp-2">
+                                                {art.title}
+                                            </h3>
+                                            <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-lg transition-all duration-300 shadow-md">
+                                                {dict.articles_page.read_more}
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </>
                 )}
 
-                {/* 3. Banner Article (Uno tipo banner full-width) */}
-                {articles.length >= 5 && (
-                    <div
-                        className="relative w-full aspect-[21/9] min-h-[220px] rounded-[24px] overflow-hidden group shadow-2xl transition-all duration-500 cursor-pointer border border-white/10 flex flex-col justify-center items-center text-center p-6 text-white"
-                        onClick={() => handleNavigate(`/${locale}/articles/${category}/${articles[4].slug}`)}
-                    >
-                        <SafeImage
-                            src={articles[4].image}
-                            alt={articles[4].title}
-                            fill
-                            className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.02]"
-                        />
-                        <div className="absolute inset-0 bg-black/55 group-hover:bg-black/65 transition-colors duration-350" />
-
-                        <div className="relative z-10 flex flex-col items-center gap-4 max-w-3xl">
-                            <span className="text-xs md:text-sm tracking-wider uppercase opacity-85 font-switzer">
-                                {articles[4].date}
-                            </span>
-                            <h2 className="text-xl md:text-3xl lg:text-4xl font-bold font-outfit leading-tight group-hover:text-primary transition-colors duration-300">
-                                {articles[4].title}
-                            </h2>
-                            <button className="px-6 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-lg transition-all duration-300 shadow-lg shadow-primary/20">
-                                Ver mas
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* 4. Subsequent 3x3 Grid (Paginación de 9 en 9) */}
-                {articles.length >= 6 && (
+                {/* Page > 1 Clean 3x3 Grid Layout (when NOT viewing desktop combined view) */}
+                {currentPage > 1 && !loadedPage2 && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {articles.slice(5).map((art) => (
+                        {articles.map((art) => (
                             <div
                                 key={art.id}
                                 className="relative aspect-square rounded-[24px] overflow-hidden border border-slate-105 dark:border-slate-850/50 hover:shadow-2xl transition-all duration-500 flex flex-col justify-end p-6 text-white group cursor-pointer"
@@ -555,7 +678,7 @@ export default function ArticlesClientPage({
                 )}
 
                 {/* Infinite Scroll detector element */}
-                {articles.length < totalCount && (
+                {!isMobile && currentPage === 1 && !loadedPage2 && articles.length < totalCount && (
                     <div
                         ref={(el) => {
                             if (el) {
@@ -571,6 +694,72 @@ export default function ArticlesClientPage({
                         className="h-10 flex items-center justify-center text-sm font-medium text-slate-400"
                     >
                         {dict.articles_page.loading_more}
+                    </div>
+                )}
+
+                {/* Premium Pagination Component */}
+                {totalPages > 1 && (isMobile || currentPage > 1 || loadedPage2) && (
+                    <div className="flex items-center justify-center gap-2 pt-12 border-t border-slate-100 dark:border-slate-800">
+                        {/* Previous Button */}
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className={`flex items-center gap-1 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-300 ${
+                                currentPage === 1
+                                    ? "border-slate-100 dark:border-slate-800/40 text-slate-300 dark:text-slate-700 cursor-not-allowed"
+                                    : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-900/60 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer active:scale-95"
+                            }`}
+                            aria-label={dict.articles_page.previous}
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                            <span className="hidden sm:inline">{dict.articles_page.previous}</span>
+                        </button>
+
+                        {/* Page Numbers */}
+                        <div className="flex items-center gap-1">
+                            {getPageNumbers().map((pageNum, idx) => {
+                                if (pageNum === "...") {
+                                    return (
+                                        <span
+                                            key={`ellipsis-${idx}`}
+                                            className="w-10 h-10 flex items-center justify-center text-slate-400 select-none font-medium"
+                                        >
+                                            ...
+                                        </span>
+                                    );
+                                }
+
+                                const isPageActive = currentPage === pageNum;
+                                return (
+                                    <button
+                                        key={`page-${pageNum}`}
+                                        onClick={() => handlePageChange(pageNum as number)}
+                                        className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-bold transition-all duration-300 cursor-pointer active:scale-90 ${
+                                            isPageActive
+                                                ? "bg-primary text-white shadow-lg shadow-primary/20 scale-105"
+                                                : "text-slate-650 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/60 border border-transparent hover:border-slate-200 dark:hover:border-slate-800"
+                                        }`}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Next Button */}
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className={`flex items-center gap-1 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-300 ${
+                                currentPage === totalPages
+                                    ? "border-slate-100 dark:border-slate-800/40 text-slate-300 dark:text-slate-700 cursor-not-allowed"
+                                    : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-900/60 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer active:scale-95"
+                            }`}
+                            aria-label={dict.articles_page.next}
+                        >
+                            <span className="hidden sm:inline">{dict.articles_page.next}</span>
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
                     </div>
                 )}
             </div>

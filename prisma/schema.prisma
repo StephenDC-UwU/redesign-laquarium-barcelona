@@ -31,14 +31,25 @@ model ProductTranslation {
 }
 
 model Order {
+  id              String   @id @default(uuid())
+  email           String
+  fullName        String
+  total           Float
+  status          String   @default("pending") // pending, paid, completed
+  items           Json     // To store array of items: [{id, name, quantity, price}]
+  visitDate       String?
+  visitTime       String?
+  promoCode       String?
+  discountApplied Float?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model PromoCode {
   id        String   @id @default(uuid())
-  email     String
-  fullName  String
-  total     Float
-  status    String   @default("pending") // pending, paid, completed
-  items     Json     // To store array of items: [{id, name, quantity, price}]
-  visitDate String?
-  visitTime String?
+  code      String   @unique
+  discount  Float    // percentage discount e.g. 10.0 for 10%
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

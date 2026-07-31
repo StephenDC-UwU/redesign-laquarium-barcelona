@@ -3,7 +3,7 @@ const { PrismaPg } = require('@prisma/adapter-pg');
 const pg = require('pg');
 
 const pool = new pg.Pool({
-    connectionString: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL,
 });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
@@ -26,7 +26,7 @@ async function main() {
   console.log("Cleaning up old articles...");
   await prisma.articleTranslation.deleteMany({});
   await prisma.article.deleteMany({});
-  
+
   console.log("Cleaning up products...");
   await prisma.productTranslation.deleteMany({});
   await prisma.product.deleteMany({});
@@ -49,8 +49,8 @@ async function main() {
     const year = years[(i - 1) % years.length];
     const month = months[(i - 1) % months.length];
     const day = String((i % 28) + 1).padStart(2, '0');
-    const listDate = `${year}-${month}-${day}`;
-    
+    const listDate = `${year}-${month}-${day}`; z
+
     // Choose an image
     const imageId = 1500 + i;
     const image = `https://images.unsplash.com/photo-${imageId === 1501 ? '1582967788606-a171c1080cb0' : '1544551763-46a013bb70d5'}?q=80&w=1000&auto=format&fit=crop`;
@@ -69,23 +69,23 @@ async function main() {
       thumbnail,
       link: "#",
       translations: [
-        { 
-          locale: "es", 
-          title: titleEs, 
-          date: `Día ${day}/${month}/${year}`, 
-          content: `Contenido extenso de la noticia número ${i}. Descubre todo sobre las especies del acuario, las novedades científicas y los programas de conservación que desarrollamos día a día.` 
+        {
+          locale: "es",
+          title: titleEs,
+          date: `Día ${day}/${month}/${year}`,
+          content: `Contenido extenso de la noticia número ${i}. Descubre todo sobre las especies del acuario, las novedades científicas y los programas de conservación que desarrollamos día a día.`
         },
-        { 
-          locale: "ca", 
-          title: `Notícia Aquarium ${i}: Trobant Una Nova Espècie`, 
-          date: `Dia ${day}/${month}/${year}`, 
-          content: `Contingut extens de la notícia número ${i}. Descobreix tot sobre les espècies de l'aquari, les novetats científiques i els programes de conservació que desenvolupem dia a dia.` 
+        {
+          locale: "ca",
+          title: `Notícia Aquarium ${i}: Trobant Una Nova Espècie`,
+          date: `Dia ${day}/${month}/${year}`,
+          content: `Contingut extens de la notícia número ${i}. Descobreix tot sobre les espècies de l'aquari, les novetats científiques i els programes de conservació que desenvolupem dia a dia.`
         },
-        { 
-          locale: "en", 
-          title: `Aquarium News ${i}: Finding A New Species`, 
-          date: `Day ${day}/${month}/${year}`, 
-          content: `Extensive content of news number ${i}. Discover everything about the species of the aquarium, scientific news and the conservation programs we develop day by day.` 
+        {
+          locale: "en",
+          title: `Aquarium News ${i}: Finding A New Species`,
+          date: `Day ${day}/${month}/${year}`,
+          content: `Extensive content of news number ${i}. Discover everything about the species of the aquarium, scientific news and the conservation programs we develop day by day.`
         }
       ]
     });
@@ -98,7 +98,7 @@ async function main() {
     const month = months[(i - 1) % months.length];
     const day = String((i % 28) + 1).padStart(2, '0');
     const listDate = `${year}-${month}-${day}`;
-    
+
     // Choose an image
     const image = `https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?q=80&w=1000&auto=format&fit=crop`;
     const thumbnail = `https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?q=80&w=300&auto=format&fit=crop`;
@@ -116,23 +116,23 @@ async function main() {
       thumbnail,
       link: "#",
       translations: [
-        { 
-          locale: "es", 
-          title: titleEs, 
-          date: `Día ${day}/${month}/${year}`, 
-          content: `Entrada del blog número ${i} sobre curiosidades de los tiburones, cuidados del ecosistema de arrecifes de coral y el trabajo de nuestros cuidadores marinos.` 
+        {
+          locale: "es",
+          title: titleEs,
+          date: `Día ${day}/${month}/${year}`,
+          content: `Entrada del blog número ${i} sobre curiosidades de los tiburones, cuidados del ecosistema de arrecifes de coral y el trabajo de nuestros cuidadores marinos.`
         },
-        { 
-          locale: "ca", 
-          title: `Blog Aquarium ${i}: Secrets de l'Oceà`, 
-          date: `Dia ${day}/${month}/${year}`, 
-          content: `Entrada del blog número ${i} sobre curiositats dels taurons, cures de l'ecosistema de coralls i el treball dels nostres cuidadors marins.` 
+        {
+          locale: "ca",
+          title: `Blog Aquarium ${i}: Secrets de l'Oceà`,
+          date: `Dia ${day}/${month}/${year}`,
+          content: `Entrada del blog número ${i} sobre curiositats dels taurons, cures de l'ecosistema de coralls i el treball dels nostres cuidadors marins.`
         },
-        { 
-          locale: "en", 
-          title: `Aquarium Blog ${i}: Secrets of the Ocean`, 
-          date: `Day ${day}/${month}/${year}`, 
-          content: `Blog post number ${i} about shark facts, caring for the coral reef ecosystem, and the daily work of our marine aquarists.` 
+        {
+          locale: "en",
+          title: `Aquarium Blog ${i}: Secrets of the Ocean`,
+          date: `Day ${day}/${month}/${year}`,
+          content: `Blog post number ${i} about shark facts, caring for the coral reef ecosystem, and the daily work of our marine aquarists.`
         }
       ]
     });

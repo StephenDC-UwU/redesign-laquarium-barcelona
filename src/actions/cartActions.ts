@@ -52,6 +52,8 @@ export async function createOrderAction(formData: {
     total: number;
     visitDate: string;
     visitTime: string;
+    promoCode?: string;
+    discountApplied?: number;
 }): Promise<{ success: boolean; order?: Order; error?: string }> {
     try {
         if (!formData.email || !formData.fullName || !formData.visitDate || !formData.visitTime) {
@@ -116,6 +118,8 @@ export async function createOrderAction(formData: {
                 visitDate: formData.visitDate,
                 visitTime: formData.visitTime,
                 status: "pending",
+                promoCode: formData.promoCode || null,
+                discountApplied: formData.discountApplied || null,
             }
         });
         
@@ -144,12 +148,24 @@ export async function createStripeSessionAction(
         total: number;
         visitDate: string;
         visitTime: string;
+        promoCode?: string;
+        discountApplied?: number;
+        discountPercentage?: number;
     },
     locale: string
 ): Promise<{ success: boolean; url?: string; error?: string }> {
     try {
         // 1. Create the pending order first in the database
-        const orderRes = await createOrderAction(formData);
+        const orderRes = await createOrderAction({
+            email: formData.email,
+            fullName: formData.fullName,
+            items: formData.items,
+            total: formData.total,
+            visitDate: formData.visitDate,
+            visitTime: formData.visitTime,
+            promoCode: formData.promoCode,
+            discountApplied: formData.discountApplied,
+        });
         if (!orderRes.success || !orderRes.order) {
             return { success: false, error: orderRes.error || "No se pudo registrar la orden." };
         }
@@ -157,17 +173,21 @@ export async function createStripeSessionAction(
         const order = orderRes.order;
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-        // 2. Prepare line items for Stripe (converting price to cents)
-        const lineItems = formData.items.map((item) => ({
-            price_data: {
-                currency: "eur",
-                product_data: {
-                    name: item.name,
+        // 2. Prepare line items for Stripe (converting price to cents and applying percentage discount)
+        const discountPercentage = formData.discountPercentage || 0;
+        const lineItems = formData.items.map((item) => {
+            const discountedPrice = item.price * (1 - discountPercentage / 100);
+            return {
+                price_data: {
+                    currency: "eur",
+                    product_data: {
+                        name: item.name,
+                    },
+                    unit_amount: Math.round(discountedPrice * 100),
                 },
-                unit_amount: Math.round(item.price * 100),
-            },
-            quantity: item.quantity,
-        }));
+                quantity: item.quantity,
+            };
+        });
 
         // 3. Create Stripe Checkout Session
         const session = await stripe.checkout.sessions.create({
@@ -190,6 +210,27 @@ export async function createStripeSessionAction(
     } catch (e) {
         console.error("Error in createStripeSessionAction:", e);
         return { success: false, error: "Error al iniciar el pago con Stripe." };
+    }
+}
+
+export async function validatePromoCodeAction(code: string): Promise<{ success: boolean; discount?: number; error?: string }> {
+    try {
+        if (!code || !code.trim()) {
+            return { success: false, error: "El código no puede estar vacío." };
+        }
+        const promo = await db.promoCode.findUnique({
+            where: { code: code.toUpperCase().trim() }
+        });
+        if (!promo) {
+            return { success: false, error: "Código promocional no válido." };
+        }
+        if (!promo.isActive) {
+            return { success: false, error: "El código promocional está inactivo." };
+        }
+        return { success: true, discount: promo.discount };
+    } catch (e) {
+        console.error("Error in validatePromoCodeAction:", e);
+        return { success: false, error: "Error al validar el código promocional." };
     }
 }
 

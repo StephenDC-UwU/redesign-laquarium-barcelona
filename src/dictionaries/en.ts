@@ -73,7 +73,9 @@ export const en = {
         read_more: "Read more",
         loading_more: "Loading more articles...",
         no_articles: "No articles found",
-        no_articles_desc: "Try adjusting your search or accumulated filters to see more posts."
+        no_articles_desc: "Try adjusting your search or accumulated filters to see more posts.",
+        previous: "Previous",
+        next: "Next"
     },
    
     discover: {
@@ -312,6 +314,28 @@ export const en = {
         checkout_and_pay: "Checkout and Pay",
         error_fill_fields: "Please fill in all fields.",
         error_select_date_time: "Please select the date and time of your visit.",
-        error_payment_init: "Something went wrong when initializing your payment."
+        error_payment_init: "Something went wrong when initializing your payment.",
+        discount: "Discount",
+        promo_placeholder: "Promo code",
+        remove: "Remove",
+        apply: "Apply",
+        promo_applied_success: "Promo code applied successfully!",
+        promo_error: "Invalid or expired promo code."
+    },
+    tickets: {
+        buy_tickets: "Buy Your Tickets",
+        promo_placeholder: "Promo code",
+        apply: "APPLY",
+        applied: "Applied",
+        loading_catalog: "Loading tickets catalog...",
+        top_sales: "TOP SALES",
+        default_desc: "Your ticket to L'Aquàrium with reservation!",
+        from_price: "From",
+        recommendations_title: "Recommendations & Terms",
+        recommendations_text: "Recommendation: Wear comfortable clothing. Terms: Tickets are non-refundable.",
+        added: "Added",
+        buy: "Buy",
+        promo_success: "Promo code applied successfully!",
+        promo_error: "Invalid or expired promo code."
     }
 };

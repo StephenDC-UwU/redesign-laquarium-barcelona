@@ -74,7 +74,9 @@ export const es = {
         read_more: "Ver más",
         loading_more: "Cargando más artículos...",
         no_articles: "No se encontraron artículos",
-        no_articles_desc: "Intenta ajustar tu búsqueda o los filtros acumulados para ver más publicaciones."
+        no_articles_desc: "Intenta ajustar tu búsqueda o los filtros acumulados para ver más publicaciones.",
+        previous: "Anterior",
+        next: "Siguiente"
     },
    
     discover: {
@@ -313,6 +315,28 @@ export const es = {
         checkout_and_pay: "Finalizar y Pagar",
         error_fill_fields: "Por favor, rellena todos los campos.",
         error_select_date_time: "Por favor, selecciona la fecha y hora de tu visita.",
-        error_payment_init: "Algo salió mal al iniciar tu pago."
+        error_payment_init: "Algo salió mal al iniciar tu pago.",
+        discount: "Descuento",
+        promo_placeholder: "Código promocional",
+        remove: "Quitar",
+        apply: "Aplicar",
+        promo_applied_success: "¡Código promocional aplicado con éxito!",
+        promo_error: "Código promocional no válido o expirado."
+    },
+    tickets: {
+        buy_tickets: "Compra Tus Entradas",
+        promo_placeholder: "Código promocional",
+        apply: "APLICAR",
+        applied: "Aplicado",
+        loading_catalog: "Cargando catálogo de entradas...",
+        top_sales: "TOP VENTAS",
+        default_desc: "¡Tu entrada a L'Aquàrium con reserva!",
+        from_price: "Desde",
+        recommendations_title: "Recomendaciones y Bases Legales",
+        recommendations_text: "Recomendación: Traer ropa cómoda. Bases legales: Entradas no reembolsables.",
+        added: "Añadido",
+        buy: "Comprar",
+        promo_success: "¡Código promocional aplicado con éxito!",
+        promo_error: "Código promocional no válido o expirado."
     }
 };

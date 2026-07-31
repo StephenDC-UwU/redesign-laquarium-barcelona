@@ -13,11 +13,40 @@ interface CartClientProps {
 }
 
 export default function CartClient({ dict }: CartClientProps) {
-    const { cart, updateQuantity, removeFromCart, clearCart, totalAmount, itemCount } = useCart();
+    const { 
+        cart, 
+        updateQuantity, 
+        removeFromCart, 
+        clearCart, 
+        totalAmount, 
+        itemCount,
+        promoCode,
+        discountPercentage,
+        discountAmount,
+        finalAmount,
+        applyPromoCode,
+        removePromoCode
+    } = useCart();
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [visitDate, setVisitDate] = useState("");
     const [visitTime, setVisitTime] = useState("");
+    const [promoInput, setPromoInput] = useState(promoCode || "");
+    const [promoError, setPromoError] = useState("");
+
+    useEffect(() => {
+        setPromoInput(promoCode);
+    }, [promoCode]);
+
+    const handleApplyPromoInCart = async () => {
+        setPromoError("");
+        if (promoInput.trim()) {
+            const res = await applyPromoCode(promoInput);
+            if (!res.success) {
+                setPromoError(res.error || dict.cart.promo_error);
+            }
+        }
+    };
     const [capacityData, setCapacityData] = useState<{ capacity: number; occupied: Record<string, number> } | null>(null);
     const [loadingCapacity, setLoadingCapacity] = useState(false);
     const [successOrder, setSuccessOrder] = useState<any>(null);
@@ -150,9 +179,12 @@ export default function CartClient({ dict }: CartClientProps) {
                 email,
                 fullName,
                 items: itemsPayload,
-                total: totalAmount,
+                total: finalAmount,
                 visitDate,
                 visitTime,
+                promoCode: promoCode || undefined,
+                discountApplied: discountAmount || undefined,
+                discountPercentage: discountPercentage || undefined,
             }, locale as string);
 
             if (res.success && res.url) {
@@ -345,10 +377,54 @@ export default function CartClient({ dict }: CartClientProps) {
                                     <span>{dict.cart.subtotal}</span>
                                     <span>{totalAmount.toFixed(2)}€</span>
                                 </div>
+                                {discountPercentage > 0 && (
+                                    <div className="flex justify-between text-green-600 dark:text-green-400 font-semibold">
+                                        <span>{dict.cart.discount} ({promoCode}):</span>
+                                        <span>-{discountAmount.toFixed(2)}€</span>
+                                    </div>
+                                )}
                                 <div className="flex justify-between font-bold text-lg text-secondary dark:text-white pt-2">
                                     <span>{dict.cart.total_to_pay}</span>
-                                    <span className="text-primary">{totalAmount.toFixed(2)}€</span>
+                                    <span className="text-primary">{finalAmount.toFixed(2)}€</span>
                                 </div>
+                            </div>
+
+                            {/* Promo Code Input on Checkout Page */}
+                            <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder={dict.cart.promo_placeholder}
+                                        value={promoInput}
+                                        onChange={(e) => setPromoInput(e.target.value)}
+                                        className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-switzer text-sm focus:outline-none focus:border-primary text-foreground"
+                                    />
+                                    {discountPercentage > 0 ? (
+                                        <button
+                                            type="button"
+                                            onClick={removePromoCode}
+                                            className="bg-red-500 hover:bg-red-650 text-white font-bold px-4 py-2 rounded-xl text-xs uppercase transition-colors cursor-pointer"
+                                        >
+                                            {dict.cart.remove}
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={handleApplyPromoInCart}
+                                            className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold px-4 py-2 rounded-xl text-xs uppercase transition-colors cursor-pointer"
+                                        >
+                                            {dict.cart.apply}
+                                        </button>
+                                    )}
+                                </div>
+                                {promoError && (
+                                    <p className="text-red-500 text-xs mt-1 font-switzer">{promoError}</p>
+                                )}
+                                {discountPercentage > 0 && !promoError && (
+                                    <p className="text-green-600 dark:text-green-400 text-xs mt-1 font-semibold font-switzer">
+                                        {dict.cart.promo_applied_success}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Checkout Form */}

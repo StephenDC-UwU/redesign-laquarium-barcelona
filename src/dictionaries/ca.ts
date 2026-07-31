@@ -74,7 +74,9 @@ export const ca = {
         read_more: "Veure més",
         loading_more: "Carregant més articles...",
         no_articles: "No s'han trobat articles",
-        no_articles_desc: "Intenta ajustar la teva cerca o els filtres acumulats per veure més publicacions."
+        no_articles_desc: "Intenta ajustar la teva cerca o els filtres acumulats per veure més publicacions.",
+        previous: "Anterior",
+        next: "Següent"
     },
    
     discover: {
@@ -313,6 +315,28 @@ export const ca = {
         checkout_and_pay: "Finalitzar i Pagar",
         error_fill_fields: "Per favor, emplena tots els camps.",
         error_select_date_time: "Per favor, selecciona la data i hora de la teva visita.",
-        error_payment_init: "Alguna cosa ha anat malament en iniciar el teu pagament."
+        error_payment_init: "Alguna cosa ha anat malament en iniciar el teu pagament.",
+        discount: "Descompte",
+        promo_placeholder: "Codi promocional",
+        remove: "Treure",
+        apply: "Aplicar",
+        promo_applied_success: "¡Codi promocional aplicat amb èxit!",
+        promo_error: "Codi promocional no vàlid o expirat."
+    },
+    tickets: {
+        buy_tickets: "Compra Les Teves Entrades",
+        promo_placeholder: "Codi promocional",
+        apply: "APLICAR",
+        applied: "Aplicat",
+        loading_catalog: "Carregant catàleg d'entrades...",
+        top_sales: "TOP VENDES",
+        default_desc: "¡La teva entrada a L'Aquàrium amb reserva!",
+        from_price: "Des de",
+        recommendations_title: "Recomanacions i Bases Legals",
+        recommendations_text: "Recomanació: Portar roba còmoda. Bases legals: Entrades no reemborsables.",
+        added: "Afegit",
+        buy: "Comprar",
+        promo_success: "¡Codi promocional aplicat amb èxit!",
+        promo_error: "Codi promocional no vàlid o expirat."
     }
 };

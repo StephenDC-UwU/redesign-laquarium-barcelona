@@ -23,6 +23,7 @@ export default async function TicketsPage({ params }: TicketsPageProps) {
     const { locale } = await params;
     const currentLocale = locale as Locale;
     const products = await getAvailableProductsAction(currentLocale);
+    const dict = await getDictionary(currentLocale);
 
-    return <TicketsClient initialProducts={products} />;
+    return <TicketsClient initialProducts={products} dict={dict} />;
 }
