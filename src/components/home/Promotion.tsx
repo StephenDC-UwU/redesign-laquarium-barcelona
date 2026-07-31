@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Dictionary } from "@/dictionaries";
+// @ts-expect-error - @splidejs/react-splide has missing types in its package.json exports mapping
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 
@@ -86,9 +87,8 @@ export default function Promotion({ dict }: PromotionProps) {
                 >
                     {promoItems.map((item, index) => (
                         <SplideSlide key={item.id} >
-                            <div className={`promo-card flex-none w-[260px] md:w-[320px] text-center group select-none transition-all duration-500 py-14 ${
-                                index % 2 !== 0 ? "translate-y-0 md:translate-y-12" : "translate-y-0 md:-translate-y-4"
-                            }`} >
+                            <div className={`promo-card flex-none w-[260px] md:w-[320px] text-center group select-none transition-all duration-500 py-14 ${index % 2 !== 0 ? "translate-y-0 md:translate-y-12" : "translate-y-0 md:-translate-y-4"
+                                }`} >
                                 <div className="circle-img-wrapper w-60 h-60 md:w-80 md:h-80 mx-auto rounded-full overflow-hidden   relative aspect-square transition-all duration-500">
                                     <Image
                                         src={item.image}
